@@ -2,11 +2,11 @@
 
 namespace ComputorV2
 {
-    class Program
+    class EntryPoint
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            ConsoleReader.StartReading();
         }
     }
 }
