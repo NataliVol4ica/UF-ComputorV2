@@ -79,7 +79,7 @@ namespace ComputorV2
         {
             var parts = command.Split('=');
             var cmdVarName = parts[0].Trim().ToLower();
-            var cmdExpression = parts[1].Trim();
+            var cmdExpression = parts[1].Trim().ToLower();
             if (!IsValidVarName(cmdVarName))
                 throw new ArgumentException($"the variable name {command} is not valid");
             _variables[cmdVarName] = new Expression(cmdExpression);
@@ -91,11 +91,12 @@ namespace ComputorV2
             _variables[varName] = expression;
         }
 
-        private static void ExecuteEvaluateExpressionCommand(string obj)
+        private static void ExecuteEvaluateExpressionCommand(string command)
         {
-            //validate left and right parts non-emptiness
-            //same as var assignment but without assignment and left part is treated as the right one
-            throw new NotImplementedException();
+            var parts = command.Split('=');
+            var cmdExpression = parts[0].Trim().ToLower();
+            var executedExpression = new Expression(cmdExpression);
+            Console.WriteLine($"> {executedExpression}");
         }
         #endregion
 
