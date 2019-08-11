@@ -9,15 +9,17 @@ namespace ComputorV2
     public static class ConsoleReader
     {
 
-        static Dictionary<CommandType, Action<string>> CommandExecutors;
+        private static Dictionary<CommandType, Action<string>> CommandExecutors;
 
-        static bool _isExitCommandEntered;
-        static Dictionary<string, string> _variables;
-        static readonly Regex _validVariableNameRegEx;
+        private static bool _isExitCommandEntered;
+        private static Dictionary<string, Expression> _variables;
+        private static readonly Regex _validVariableNameRegEx;
+
+        public static List<string> Variables => _variables.Select(d => d.Key).ToList();
 
         static ConsoleReader()
         {
-            _variables = new Dictionary<string, string>();
+            _variables = new Dictionary<string, Expression>();
             _validVariableNameRegEx = new Regex(@"^[a-z]+$", RegexOptions.IgnoreCase);
             CommandExecutors = new Dictionary<CommandType, Action<string>> {
                 {CommandType.Exit, ExecuteExitCommand },
@@ -28,7 +30,7 @@ namespace ComputorV2
                 {CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand}
             };
         }
-
+        
         public static void StartReading()
         {
             _isExitCommandEntered = false;
@@ -49,6 +51,11 @@ namespace ComputorV2
             Console.ReadLine();
         }
 
+        public static List<RPNToken> GetVariableRPNTokens(string varName)
+        {
+            return _variables[varName].Tokens;
+        }
+
         #region command executors
         private static void ExecuteExitCommand(string command)
         {
@@ -66,7 +73,7 @@ namespace ComputorV2
         }
         private static void ExecuteResetCommand(string command)
         {
-            _variables = new Dictionary<string, string>();
+            _variables = new Dictionary<string, Expression>();
         }
         private static void ExecuteAssignVarCommand(string command)
         {
@@ -75,8 +82,13 @@ namespace ComputorV2
             var cmdExpression = parts[1].Trim();
             if (!IsValidVarName(cmdVarName))
                 throw new ArgumentException($"the variable name {command} is not valid");
-            _variables[cmdVarName] = cmdExpression;
-            Console.WriteLine(cmdExpression);
+            _variables[cmdVarName] = new Expression(cmdExpression);
+            Console.WriteLine($"> {_variables[cmdVarName]}");
+        }
+
+        public static void AddManualVariable(string varName, Expression expression)
+        {
+            _variables[varName] = expression;
         }
 
         private static void ExecuteEvaluateExpressionCommand(string obj)

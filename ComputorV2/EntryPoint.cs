@@ -6,6 +6,8 @@ namespace ComputorV2
     {
         static void Main(string[] args)
         {
+            //todo: cleanup
+            var a = new Expression("");
             ConsoleReader.StartReading();
         }
     }
