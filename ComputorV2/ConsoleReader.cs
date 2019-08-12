@@ -9,7 +9,7 @@ namespace ComputorV2
     public static class ConsoleReader
     {
 
-        private static Dictionary<CommandType, Action<string>> CommandExecutors;
+        private static readonly Dictionary<CommandType, Action<string>> CommandExecutors;
 
         private static bool _isExitCommandEntered;
         private static Dictionary<string, Expression> _variables;
@@ -82,8 +82,15 @@ namespace ComputorV2
             var cmdExpression = parts[1].Trim().ToLower();
             if (!IsValidVarName(cmdVarName))
                 throw new ArgumentException($"the variable name {command} is not valid");
-            _variables[cmdVarName] = new Expression(cmdExpression);
-            Console.WriteLine($"> {_variables[cmdVarName]}");
+            try
+            {
+                _variables[cmdVarName] = ExpressionProcessor.CreateExpression(cmdExpression);
+                Console.WriteLine($"> {_variables[cmdVarName]}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error. {e.Message}");
+            }
         }
 
         public static void AddManualVariable(string varName, Expression expression)
@@ -95,8 +102,15 @@ namespace ComputorV2
         {
             var parts = command.Split('=');
             var cmdExpression = parts[0].Trim().ToLower();
-            var executedExpression = new Expression(cmdExpression);
-            Console.WriteLine($"> {executedExpression}");
+            try
+            {
+                var executedExpression = ExpressionProcessor.CreateExpression(cmdExpression);
+                Console.WriteLine($"> {executedExpression}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error. {e.Message}");
+            }
         }
         #endregion
 

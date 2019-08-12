@@ -165,12 +165,13 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             }
             return sb.ToString();
         }
-        public static BigDecimal Abs(BigDecimal bf)
+
+        public override BigNumber Abs()
         {
-            BigDecimal ret = new BigDecimal(bf);
-            if (bf.Sign < 0)
-                bf.Negate();
-            return bf;
+            BigDecimal ret = new BigDecimal(this);
+            if (ret.Sign < 0)
+                ret.Negate();
+            return ret;
         }
 
         public override void NormalizeList(List<int> digits)

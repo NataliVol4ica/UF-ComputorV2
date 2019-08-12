@@ -4,10 +4,8 @@ namespace ComputorV2
 {
     class EntryPoint
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            //todo: cleanup
-            var a = new Expression("");
             ConsoleReader.StartReading();
         }
     }

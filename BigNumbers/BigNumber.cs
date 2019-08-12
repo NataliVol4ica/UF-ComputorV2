@@ -22,7 +22,8 @@ namespace BigNumbers
         public abstract BigNumber Multiply(BigNumber op);
         public abstract BigNumber Divide(BigNumber op);
         public abstract BigNumber Mod(BigNumber op);
-       
+        public abstract BigNumber Abs();
+
         public void Negate()
         {
             if (String.Compare(CleanString, "0") != 0)
@@ -63,6 +64,11 @@ namespace BigNumbers
             return left.Mod(right);
         }
         
+        public static BigNumber Abs(BigNumber number)
+        {
+            return number.Abs();
+        }
+
         public override string ToString()
         {
             return (Sign > 0 ? CleanString : "-" + CleanString);
