@@ -11,14 +11,14 @@ namespace Tests
         [SetUp]
         public void Setup()
         {
-            ConsoleReader.AddManualVariable("somevar", new Expression("7"));
-            ConsoleReader.AddManualVariable("someothervar", new Expression("2 + 3"));
+            ConsoleReader.AddManualVariable("somevar", ExpressionProcessor.CreateExpression("7"));
+            ConsoleReader.AddManualVariable("someothervar", ExpressionProcessor.CreateExpression("2 + 3"));
         }
 
         [Test]
         public void Tokenize_EmptyString()
         {
-            Assert.That(() => Expression.Tokenize(null),
+            Assert.That(() => ExpressionProcessor.Tokenize(null),
                 Throws.TypeOf<ArgumentException>()
                 .With.Message.EqualTo("Cannot tokenize null string"));
         }
@@ -26,7 +26,7 @@ namespace Tests
         [Test]
         public void Tokenize_InvalidTokens()
         {
-            Assert.That(() => Expression.Tokenize("abc(&)"),
+            Assert.That(() => ExpressionProcessor.Tokenize("abc(&)"),
                 Throws.TypeOf<ArgumentException>()
                 .With.Message.EqualTo("The expression is invalid"));
         }
@@ -36,7 +36,7 @@ namespace Tests
         {
             string str = "-*( abc+ - * /   \t)";
             string[] expected = { "-", "*", "(", "abc", "+", "-", "*", "/", ")" };
-            var actual = Expression.Tokenize(str).ToArray();
+            var actual = ExpressionProcessor.Tokenize(str).ToArray();
             Assert.AreEqual(expected.Length, actual.Length);
             for (int i = 0; i < expected.Length; i++)
                 Assert.AreEqual(expected[i], actual[i]);
@@ -47,7 +47,7 @@ namespace Tests
         {
             var expr = "abs ( - 2 ) + 3.5 * ( 1 )";
             var stringTokens = new List<string>(expr.Split(" "));
-            var actual = Expression
+            var actual = ExpressionProcessor
                 .RecognizeLexems(stringTokens)
                 .Select(t => t.tokenType)
                 .ToList();
@@ -75,7 +75,7 @@ namespace Tests
             var emptyList = new List<string>();
             var expr = "2 + someunrealvar ";
             var stringTokens = new List<string>(expr.Split(" "));
-            Assert.That(() => Expression
+            Assert.That(() => ExpressionProcessor
                 .RecognizeLexems(stringTokens),
                 Throws.TypeOf<ArgumentException>()
                 .With.Message.EqualTo("Invalid token: 'someunrealvar'"));
@@ -86,7 +86,7 @@ namespace Tests
             var varList = new List<string> { "somevar", "someothervar" };
             var expr = "( 2 + somevar ) * someOtherVar ";
             var stringTokens = new List<string>(expr.Split(" "));
-            var actual = Expression
+            var actual = ExpressionProcessor
                 .RecognizeLexems(stringTokens)
                 .Select(t => t.tokenType)
                 .ToList();
@@ -100,8 +100,6 @@ namespace Tests
                 TokenType.CBracket,
                 TokenType.BinOp,
                 TokenType.OBracket,
-                TokenType.DecimalNumber,
-                TokenType.BinOp,
                 TokenType.DecimalNumber,
                 TokenType.CBracket
             };
@@ -117,7 +115,7 @@ namespace Tests
             var varList = new List<string> { "somevar", "someothervar" };
             var expr = $"someVar * {funcParam} + 2 ";
             var stringTokens = new List<string>(expr.Split(" "));
-            var rawActual = Expression
+            var rawActual = ExpressionProcessor
                 .RecognizeLexems(stringTokens, funcParam);
             var actual = rawActual
                 .Select(t => t.tokenType)

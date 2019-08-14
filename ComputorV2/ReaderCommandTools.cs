@@ -7,6 +7,7 @@ namespace ComputorV2
     public enum CommandType
     {
         Exit,
+        Detailed,
         ShowVars,
         ShowHelp,
         Reset,
@@ -26,12 +27,14 @@ namespace ComputorV2
             {
                 {"exit", CommandType.Exit },
                 {"vars", CommandType.ShowVars },
+                {"detailed", CommandType.Detailed },
                 {"reset", CommandType.Reset },
                 {"help", CommandType.ShowHelp }
             };
             _commandDescriptions = new Dictionary<string, string>
             {
                 {"exit", "Exit the program"},
+                {"detailed", "For complex expression, in-between operations are shown" },
                 {"vars", "View stored variables and their values" },
                 {"reset", "Cleanup whole variable storage" },
                 {"help", "View help"}

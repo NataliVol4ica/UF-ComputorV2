@@ -16,6 +16,7 @@ namespace ComputorV2
         private static readonly Regex _validVariableNameRegEx;
 
         public static List<string> Variables => _variables.Select(d => d.Key).ToList();
+        public static bool _detailed = false;
 
         static ConsoleReader()
         {
@@ -23,6 +24,7 @@ namespace ComputorV2
             _validVariableNameRegEx = new Regex(@"^[a-z]+$", RegexOptions.IgnoreCase);
             CommandExecutors = new Dictionary<CommandType, Action<string>> {
                 {CommandType.Exit, ExecuteExitCommand },
+                {CommandType.Detailed, ExecuteDetailedCommand },
                 {CommandType.ShowVars, ExecuteVarsCommand },
                 {CommandType.ShowHelp, ExecuteHelpCommand },
                 {CommandType.Reset, ExecuteResetCommand },
@@ -38,7 +40,10 @@ namespace ComputorV2
             {
                 try
                 {
+                    Console.Write("> ");
                     var inputString = Console.ReadLine();
+                    if (String.IsNullOrEmpty(inputString))
+                        continue;
                     var cmdType = ReaderCommandTools.GetCommandType(inputString);
                     CommandExecutors[cmdType](inputString);
                 }
@@ -60,6 +65,17 @@ namespace ComputorV2
         private static void ExecuteExitCommand(string command)
         {
             _isExitCommandEntered = true;
+        }
+        private static void ExecuteDetailedCommand(string command)
+        {
+            Console.WriteLine("Display detailed expression evaluation process? [y/n]");
+            var input = Console.ReadLine().ToLower();
+            if (input == "y" || input == "yes")
+                _detailed = true;
+            else if (input == "n" || input == "no")
+                _detailed = false;
+            else
+                Console.WriteLine($"Invalid answer. The detailed will remain {_detailed}");
         }
         private static void ExecuteVarsCommand(string command)
         {
@@ -105,7 +121,7 @@ namespace ComputorV2
             try
             {
                 var executedExpression = ExpressionProcessor.CreateExpression(cmdExpression);
-                Console.WriteLine($"> {executedExpression}");
+                Console.WriteLine($"{executedExpression}");
             }
             catch (Exception e)
             {
