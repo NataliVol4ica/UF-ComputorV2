@@ -11,8 +11,6 @@ namespace Tests
         [SetUp]
         public void Setup()
         {
-            ConsoleReader.AddManualVariable("somevar", ExpressionProcessor.CreateExpression("7"));
-            ConsoleReader.AddManualVariable("someothervar", ExpressionProcessor.CreateExpression("2 + 3"));
         }
 
         [Test]
@@ -45,10 +43,11 @@ namespace Tests
         [Test]
         public void RecognizeLexems_SimpleTokens()
         {
+            
             var expr = "abs ( - 2 ) + 3.5 * ( 1 )";
             var stringTokens = new List<string>(expr.Split(" "));
             var actual = ExpressionProcessor
-                .RecognizeLexems(stringTokens)
+                .RecognizeLexems(stringTokens, new ConsoleReader())
                 .Select(t => t.tokenType)
                 .ToList();
             var expected = new List<TokenType> {
@@ -76,7 +75,7 @@ namespace Tests
             var expr = "2 + someunrealvar ";
             var stringTokens = new List<string>(expr.Split(" "));
             Assert.That(() => ExpressionProcessor
-                .RecognizeLexems(stringTokens),
+                .RecognizeLexems(stringTokens, new ConsoleReader()),
                 Throws.TypeOf<ArgumentException>()
                 .With.Message.EqualTo("Invalid token: 'someunrealvar'"));
         }
@@ -87,7 +86,7 @@ namespace Tests
             var expr = "( 2 + somevar ) * someOtherVar ";
             var stringTokens = new List<string>(expr.Split(" "));
             var actual = ExpressionProcessor
-                .RecognizeLexems(stringTokens)
+                .RecognizeLexems(stringTokens, GenerateCRWithSomeVars())
                 .Select(t => t.tokenType)
                 .ToList();
             var expected = new List<TokenType> {
@@ -116,7 +115,7 @@ namespace Tests
             var expr = $"someVar * {funcParam} + 2 ";
             var stringTokens = new List<string>(expr.Split(" "));
             var rawActual = ExpressionProcessor
-                .RecognizeLexems(stringTokens, funcParam);
+                .RecognizeLexems(stringTokens, GenerateCRWithSomeVars(), funcParam);
             var actual = rawActual
                 .Select(t => t.tokenType)
                 .ToList();
@@ -133,6 +132,25 @@ namespace Tests
             for (int i = 0; i < expected.Count; i++)
                 Assert.AreEqual(expected[i], actual[i]);
             Assert.AreEqual("x", rawActual[4].str);
+        }
+
+        private ConsoleReader GenerateCRWithSomeVars()
+        {
+            return new ConsoleReader(
+                new Dictionary<string, Expression>
+                {
+                    {"somevar", new Expression(
+                        new List<RPNToken> {
+                            new RPNToken{str = "7", tokenType = TokenType.DecimalNumber}
+                        },
+                        false) },
+                     {"someothervar", new Expression(
+                        new List<RPNToken> {
+                            new RPNToken{str = "5", tokenType = TokenType.DecimalNumber}
+                        },
+                        false) }
+                }
+                );
         }
     }
 }

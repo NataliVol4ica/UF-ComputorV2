@@ -51,10 +51,13 @@ namespace ComputorV2
         }
         #endregion
 
-        public static Expression CreateExpression(string str, bool isFunction = false, string functionParameterName = null)
+        public static Expression CreateExpression(string str,
+            ConsoleReader consoleReaderRef,
+            bool isFunction = false, 
+            string functionParameterName = null)
         {
             var stringTokens = Tokenize(str);
-            var tokens = RecognizeLexems(stringTokens, functionParameterName);
+            var tokens = RecognizeLexems(stringTokens, consoleReaderRef, functionParameterName);
             var simplifiedTokens = Simplify(tokens);
             var newTokenList = new List<RPNToken>
             {
@@ -71,6 +74,7 @@ namespace ComputorV2
             return new Expression(tokens, isFunction);
         }
 
+        // Step 1
         public static List<string> Tokenize(string str)
         {
             if (str is null)
@@ -90,10 +94,12 @@ namespace ComputorV2
                 throw new ArgumentException("The expression is invalid");
             return stringTokens;
         }
-
-        public static List<RPNToken> RecognizeLexems(List<string> stringTokens, string funcParameter = null)
+        // Step 2
+        public static List<RPNToken> RecognizeLexems(List<string> stringTokens,
+            ConsoleReader consoleReaderRef,
+            string funcParameter = null)
         {
-            var variables = ConsoleReader.Variables;
+            var variables = consoleReaderRef.Variables;
 
             var tokenList = new List<RPNToken>();
             TokenType tokenType;
@@ -135,7 +141,7 @@ namespace ComputorV2
                 if (tokenType == TokenType.Variable)
                 {
                     tokenList.Add(new RPNToken("(", TokenType.OBracket));
-                    tokenList.AddRange(ConsoleReader.GetVariableRPNTokens(token));
+                    tokenList.AddRange(consoleReaderRef.GetVariableRPNTokens(token));
                     tokenList.Add(new RPNToken(")", TokenType.CBracket));
                 }
                 else
@@ -143,7 +149,7 @@ namespace ComputorV2
             }
             return tokenList;
         }
-
+        // Step 3
         public static BigNumber Simplify(List<RPNToken> tokens)
         {
             RPNToken currentToken;
@@ -198,6 +204,7 @@ namespace ComputorV2
 
         }
 
+        // Tools
         private static OperationInfo GetOperationInfo(RPNToken token)
         {
             OpArity arity = token.tokenType == TokenType.BinOp ?
@@ -231,6 +238,7 @@ namespace ComputorV2
             else if (op.tokenType == TokenType.UnOp)
                 result.Push(CalcUnaryOp(result.Pop(), op.str));
         }
+
         #region Calculations
         private static BigNumber CalculateBinaryOp(BigNumber right, BigNumber left, string op)
         {
