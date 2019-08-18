@@ -39,9 +39,9 @@ namespace ComputorV2
             opInfoMap = new[]
             {
                 new OperationInfo("-", OpArity.Binary, 1, OpAssoc.Left),
-                new OperationInfo("-", OpArity.Unary,  3, OpAssoc.Left),
+                new OperationInfo("-", OpArity.Unary,  3, OpAssoc.None),
                 new OperationInfo("+", OpArity.Binary, 1, OpAssoc.Left),
-                new OperationInfo("+", OpArity.Unary,  3, OpAssoc.Left),
+                new OperationInfo("+", OpArity.Unary,  3, OpAssoc.None),
                 new OperationInfo("*", OpArity.Binary, 2, OpAssoc.Left),
                 new OperationInfo("/", OpArity.Binary, 2, OpAssoc.Left),
                 new OperationInfo("%", OpArity.Binary, 2, OpAssoc.Left)
@@ -154,63 +154,8 @@ namespace ComputorV2
         {
             if (tokens is null || tokens.Count == 0)
                 return null;
-            RPNToken currentToken;
-            RPNToken tempToken;
-            OperationInfo curOpInfo;
-            var bufferStack = new Stack<RPNToken>();
-            var outputStack = new Stack<BigNumber>();
-            var inputQueue = new Queue<RPNToken>(tokens);
-
-            var queueLen = tokens.Count;
-
-            while (inputQueue.Count > 0)
-            {
-                currentToken = inputQueue.Dequeue();
-                if (currentToken.tokenType == TokenType.DecimalNumber)
-                    outputStack.Push(new BigDecimal(currentToken.str));
-                else if (currentToken.tokenType == TokenType.Function)
-                    bufferStack.Push(currentToken);
-                else if (currentToken.tokenType == TokenType.BinOp ||
-                    currentToken.tokenType == TokenType.UnOp)
-                {
-                    curOpInfo = GetOperationInfo(currentToken);
-                    while (bufferStack.Count() > 0)
-                    {
-                        RPNToken cmpToken = bufferStack.Peek();
-                        if (cmpToken.tokenType == TokenType.Function ||
-                             (IsOperation(cmpToken) && CompareOperationPriorities(GetOperationInfo(cmpToken), curOpInfo) > 0))
-                            CalculateToken(outputStack, bufferStack.Pop());
-                        else
-                            break;
-
-                    }
-                    bufferStack.Push(currentToken);
-                }
-                else if (currentToken.tokenType == TokenType.OBracket)
-                    bufferStack.Push(currentToken);
-                else if (currentToken.tokenType == TokenType.CBracket)
-                {
-                    while ((tempToken = bufferStack.Pop()).tokenType != TokenType.OBracket)
-                        CalculateToken(outputStack, tempToken);
-                    if (bufferStack.Count() > 0 && bufferStack.Peek().tokenType == TokenType.Function)
-                        CalculateToken(outputStack, bufferStack.Pop());
-                }
-                else
-                    throw new NotImplementedException($"Unimplemented token '{currentToken.str}'");
-                Console.WriteLine($"Step {queueLen - inputQueue.Count}. Current token is {currentToken} \n " +
-                    $"Input {String.Join(", ", inputQueue)} \n " +
-                    $"Buffer {String.Join(", ", bufferStack)} \n " +
-                    $"Result {String.Join(", ", outputStack)}");
-            }
-            var outputQueue = new Queue<BigNumber>(outputStack);
-            while (bufferStack.Count() > 0)
-                CalculateToken(outputStack, bufferStack.Pop());
-            if (outputStack.Count() > 1)
-                throw new ArgumentException("Cannot calculate this expression. Remaining RPN buffer contains extra numbers.");
-            else if (outputStack.Count() == 0)
-                return new BigDecimal("0");
-            return outputStack.Pop();
-
+            var syaRpn = ShuttingYardAlgorithm(tokens);
+            return new BigDecimal(syaRpn.Dequeue().str);
         }
 
         public static Queue<RPNToken> ShuttingYardAlgorithm(List<RPNToken> tokens)
@@ -241,7 +186,7 @@ namespace ComputorV2
                         RPNToken cmpToken = operatorStack.Peek();
                         if (cmpToken.tokenType == TokenType.OBracket)
                             break;
-                        var cmpOpInfo = GetOperationInfo(cmpToken);
+                            var cmpOpInfo = GetOperationInfo(cmpToken);
                         if (cmpToken.tokenType == TokenType.Function
                             || cmpOpInfo.priority > curOpInfo.priority
                             || (cmpOpInfo.priority == curOpInfo.priority && cmpOpInfo.assoc == OpAssoc.Left))

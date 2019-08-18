@@ -91,7 +91,7 @@ namespace ComputorV2Tests.ExpressionProcessorTests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void Simplify_M2_p_M2_Expect_M4()
+        public void Simplify_Brackets_Expect_M4()
         {
             var tokenList = new List<RPNToken> {
                 new RPNToken{ str = "-", tokenType = TokenType.UnOp},
@@ -105,7 +105,7 @@ namespace ComputorV2Tests.ExpressionProcessorTests
             Assert.AreEqual(expected, actual);
         }
         [Test]
-        public void Simplify_Brackets_Expect_M2()
+        public void Simplify_M2_p_M2_Expect_M4()
         {
             var tokenList = new List<RPNToken> {
                 new RPNToken{ str = "(", tokenType = TokenType.OBracket},

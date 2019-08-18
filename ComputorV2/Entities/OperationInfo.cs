@@ -5,7 +5,7 @@ using System.Text;
 namespace ComputorV2
 {
     public enum OpArity { Unary, Binary }
-    public enum OpAssoc { Left, Right }
+    public enum OpAssoc { None, Left, Right }
 
     public struct OperationInfo
     {
