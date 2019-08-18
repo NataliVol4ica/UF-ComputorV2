@@ -2,9 +2,9 @@ using NUnit.Framework;
 using ComputorV2;
 using System;
 
-namespace Tests
+namespace ComputorV2.Tests
 {
-    public class ReaderCommandToolsTests
+    public class ConsoleReaderToolsTests
     {
         [SetUp]
         public void Setup()
@@ -14,20 +14,20 @@ namespace Tests
         [Test]
         public void GetValidCommandsType()
         {
-            var actual = ReaderCommandTools.GetCommandType("   exit ");
+            var actual = ConsoleReaderTools.GetCommandType("   exit ");
             var expected = CommandType.Exit;
             Assert.AreEqual(expected, actual);
 
-            actual = ReaderCommandTools.GetCommandType("help");
+            actual = ConsoleReaderTools.GetCommandType("help");
             expected = CommandType.ShowHelp;
             Assert.AreEqual(expected, actual);
 
-            actual = ReaderCommandTools.GetCommandType("   vars     \t");
+            actual = ConsoleReaderTools.GetCommandType("   vars     \t");
             expected = CommandType.ShowVars;
             Assert.AreEqual(expected, actual);
 
 
-            actual = ReaderCommandTools.GetCommandType("   VaRs     \t");
+            actual = ConsoleReaderTools.GetCommandType("   VaRs     \t");
             expected = CommandType.ShowVars;
             Assert.AreEqual(expected, actual);
         }
@@ -52,23 +52,23 @@ namespace Tests
         [Test]
         public void GetValidComplexCommandType()
         { 
-            var actual = ReaderCommandTools.GetCommandType(" a    +\t\t b = ?    \t");
+            var actual = ConsoleReaderTools.GetCommandType(" a    +\t\t b = ?    \t");
             var expected = CommandType.EvaluateExpression;
             Assert.AreEqual(expected, actual);
 
-            actual = ReaderCommandTools.GetCommandType("3= ?");
+            actual = ConsoleReaderTools.GetCommandType("3= ?");
             expected = CommandType.EvaluateExpression;
             Assert.AreEqual(expected, actual);
 
-            actual = ReaderCommandTools.GetCommandType("= ?\r");
+            actual = ConsoleReaderTools.GetCommandType("= ?\r");
             expected = CommandType.EvaluateExpression;
             Assert.AreEqual(expected, actual);
 
-            actual = ReaderCommandTools.GetCommandType("a = 2");
+            actual = ConsoleReaderTools.GetCommandType("a = 2");
             expected = CommandType.AssignVar;
             Assert.AreEqual(expected, actual);
 
-            actual = ReaderCommandTools.GetCommandType("b = \t 2 + 2 * 2");
+            actual = ConsoleReaderTools.GetCommandType("b = \t 2 + 2 * 2");
             expected = CommandType.AssignVar;
             Assert.AreEqual(expected, actual);
         }
@@ -76,14 +76,14 @@ namespace Tests
         void ExpectGetCommandTypeException(string command)
         {
             var cmdTrim = command.Trim();
-            Assert.That(() => ReaderCommandTools.GetCommandType(command),
+            Assert.That(() => ConsoleReaderTools.GetCommandType(command),
                 Throws.TypeOf<ArgumentException>()
                 .With.Message.EqualTo($"Unknown command: '{cmdTrim}'"));
         }
         void ExpectGetCommandTypeEqualityException(string command, int equalities)
         {
             var cmdTrim = command.Trim();
-            Assert.That(() => ReaderCommandTools.GetCommandType(command),
+            Assert.That(() => ConsoleReaderTools.GetCommandType(command),
                 Throws.TypeOf<ArgumentException>()
                 .With.Message.EqualTo($"Command cannot contain: '{equalities}' equal signs"));
         }

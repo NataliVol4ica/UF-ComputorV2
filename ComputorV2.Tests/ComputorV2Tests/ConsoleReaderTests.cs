@@ -2,7 +2,7 @@ using NUnit.Framework;
 using ComputorV2;
 using System;
 
-namespace Tests
+namespace ComputorV2.Tests
 {
     public class ConsoleReaderTests
     {

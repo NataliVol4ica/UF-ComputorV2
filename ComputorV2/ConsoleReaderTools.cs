@@ -15,13 +15,13 @@ namespace ComputorV2
         EvaluateExpression
     }
 
-    public static class ReaderCommandTools
+    public static class ConsoleReaderTools
     {
         static readonly Dictionary<string, CommandType> _commandStringTypes;
         static readonly Dictionary<string, string> _commandDescriptions;
         static readonly string _helpText;
 
-        static ReaderCommandTools()
+        static ConsoleReaderTools()
         {
             _commandStringTypes = new Dictionary<string, CommandType>
             {
