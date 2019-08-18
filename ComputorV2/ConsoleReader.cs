@@ -77,11 +77,11 @@ namespace ComputorV2
         }
 
         #region command executors
-        public void ExecuteExitCommand(string command)
+        public void ExecuteExitCommand(string command = null)
         {
             _isExitCommandEntered = true;
         }
-        public void ExecuteDetailedCommand(string command)
+        public void ExecuteDetailedCommand(string command = null)
         {
             Console.WriteLine("Display detailed expression evaluation process? [y/n]");
             var input = Console.ReadLine().ToLower();
@@ -92,17 +92,17 @@ namespace ComputorV2
             else
                 Console.WriteLine($"Invalid answer. The detailed will remain {_detailed}");
         }
-        public void ExecuteVarsCommand(string command)
+        public void ExecuteVarsCommand(string command = null)
         {
             var varsText = String.Join("\n", _variables.Select(d => $"{d.Key} = {d.Value}"));
             Console.WriteLine(varsText);
         }
-        public static void ExecuteHelpCommand(string command)
+        public static void ExecuteHelpCommand(string command = null)
         {
             var helpText = ConsoleReaderTools.GetHelp();
             Console.WriteLine(helpText);
         }
-        public void ExecuteResetCommand(string command)
+        public void ExecuteResetCommand(string command = null)
         {
             _variables = new Dictionary<string, Expression>();
         }
@@ -114,7 +114,7 @@ namespace ComputorV2
             var cmdVarName = parts[0].Trim().ToLower();
             var cmdExpression = parts[1].Trim().ToLower();
             if (!IsValidVarName(cmdVarName))
-                throw new ArgumentException($"the variable name {command} is not valid");
+                throw new ArgumentException($"the variable name {cmdVarName} is not valid");
             try
             {
                 _variables[cmdVarName] = ExpressionProcessor.CreateExpression(cmdExpression, this);
@@ -142,12 +142,22 @@ namespace ComputorV2
         }
         #endregion
 
-        public static bool IsValidVarName (string name)
+        public static bool IsValidVarName(string name)
         {
             var varNAme = name.Trim();
             if (varNAme == "i" || varNAme == "I")
                 return false;
             return _validVariableNameRegEx.IsMatch(varNAme);
+        }
+        public string this[string varName]
+        {
+            get
+            {
+                var lowVarName = varName.ToLower();
+                if (_variables.ContainsKey(lowVarName))
+                    return _variables[lowVarName].ToString();
+                return null;
+            }
         }
     }
 }

@@ -14,16 +14,14 @@ namespace ComputorV2Tests.ConsoleReaderTests.Unit
         [Test]
         public void IsValidVarName_valid()
         {
-            var expected = true;
-
             var actual = ConsoleReader.IsValidVarName("lalala");
-            Assert.AreEqual(expected, actual);
+            Assert.IsTrue(actual);
 
             actual = ConsoleReader.IsValidVarName("varA");
-            Assert.AreEqual(expected, actual);
+            Assert.IsTrue(actual);
 
             actual = ConsoleReader.IsValidVarName("  \t \r varA ");
-            Assert.AreEqual(expected, actual);
+            Assert.IsTrue(actual);
         }
 
         [Test]

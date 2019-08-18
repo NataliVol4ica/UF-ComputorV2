@@ -4,42 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ComputorV2.Tests
+namespace ComputorV2Tests.ExpressionProcessorTests
 {
-    class ExpressionTests
+    class ExpressionProcessorRecognizeLexemsTests
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
-        [Test]
-        public void Tokenize_EmptyString()
-        {
-            Assert.That(() => ExpressionProcessor.Tokenize(null),
-                Throws.TypeOf<ArgumentException>()
-                .With.Message.EqualTo("Cannot tokenize null string"));
-        }
-
-        [Test]
-        public void Tokenize_InvalidTokens()
-        {
-            Assert.That(() => ExpressionProcessor.Tokenize("abc(&)"),
-                Throws.TypeOf<ArgumentException>()
-                .With.Message.EqualTo("The expression is invalid"));
-        }
-
-        [Test]
-        public void Tokenize_ValidTokens()
-        {
-            string str = "-*( abc+ - * /   \t)";
-            string[] expected = { "-", "*", "(", "abc", "+", "-", "*", "/", ")" };
-            var actual = ExpressionProcessor.Tokenize(str).ToArray();
-            Assert.AreEqual(expected.Length, actual.Length);
-            for (int i = 0; i < expected.Length; i++)
-                Assert.AreEqual(expected[i], actual[i]);
-        }
-
         [Test]
         public void RecognizeLexems_SimpleTokens()
         {
