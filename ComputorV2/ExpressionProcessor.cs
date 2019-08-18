@@ -213,6 +213,71 @@ namespace ComputorV2
 
         }
 
+        public static Queue<RPNToken> ShuttingYardAlgorithm(List<RPNToken> tokens)
+        {
+            if (tokens is null || tokens.Count == 0)
+                return null;
+            RPNToken currentToken;
+            RPNToken tempToken;
+            OperationInfo curOpInfo;
+            var operatorStack = new Stack<RPNToken>();
+            var outputQueue = new Queue<RPNToken>();
+            var inputQueue = new Queue<RPNToken>(tokens);
+
+            var queueLen = tokens.Count;
+
+            while (inputQueue.Count > 0)
+            {
+                currentToken = inputQueue.Dequeue();
+                if (currentToken.tokenType == TokenType.DecimalNumber)
+                    outputQueue.Enqueue(currentToken);
+                else if (currentToken.tokenType == TokenType.Function)
+                    operatorStack.Push(currentToken);
+                else if (IsOperation(currentToken))
+                {
+                    curOpInfo = GetOperationInfo(currentToken);
+                    while (operatorStack.Count() > 0)
+                    {
+                        RPNToken cmpToken = operatorStack.Peek();
+                        if (cmpToken.tokenType == TokenType.OBracket)
+                            break;
+                        var cmpOpInfo = GetOperationInfo(cmpToken);
+                        if (cmpToken.tokenType == TokenType.Function
+                            || cmpOpInfo.priority > curOpInfo.priority
+                            || (cmpOpInfo.priority == curOpInfo.priority && cmpOpInfo.assoc == OpAssoc.Left))
+                            outputQueue.Enqueue(operatorStack.Pop());
+                        else
+                            break;
+                    }
+                    operatorStack.Push(currentToken);
+                }
+                else if (currentToken.tokenType == TokenType.OBracket)
+                    operatorStack.Push(currentToken);
+                else if (currentToken.tokenType == TokenType.CBracket)
+                {
+                    try {
+                        while ((tempToken = operatorStack.Peek()).tokenType != TokenType.OBracket)
+                            outputQueue.Enqueue(operatorStack.Pop());
+                        operatorStack.Pop();
+                    }
+                    catch(Exception e)
+                    {
+                        throw new ArgumentException("Expression is missing opening bracket '('");
+                    }
+                }                
+                else
+                    throw new NotImplementedException($"Unimplemented token '{currentToken.str}'");
+
+                Console.WriteLine($" [Shutting-Yard Algorithm] Step {queueLen - inputQueue.Count}. Current token is {currentToken} \n " +
+                    $"Input {String.Join(", ", inputQueue)} \n " +
+                    $"Buffer {String.Join(", ", operatorStack)} \n " +
+                    $"Result {String.Join(", ", outputQueue)}");
+            }
+            while (operatorStack.Count() > 0)
+                outputQueue.Enqueue(operatorStack.Pop());            
+            return outputQueue;
+        }
+
         // Tools
         private static OperationInfo GetOperationInfo(RPNToken token)
         {
