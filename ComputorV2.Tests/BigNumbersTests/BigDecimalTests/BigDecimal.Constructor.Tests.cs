@@ -1,7 +1,8 @@
-﻿using System;
+﻿using BigNumbers;
+using System;
 using NUnit.Framework;
 
-namespace BigNumbers.Tests.BigDecimalTests
+namespace BigNumbersTests.BigDecimalTests
 {
     [TestFixture]
     public class BigDecimalConstructorTests

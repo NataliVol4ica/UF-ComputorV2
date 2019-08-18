@@ -1,6 +1,7 @@
-﻿using NUnit.Framework;
+﻿using BigNumbers;
+using NUnit.Framework;
 
-namespace BigNumbers.Tests.BigDecimalTests
+namespace BigNumbersTests.BigDecimalTests
 {
     [TestFixture]
     public class BigDecimalIntFracTests

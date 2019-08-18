@@ -108,6 +108,8 @@ namespace ComputorV2
         }
         public void ExecuteAssignVarCommand(string command)
         {
+            if (String.IsNullOrEmpty(command))
+                return;
             var parts = command.Split('=');
             var cmdVarName = parts[0].Trim().ToLower();
             var cmdExpression = parts[1].Trim().ToLower();

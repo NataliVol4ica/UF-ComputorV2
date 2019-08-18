@@ -3,7 +3,7 @@ using System;
 using System.Text;
 using NUnit.Framework;
 
-namespace BigNumbers.Tests.BigDecimalTests
+namespace BigNumbersTests.BigDecimalTests
 {
     [TestFixture]
     public class BigDecimalOperationsSubTests
@@ -60,37 +60,37 @@ namespace BigNumbers.Tests.BigDecimalTests
         }
 
         [Test]
-        public void m5_zero()
+        public void M5_zero()
         {
             DoTesting("-5", "0", "-5");
         }
 
         [Test]
-        public void m5_p6()
+        public void M5_p6()
         {
             DoTesting("-5", "6", "-11");
         }
 
         [Test]
-        public void p123D45_p45D678()
+        public void P123D45_p45D678()
         {
             DoTesting("123.45", "45.678", "77.772");
         }
 
         [Test]
-        public void m3D1_p10D005()
+        public void M3D1_p10D005()
         {
             DoTesting("-3.1", "10.005", "-13.105");
         }
 
         [Test]
-        public void m10D005_m3D1()
+        public void M10D005_m3D1()
         {
             DoTesting("-10.005", "-3.1", "-6.905");
         }
 
         [Test]
-        public void random_10000_tests()
+        public void Random_10000_tests()
         {
             for (int i = 0; i < 10000; i++)
                 RandomTest();

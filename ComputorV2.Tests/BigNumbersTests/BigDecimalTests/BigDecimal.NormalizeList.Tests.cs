@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using BigNumbers;
+using System.Collections.Generic;
 using NUnit.Framework;
 
-namespace BigNumbers.Tests.BigDecimalTests
+namespace BigNumbersTests.BigDecimalTests
 {
     [TestFixture]
     public class BigDecimalNormalizeListTests
