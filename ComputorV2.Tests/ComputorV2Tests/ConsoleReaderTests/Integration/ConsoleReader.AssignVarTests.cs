@@ -14,19 +14,19 @@ namespace ComputorV2Tests.ConsoleReaderTests.Integration
         }
 
         [Test]
-        public void AssignVar_Null_NothingHappens()
+        public void ExecuteAssignVarCommand_Null_NothingHappens()
         {
             new ConsoleReader().ExecuteAssignVarCommand(null);
         }
         [Test]
-        public void AssignVar_EmptyString_NothingHappens()
+        public void ExecuteAssignVarCommand_EmptyString_NothingHappens()
         {
             new ConsoleReader().ExecuteAssignVarCommand("");
         }
 
 
         [Test]
-        public void AssignVar_BigDecimal_VarAssigned()
+        public void ExecuteAssignVarCommand_BigDecimal_VarAssigned()
         {
             var cr = new ConsoleReader();
             cr.ExecuteAssignVarCommand("VarA = 999999999999999999999.991");
@@ -38,7 +38,7 @@ namespace ComputorV2Tests.ConsoleReaderTests.Integration
         }
 
         [Test]
-        public void AssignVar_BigDecimalWithZeroes_SimplifyExpected()
+        public void ExecuteAssignVarCommand_BigDecimalWithZeroes_SimplifyExpected()
         {
             var cr = new ConsoleReader();
             cr.ExecuteAssignVarCommand("VarA = 00000000000000000000.0000000000000000000001");
@@ -50,7 +50,7 @@ namespace ComputorV2Tests.ConsoleReaderTests.Integration
         }
 
         [Test]
-        public void AssignVar_SumWithExistingVar_ValidResultExpected()
+        public void ExecuteAssignVarCommand_SumWithExistingVar_ValidResultExpected()
         {
             var cr = new ConsoleReader();
             cr.ExecuteAssignVarCommand("VarA = 0.0000000000000000000001");
@@ -63,7 +63,7 @@ namespace ComputorV2Tests.ConsoleReaderTests.Integration
         }
 
         [Test]
-        public void AssignVar_DivideByZero_NullExpected()
+        public void ExecuteAssignVarCommand_DivideByZero_NullExpected()
         {
             var cr = new ConsoleReader();
             cr.ExecuteAssignVarCommand("VarA = 7.777777");
@@ -76,7 +76,7 @@ namespace ComputorV2Tests.ConsoleReaderTests.Integration
         }
 
         [Test]
-        public void AssignVar_ManyBracketTests_AllOkExpected()
+        public void ExecuteAssignVarCommand_ManyBracketTests_AllOkExpected()
         {
             var cr = new ConsoleReader();
             cr.ExecuteAssignVarCommand("VarA = (2)");
@@ -92,32 +92,19 @@ namespace ComputorV2Tests.ConsoleReaderTests.Integration
             Assert.AreEqual("4", cr["VarE"]);
         }
         [Test]
-        public void AssignVar_ManySimpleTests_AllOkExpected()
+        [TestCase("2 * -2", "-4")]
+        [TestCase("2 + 2 * 2", "6")]
+        [TestCase("(2 + 2) * 2", "8")]
+        [TestCase("(-2 + 2) * 2", "0")]
+        [TestCase("8 * 3 % 5", "4")]
+        [TestCase("(2 / 3) * 7 + ((5 - 7) * (21 % 8))", "-5.33333333333333333338")]
+        [TestCase("2 - 3", "-1")]
+        [TestCase("-2 - 3", "-5")]
+        public void ExecuteAssignVarCommand_WhenCalled_SimplifyExpected(string command, string expected)
         {
             var cr = new ConsoleReader();
-            cr.ExecuteAssignVarCommand("VarA = 2 * -2");
-            cr.ExecuteAssignVarCommand("VarB = 2 + 2 * 2");
-            cr.ExecuteAssignVarCommand("VarC = (2 + 2) * 2");
-            cr.ExecuteAssignVarCommand("VarD = (-2 + 2) * 2");
-            cr.ExecuteAssignVarCommand("VarE = 8 * 3 % 5");
-            cr.ExecuteAssignVarCommand("VarF = (2 / 3) * 7 + ((5 - 7) * (21 % 8))");
-            cr.ExecuteAssignVarCommand("VarG = 2 - 3");
-
-            Assert.AreEqual("-1", cr["VarG"]);
-            Assert.AreEqual("-4", cr["VarA"]);
-            Assert.AreEqual("6", cr["VarB"]);
-            Assert.AreEqual("8", cr["VarC"]);
-            Assert.AreEqual("0", cr["VarD"]);
-            Assert.AreEqual("4", cr["VarE"]);
-            Assert.AreEqual("-5.33333333333333333338", cr["VarF"]);
-        }
-        [Test]
-        public void AssignVar_P2_p_m_M3__FourExpected()
-        {
-            var cr = new ConsoleReader();
-            cr.ExecuteAssignVarCommand("VarG = 2 + --3");
-
-            Assert.AreEqual("5", cr["VarG"]);
-        }
+            cr.ExecuteAssignVarCommand($"VarA = {command}");
+            Assert.That(cr["VarA"], Is.EqualTo(expected));
+        }     
     }
 }
