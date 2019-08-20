@@ -25,28 +25,12 @@ namespace ComputorV2
         public ConsoleReader()
         {
             _variables = new Dictionary<string, Expression>();
-            CommandExecutors = new Dictionary<CommandType, Action<string>> {
-                {CommandType.Exit, ExecuteExitCommand },
-                {CommandType.Detailed, ExecuteDetailedCommand },
-                {CommandType.ShowVars, ExecuteVarsCommand },
-                {CommandType.ShowHelp, ExecuteHelpCommand },
-                {CommandType.Reset, ExecuteResetCommand },
-                {CommandType.AssignVar, ExecuteAssignVarCommand},
-                {CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand}
-            };
+            CommandExecutors = GetCommandExecutorsDictionary();
         }
         public ConsoleReader(Dictionary<string, Expression> variables)
         {
             _variables = variables;
-            CommandExecutors = new Dictionary<CommandType, Action<string>> {
-                {CommandType.Exit, ExecuteExitCommand },
-                {CommandType.Detailed, ExecuteDetailedCommand },
-                {CommandType.ShowVars, ExecuteVarsCommand },
-                {CommandType.ShowHelp, ExecuteHelpCommand },
-                {CommandType.Reset, ExecuteResetCommand },
-                {CommandType.AssignVar, ExecuteAssignVarCommand},
-                {CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand}
-            };
+            CommandExecutors = GetCommandExecutorsDictionary();
         }
         public void StartReading()
         {
@@ -97,6 +81,10 @@ namespace ComputorV2
             var varsText = String.Join("\n", _variables.Select(d => $"{d.Key} = {d.Value}"));
             Console.WriteLine(varsText);
         }
+        public void ExecuteAllowedCommand(string command = null)
+        {
+            Console.WriteLine(_allowedOperations);
+        }
         public static void ExecuteHelpCommand(string command = null)
         {
             var helpText = ConsoleReaderTools.GetHelp();
@@ -117,7 +105,7 @@ namespace ComputorV2
                 throw new ArgumentException($"the variable name {cmdVarName} is not valid");
             try
             {
-                _variables[cmdVarName] = ExpressionProcessor.CreateExpression( str : cmdExpression, consoleReaderRef : this, detailedMode: _detailed);
+                _variables[cmdVarName] = ExpressionProcessor.CreateExpression(str: cmdExpression, consoleReaderRef: this, detailedMode: _detailed);
                 Console.WriteLine($"> {_variables[cmdVarName]}");
             }
             catch (Exception e)
@@ -159,5 +147,42 @@ namespace ComputorV2
                 return null;
             }
         }
+
+        private Dictionary<CommandType, Action<string>> GetCommandExecutorsDictionary()
+        {
+            return new Dictionary<CommandType, Action<string>>{
+                { CommandType.Exit, ExecuteExitCommand },
+                { CommandType.Detailed, ExecuteDetailedCommand },
+                { CommandType.ShowAlowedOperations, ExecuteAllowedCommand },
+                { CommandType.ShowVars, ExecuteVarsCommand },
+                { CommandType.ShowHelp, ExecuteHelpCommand },
+                { CommandType.Reset, ExecuteResetCommand },
+                { CommandType.AssignVar, ExecuteAssignVarCommand},
+                { CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand}
+            };
+        }
+
+        private const string _allowedOperations = " >> Rational << \n\n"
+                                                  + " + -abs rational \n"
+                                                  + " rational all rational \n"
+                                                  + " rational +-* complex \n"
+                                                  + " rational* matrix \n\n"
+                                                  + " >> Complex << \n\n"
+                                                  + " +-abs complex \n"
+                                                  + " complex ^ int \n"
+                                                  + " complex +-* rational"
+                                                  + " \n complex +-* complex \n\n"
+                                                  + " >> Matrix << \n\n"
+                                                  + " +- matrix \n"
+                                                  + " matrix */ rational \n"
+                                                  + " matrix + - matrix of same size \n"
+                                                  + " matrix A[LxM] * matrix B[MxN]"
+                                                  + " T(matrix) - transponation \n"
+                                                  + " R(matrix) - reverse \n"
+                                                  + " abs(matrix) - opredelitel \n\n"
+                                                  + " >> Func << \n\n"
+                                                  + " func cannot be in the right part of equation if it has no known variable or value as parameter \n"
+                                                  + " func(x) -> x: expression containing rational, complex, funcs \n"
+                                                  + " func(x) = exp -> expr must only contain rationals and x. Pows must be integers \n";
     }
 }
