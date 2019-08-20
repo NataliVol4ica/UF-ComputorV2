@@ -1,10 +1,10 @@
-using NUnit.Framework;
 using ComputorV2;
+using NUnit.Framework;
 using System;
 
-namespace Tests
+namespace ComputorV2Tests.ConsoleReaderTests.Unit
 {
-    public class ConsoleReaderTests
+    public class ConsoleReaderUnitTests
     {
         [SetUp]
         public void Setup()
@@ -14,16 +14,14 @@ namespace Tests
         [Test]
         public void IsValidVarName_valid()
         {
-            var expected = true;
-
             var actual = ConsoleReader.IsValidVarName("lalala");
-            Assert.AreEqual(expected, actual);
+            Assert.IsTrue(actual);
 
             actual = ConsoleReader.IsValidVarName("varA");
-            Assert.AreEqual(expected, actual);
+            Assert.IsTrue(actual);
 
             actual = ConsoleReader.IsValidVarName("  \t \r varA ");
-            Assert.AreEqual(expected, actual);
+            Assert.IsTrue(actual);
         }
 
         [Test]

@@ -23,7 +23,6 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         private readonly Object dotPosMutex = new Object();
         private readonly Object fracLenMutex = new Object();
 
-
         public BigDecimal() { }
         public BigDecimal(BigDecimal from)
         {
@@ -37,7 +36,7 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         {
             if (string.IsNullOrEmpty(str) ||
                 string.IsNullOrEmpty(validStringRegEx.Match(str).Value))
-                throw new ArgumentException("Invalid argument \"" + str + "\"");
+                throw new ArgumentException("Cannot create BigDecimal of \"" + str + "\"");
             CleanAndSaveNumericString(str);
         }
         public BigDecimal(decimal number)

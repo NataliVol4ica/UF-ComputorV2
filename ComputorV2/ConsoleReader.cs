@@ -6,40 +6,44 @@ using System.Text.RegularExpressions;
 
 namespace ComputorV2
 {
-    public static class ConsoleReader
+    public class ConsoleReader
     {
 
-        private static readonly Dictionary<CommandType, Action<string>> CommandExecutors;
+        private readonly Dictionary<CommandType, Action<string>> CommandExecutors;
 
-        private static bool _isExitCommandEntered;
-        private static Dictionary<string, Expression> _variables;
+        private bool _isExitCommandEntered;
+        private Dictionary<string, Expression> _variables;
         private static readonly Regex _validVariableNameRegEx;
 
-        public static List<string> Variables => _variables.Select(d => d.Key).ToList();
+        public List<string> Variables => _variables.Select(d => d.Key).ToList();
+        public bool _detailed = false;
 
         static ConsoleReader()
         {
-            _variables = new Dictionary<string, Expression>();
             _validVariableNameRegEx = new Regex(@"^[a-z]+$", RegexOptions.IgnoreCase);
-            CommandExecutors = new Dictionary<CommandType, Action<string>> {
-                {CommandType.Exit, ExecuteExitCommand },
-                {CommandType.ShowVars, ExecuteVarsCommand },
-                {CommandType.ShowHelp, ExecuteHelpCommand },
-                {CommandType.Reset, ExecuteResetCommand },
-                {CommandType.AssignVar, ExecuteAssignVarCommand},
-                {CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand}
-            };
         }
-        
-        public static void StartReading()
+        public ConsoleReader()
+        {
+            _variables = new Dictionary<string, Expression>();
+            CommandExecutors = GetCommandExecutorsDictionary();
+        }
+        public ConsoleReader(Dictionary<string, Expression> variables)
+        {
+            _variables = variables;
+            CommandExecutors = GetCommandExecutorsDictionary();
+        }
+        public void StartReading()
         {
             _isExitCommandEntered = false;
             do
             {
                 try
                 {
+                    Console.Write("> ");
                     var inputString = Console.ReadLine();
-                    var cmdType = ReaderCommandTools.GetCommandType(inputString);
+                    if (String.IsNullOrEmpty(inputString))
+                        continue;
+                    var cmdType = ConsoleReaderTools.GetCommandType(inputString);
                     CommandExecutors[cmdType](inputString);
                 }
                 catch (Exception e)
@@ -51,40 +55,57 @@ namespace ComputorV2
             Console.ReadLine();
         }
 
-        public static List<RPNToken> GetVariableRPNTokens(string varName)
+        public List<RPNToken> GetVariableRPNTokens(string varName)
         {
             return _variables[varName].Tokens;
         }
 
         #region command executors
-        private static void ExecuteExitCommand(string command)
+        public void ExecuteExitCommand(string command = null)
         {
             _isExitCommandEntered = true;
         }
-        private static void ExecuteVarsCommand(string command)
+        public void ExecuteDetailedCommand(string command = null)
+        {
+            Console.WriteLine("Display detailed expression evaluation process? [y/n]");
+            var input = Console.ReadLine().ToLower();
+            if (input == "y" || input == "yes")
+                _detailed = true;
+            else if (input == "n" || input == "no")
+                _detailed = false;
+            else
+                Console.WriteLine($"Invalid answer. The detailed will remain {_detailed}");
+        }
+        public void ExecuteVarsCommand(string command = null)
         {
             var varsText = String.Join("\n", _variables.Select(d => $"{d.Key} = {d.Value}"));
             Console.WriteLine(varsText);
         }
-        private static void ExecuteHelpCommand(string command)
+        public void ExecuteAllowedCommand(string command = null)
         {
-            var helpText = ReaderCommandTools.GetHelp();
+            Console.WriteLine(_allowedOperations);
+        }
+        public static void ExecuteHelpCommand(string command = null)
+        {
+            var helpText = ConsoleReaderTools.GetHelp();
             Console.WriteLine(helpText);
         }
-        private static void ExecuteResetCommand(string command)
+        public void ExecuteResetCommand(string command = null)
         {
             _variables = new Dictionary<string, Expression>();
         }
-        private static void ExecuteAssignVarCommand(string command)
+        public void ExecuteAssignVarCommand(string command)
         {
+            if (String.IsNullOrEmpty(command))
+                return;
             var parts = command.Split('=');
             var cmdVarName = parts[0].Trim().ToLower();
             var cmdExpression = parts[1].Trim().ToLower();
             if (!IsValidVarName(cmdVarName))
-                throw new ArgumentException($"the variable name {command} is not valid");
+                throw new ArgumentException($"the variable name {cmdVarName} is not valid");
             try
             {
-                _variables[cmdVarName] = ExpressionProcessor.CreateExpression(cmdExpression);
+                _variables[cmdVarName] = ExpressionProcessor.CreateExpression(str: cmdExpression, consoleReaderRef: this, detailedMode: _detailed);
                 Console.WriteLine($"> {_variables[cmdVarName]}");
             }
             catch (Exception e)
@@ -93,19 +114,14 @@ namespace ComputorV2
             }
         }
 
-        public static void AddManualVariable(string varName, Expression expression)
-        {
-            _variables[varName] = expression;
-        }
-
-        private static void ExecuteEvaluateExpressionCommand(string command)
+        public void ExecuteEvaluateExpressionCommand(string command)
         {
             var parts = command.Split('=');
             var cmdExpression = parts[0].Trim().ToLower();
             try
             {
-                var executedExpression = ExpressionProcessor.CreateExpression(cmdExpression);
-                Console.WriteLine($"> {executedExpression}");
+                var executedExpression = ExpressionProcessor.CreateExpression(cmdExpression, this);
+                Console.WriteLine($"{executedExpression}");
             }
             catch (Exception e)
             {
@@ -114,12 +130,59 @@ namespace ComputorV2
         }
         #endregion
 
-        public static bool IsValidVarName (string name)
+        public static bool IsValidVarName(string name)
         {
             var varNAme = name.Trim();
             if (varNAme == "i" || varNAme == "I")
                 return false;
             return _validVariableNameRegEx.IsMatch(varNAme);
         }
+        public string this[string varName]
+        {
+            get
+            {
+                var lowVarName = varName.ToLower();
+                if (_variables.ContainsKey(lowVarName))
+                    return _variables[lowVarName].ToString();
+                return null;
+            }
+        }
+
+        private Dictionary<CommandType, Action<string>> GetCommandExecutorsDictionary()
+        {
+            return new Dictionary<CommandType, Action<string>>{
+                { CommandType.Exit, ExecuteExitCommand },
+                { CommandType.Detailed, ExecuteDetailedCommand },
+                { CommandType.ShowAlowedOperations, ExecuteAllowedCommand },
+                { CommandType.ShowVars, ExecuteVarsCommand },
+                { CommandType.ShowHelp, ExecuteHelpCommand },
+                { CommandType.Reset, ExecuteResetCommand },
+                { CommandType.AssignVar, ExecuteAssignVarCommand},
+                { CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand}
+            };
+        }
+
+        private const string _allowedOperations = " >> Rational << \n\n"
+                                                  + " + -abs rational \n"
+                                                  + " rational all rational \n"
+                                                  + " rational +-* complex \n"
+                                                  + " rational* matrix \n\n"
+                                                  + " >> Complex << \n\n"
+                                                  + " +-abs complex \n"
+                                                  + " complex ^ int \n"
+                                                  + " complex +-* rational"
+                                                  + " \n complex +-* complex \n\n"
+                                                  + " >> Matrix << \n\n"
+                                                  + " +- matrix \n"
+                                                  + " matrix */ rational \n"
+                                                  + " matrix + - matrix of same size \n"
+                                                  + " matrix A[LxM] * matrix B[MxN]"
+                                                  + " T(matrix) - transponation \n"
+                                                  + " R(matrix) - reverse \n"
+                                                  + " abs(matrix) - opredelitel \n\n"
+                                                  + " >> Func << \n\n"
+                                                  + " func cannot be in the right part of equation if it has no known variable or value as parameter \n"
+                                                  + " func(x) -> x: expression containing rational, complex, funcs \n"
+                                                  + " func(x) = exp -> expr must only contain rationals and x. Pows must be integers \n";
     }
 }

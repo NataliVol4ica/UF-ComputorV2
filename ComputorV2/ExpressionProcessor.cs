@@ -51,11 +51,14 @@ namespace ComputorV2
         }
         #endregion
 
-        public static Expression CreateExpression(string str, bool isFunction = false, string functionParameterName = null)
+        public static Expression CreateExpression(string str,
+            ConsoleReader consoleReaderRef,
+            bool isFunction = false,
+            string functionParameterName = null, bool detailedMode = false)
         {
             var stringTokens = Tokenize(str);
-            var tokens = RecognizeLexems(stringTokens, functionParameterName);
-            var simplifiedTokens = Simplify(tokens);
+            var tokens = RecognizeLexems(stringTokens, consoleReaderRef, functionParameterName);
+            var simplifiedTokens = Simplify(tokens, detailedMode);
             var newTokenList = new List<RPNToken>
             {
                 new RPNToken
@@ -71,6 +74,7 @@ namespace ComputorV2
             return new Expression(tokens, isFunction);
         }
 
+        // Step 1
         public static List<string> Tokenize(string str)
         {
             if (str is null)
@@ -90,10 +94,12 @@ namespace ComputorV2
                 throw new ArgumentException("The expression is invalid");
             return stringTokens;
         }
-
-        public static List<RPNToken> RecognizeLexems(List<string> stringTokens, string funcParameter = null)
+        // Step 2
+        public static List<RPNToken> RecognizeLexems(List<string> stringTokens,
+            ConsoleReader consoleReaderRef,
+            string funcParameter = null)
         {
-            var variables = ConsoleReader.Variables;
+            var variables = consoleReaderRef.Variables;
 
             var tokenList = new List<RPNToken>();
             TokenType tokenType;
@@ -135,7 +141,7 @@ namespace ComputorV2
                 if (tokenType == TokenType.Variable)
                 {
                     tokenList.Add(new RPNToken("(", TokenType.OBracket));
-                    tokenList.AddRange(ConsoleReader.GetVariableRPNTokens(token));
+                    tokenList.AddRange(consoleReaderRef.GetVariableRPNTokens(token));
                     tokenList.Add(new RPNToken(")", TokenType.CBracket));
                 }
                 else
@@ -143,61 +149,72 @@ namespace ComputorV2
             }
             return tokenList;
         }
-
-        public static BigNumber Simplify(List<RPNToken> tokens)
+        // Step 3
+        public static BigNumber Simplify(List<RPNToken> tokens, bool detailedMode = false)
         {
+            if (tokens is null || tokens.Count == 0)
+                return null;
             RPNToken currentToken;
             RPNToken tempToken;
             OperationInfo curOpInfo;
-            var buffer = new Stack<RPNToken>();
-            var result = new Stack<BigNumber>();
-            var expressionQueue = new Queue<RPNToken>(tokens);
+            var bufferStack = new Stack<RPNToken>();
+            var outputStack = new Stack<BigNumber>();
+            var inputQueue = new Queue<RPNToken>(tokens);
 
-            while (expressionQueue.Count > 0)
+            var queueLen = tokens.Count;
+
+            while (inputQueue.Count > 0)
             {
-                currentToken = expressionQueue.Dequeue();
+                currentToken = inputQueue.Dequeue();
                 if (currentToken.tokenType == TokenType.DecimalNumber)
-                    result.Push(new BigDecimal(currentToken.str));
+                    outputStack.Push(new BigDecimal(currentToken.str));
                 else if (currentToken.tokenType == TokenType.Function)
-                    buffer.Push(currentToken);
+                    bufferStack.Push(currentToken);
                 else if (currentToken.tokenType == TokenType.BinOp ||
                     currentToken.tokenType == TokenType.UnOp)
                 {
                     curOpInfo = GetOperationInfo(currentToken);
-                    while (buffer.Count() > 0)
+                    while (bufferStack.Count() > 0)
                     {
-                        RPNToken cmpToken = buffer.Peek();
+                        RPNToken cmpToken = bufferStack.Peek();
                         if (cmpToken.tokenType == TokenType.Function ||
                              (IsOperation(cmpToken) && CompareOperationPriorities(GetOperationInfo(cmpToken), curOpInfo) > 0))
-                            CalculateToken(result, buffer.Pop());
+                            CalculateToken(outputStack, bufferStack.Pop());
                         else
                             break;
 
                     }
-                    buffer.Push(currentToken);
+                    bufferStack.Push(currentToken);
                 }
                 else if (currentToken.tokenType == TokenType.OBracket)
-                    buffer.Push(currentToken);
+                    bufferStack.Push(currentToken);
                 else if (currentToken.tokenType == TokenType.CBracket)
                 {
-                    while ((tempToken = buffer.Pop()).tokenType != TokenType.OBracket)
-                        CalculateToken(result, tempToken);
-                    if (buffer.Count() > 0 && buffer.Peek().tokenType == TokenType.Function)
-                        CalculateToken(result, buffer.Pop());
+                    while ((tempToken = bufferStack.Pop()).tokenType != TokenType.OBracket)
+                        CalculateToken(outputStack, tempToken, detailedMode);
+                    if (bufferStack.Count() > 0 && bufferStack.Peek().tokenType == TokenType.Function)
+                        CalculateToken(outputStack, bufferStack.Pop(), detailedMode);
                 }
                 else
                     throw new NotImplementedException($"Unimplemented token '{currentToken.str}'");
+                if (detailedMode)
+                    Console.WriteLine($"Step {queueLen - inputQueue.Count}. Current token is {currentToken} \n " +
+                        $"Input {String.Join(", ", inputQueue)} \n " +
+                        $"Buffer {String.Join(", ", bufferStack)} \n " +
+                        $"Result {String.Join(", ", outputStack)}");
             }
-            while (buffer.Count() > 0)
-                CalculateToken(result, buffer.Pop());
-            if (result.Count() > 1)
+            var outputQueue = new Queue<BigNumber>(outputStack);
+            while (bufferStack.Count() > 0)
+                CalculateToken(outputStack, bufferStack.Pop(), detailedMode);
+            if (outputStack.Count() > 1)
                 throw new ArgumentException("Cannot calculate this expression. Remaining RPN buffer contains extra numbers.");
-            else if (result.Count() == 0)
+            else if (outputStack.Count() == 0)
                 return new BigDecimal("0");
-            return result.Pop();
+            return outputStack.Pop();
 
         }
 
+        // Tools
         private static OperationInfo GetOperationInfo(RPNToken token)
         {
             OpArity arity = token.tokenType == TokenType.BinOp ?
@@ -222,33 +239,62 @@ namespace ComputorV2
                 return 1;
             return -1;
         }
-        private static void CalculateToken(Stack<BigNumber> result, RPNToken op)
+        private static void CalculateToken(Stack<BigNumber> result, RPNToken op, bool detailedMode = false)
         {
             if (op.tokenType == TokenType.Function)
                 result.Push(CalcFunc(result.Pop(), op.str));
             else if (op.tokenType == TokenType.BinOp)
-                result.Push(CalculateBinaryOp(result.Pop(), result.Pop(), op.str));
+                result.Push(CalculateBinaryOp(result.Pop(), result.Pop(), op.str, detailedMode));
             else if (op.tokenType == TokenType.UnOp)
                 result.Push(CalcUnaryOp(result.Pop(), op.str));
+            else
+                throw new ArgumentException($"Unexpected token '{op.str}'");
         }
+
         #region Calculations
-        private static BigNumber CalculateBinaryOp(BigNumber right, BigNumber left, string op)
+        private static BigNumber CalculateBinaryOp(BigNumber right, BigNumber left, string op, bool detailedMode = false)
         {
             if (op.Equals("+"))
-                return left + right;
+            {
+                var result = left + right;
+                if (detailedMode)
+                    Console.WriteLine($"   Calculating {left} + {right} = {result}");
+                return result;
+            }
             if (op.Equals("-"))
-                return left - right;
+            {
+                var result = left - right;
+                if (detailedMode)
+                    Console.WriteLine($"   Calculating {left} - {right} = {result}");
+                return result;
+            }
             if (op.Equals("*"))
-                return left * right;
+            {
+                var result = left * right;
+                if (detailedMode)
+                    Console.WriteLine($"   Calculating {left} * {right} = {result}");
+                return result;
+            }
             if (op.Equals("/"))
-                return left / right;
+            {
+                var result = left / right;
+                if (detailedMode)
+                    Console.WriteLine($"   Calculating {left} / {right} = {result}");
+                return result;
+            }
             if (op.Equals("%"))
-                return left % right;
+            {
+                var result = left % right;
+                if (detailedMode)
+                    Console.WriteLine($"   Calculating {left} % {right} = {result}");
+                return result;
+            }
             throw new NotImplementedException("RPNParser met unimplemented operator \"" + op + "\"");
         }
 
         private static BigNumber CalcUnaryOp(BigNumber operand, string op)
         {
+            var initArgString = operand.ToString();
             switch (op)
             {
                 case "+":
@@ -257,17 +303,20 @@ namespace ComputorV2
                     operand.Negate();
                     break;
             }
+            Console.WriteLine($"   Calculating {op}({initArgString}) = {operand}");
             return operand;
         }
 
         private static BigNumber CalcFunc(BigNumber arg, string func)
         {
+            var initArgString = arg.ToString();
             switch (func)
             {
                 case "abs":
                     arg = BigNumber.Abs(arg);
                     break;
             }
+            Console.WriteLine($"   Calculating {func}({initArgString}) = {arg}");
             return arg;
         }
         #endregion

@@ -7,6 +7,8 @@ namespace ComputorV2
     public enum CommandType
     {
         Exit,
+        Detailed,
+        ShowAlowedOperations,
         ShowVars,
         ShowHelp,
         Reset,
@@ -14,27 +16,31 @@ namespace ComputorV2
         EvaluateExpression
     }
 
-    public static class ReaderCommandTools
+    public static class ConsoleReaderTools
     {
         static readonly Dictionary<string, CommandType> _commandStringTypes;
         static readonly Dictionary<string, string> _commandDescriptions;
         static readonly string _helpText;
 
-        static ReaderCommandTools()
+        static ConsoleReaderTools()
         {
             _commandStringTypes = new Dictionary<string, CommandType>
             {
                 {"exit", CommandType.Exit },
                 {"vars", CommandType.ShowVars },
+                {"detailed", CommandType.Detailed },
                 {"reset", CommandType.Reset },
-                {"help", CommandType.ShowHelp }
+                {"help", CommandType.ShowHelp },
+                {"allowed", CommandType.ShowAlowedOperations }
             };
             _commandDescriptions = new Dictionary<string, string>
             {
                 {"exit", "Exit the program"},
+                {"detailed", "For complex expression, in-between operations are shown" },
                 {"vars", "View stored variables and their values" },
                 {"reset", "Cleanup whole variable storage" },
-                {"help", "View help"}
+                {"help", "View help"},
+                {"allowed", "View list of allowed operations in-between types"}
             };
             _helpText = String.Join("\n", _commandDescriptions.Select(d => $"{d.Key}: {d.Value}"));
         }
