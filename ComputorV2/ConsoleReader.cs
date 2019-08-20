@@ -117,7 +117,7 @@ namespace ComputorV2
                 throw new ArgumentException($"the variable name {cmdVarName} is not valid");
             try
             {
-                _variables[cmdVarName] = ExpressionProcessor.CreateExpression(cmdExpression, this);
+                _variables[cmdVarName] = ExpressionProcessor.CreateExpression( str : cmdExpression, consoleReaderRef : this, detailedMode: _detailed);
                 Console.WriteLine($"> {_variables[cmdVarName]}");
             }
             catch (Exception e)

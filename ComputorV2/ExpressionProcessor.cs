@@ -53,12 +53,12 @@ namespace ComputorV2
 
         public static Expression CreateExpression(string str,
             ConsoleReader consoleReaderRef,
-            bool isFunction = false, 
-            string functionParameterName = null)
+            bool isFunction = false,
+            string functionParameterName = null, bool detailedMode = false)
         {
             var stringTokens = Tokenize(str);
             var tokens = RecognizeLexems(stringTokens, consoleReaderRef, functionParameterName);
-            var simplifiedTokens = Simplify(tokens);
+            var simplifiedTokens = Simplify(tokens, detailedMode);
             var newTokenList = new List<RPNToken>
             {
                 new RPNToken
@@ -150,7 +150,7 @@ namespace ComputorV2
             return tokenList;
         }
         // Step 3
-        public static BigNumber Simplify(List<RPNToken> tokens)
+        public static BigNumber Simplify(List<RPNToken> tokens, bool detailedMode = false)
         {
             if (tokens is null || tokens.Count == 0)
                 return null;
@@ -191,20 +191,21 @@ namespace ComputorV2
                 else if (currentToken.tokenType == TokenType.CBracket)
                 {
                     while ((tempToken = bufferStack.Pop()).tokenType != TokenType.OBracket)
-                        CalculateToken(outputStack, tempToken);
+                        CalculateToken(outputStack, tempToken, detailedMode);
                     if (bufferStack.Count() > 0 && bufferStack.Peek().tokenType == TokenType.Function)
-                        CalculateToken(outputStack, bufferStack.Pop());
+                        CalculateToken(outputStack, bufferStack.Pop(), detailedMode);
                 }
                 else
                     throw new NotImplementedException($"Unimplemented token '{currentToken.str}'");
-                Console.WriteLine($"Step {queueLen - inputQueue.Count}. Current token is {currentToken} \n " +
-                    $"Input {String.Join(", ", inputQueue)} \n " +
-                    $"Buffer {String.Join(", ", bufferStack)} \n " +
-                    $"Result {String.Join(", ", outputStack)}");
+                if (detailedMode)
+                    Console.WriteLine($"Step {queueLen - inputQueue.Count}. Current token is {currentToken} \n " +
+                        $"Input {String.Join(", ", inputQueue)} \n " +
+                        $"Buffer {String.Join(", ", bufferStack)} \n " +
+                        $"Result {String.Join(", ", outputStack)}");
             }
             var outputQueue = new Queue<BigNumber>(outputStack);
             while (bufferStack.Count() > 0)
-                CalculateToken(outputStack, bufferStack.Pop());
+                CalculateToken(outputStack, bufferStack.Pop(), detailedMode);
             if (outputStack.Count() > 1)
                 throw new ArgumentException("Cannot calculate this expression. Remaining RPN buffer contains extra numbers.");
             else if (outputStack.Count() == 0)
@@ -238,12 +239,12 @@ namespace ComputorV2
                 return 1;
             return -1;
         }
-        private static void CalculateToken(Stack<BigNumber> result, RPNToken op)
+        private static void CalculateToken(Stack<BigNumber> result, RPNToken op, bool detailedMode = false)
         {
             if (op.tokenType == TokenType.Function)
                 result.Push(CalcFunc(result.Pop(), op.str));
             else if (op.tokenType == TokenType.BinOp)
-                result.Push(CalculateBinaryOp(result.Pop(), result.Pop(), op.str));
+                result.Push(CalculateBinaryOp(result.Pop(), result.Pop(), op.str, detailedMode));
             else if (op.tokenType == TokenType.UnOp)
                 result.Push(CalcUnaryOp(result.Pop(), op.str));
             else
@@ -251,36 +252,41 @@ namespace ComputorV2
         }
 
         #region Calculations
-        private static BigNumber CalculateBinaryOp(BigNumber right, BigNumber left, string op)
+        private static BigNumber CalculateBinaryOp(BigNumber right, BigNumber left, string op, bool detailedMode = false)
         {
             if (op.Equals("+"))
             {
                 var result = left + right;
-                Console.WriteLine($"   Calculating {left} + {right} = {result}");
+                if (detailedMode)
+                    Console.WriteLine($"   Calculating {left} + {right} = {result}");
                 return result;
             }
             if (op.Equals("-"))
             {
                 var result = left - right;
-                Console.WriteLine($"   Calculating {left} - {right} = {result}");
+                if (detailedMode)
+                    Console.WriteLine($"   Calculating {left} - {right} = {result}");
                 return result;
             }
             if (op.Equals("*"))
             {
                 var result = left * right;
-                Console.WriteLine($"   Calculating {left} * {right} = {result}");
+                if (detailedMode)
+                    Console.WriteLine($"   Calculating {left} * {right} = {result}");
                 return result;
             }
             if (op.Equals("/"))
             {
                 var result = left / right;
-                Console.WriteLine($"   Calculating {left} / {right} = {result}");
+                if (detailedMode)
+                    Console.WriteLine($"   Calculating {left} / {right} = {result}");
                 return result;
             }
             if (op.Equals("%"))
             {
                 var result = left % right;
-                Console.WriteLine($"   Calculating {left} % {right} = {result}");
+                if (detailedMode)
+                    Console.WriteLine($"   Calculating {left} % {right} = {result}");
                 return result;
             }
             throw new NotImplementedException("RPNParser met unimplemented operator \"" + op + "\"");

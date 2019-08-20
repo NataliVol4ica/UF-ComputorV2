@@ -23,7 +23,6 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         private readonly Object dotPosMutex = new Object();
         private readonly Object fracLenMutex = new Object();
 
-
         public BigDecimal() { }
         public BigDecimal(BigDecimal from)
         {
