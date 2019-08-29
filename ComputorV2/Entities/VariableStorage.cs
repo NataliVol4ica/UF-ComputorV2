@@ -16,7 +16,7 @@ namespace ComputorV2
             _variables = new Dictionary<string, Expression>();
         }
 
-        public string GetVariablesString()
+        public virtual string GetVariablesString()
         {
             var varsText = String.Join("\n", _variables.Select(d => $"{d.Key} = {d.Value}"));
             return varsText;

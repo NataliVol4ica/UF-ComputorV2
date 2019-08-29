@@ -32,7 +32,7 @@ namespace ComputorV2
                     var inputString = _consoleProcessor.ReadLine();
                     if (String.IsNullOrEmpty(inputString))
                         continue;
-                    var cmdType = ConsoleReaderTools.GetCommandType(inputString);
+                    var cmdType = ComputorTools.GetCommandType(inputString);
                     CommandExecutors[cmdType](inputString);
                 }
                 catch (Exception e)
@@ -75,7 +75,7 @@ namespace ComputorV2
         }
         public void ExecuteHelpCommand(string command = null)
         {
-            var helpText = ConsoleReaderTools.GetHelp();
+            var helpText = ComputorTools.GetHelp();
             _consoleProcessor.WriteLine(helpText);
         }
         public void ExecuteResetCommand(string command = null)
