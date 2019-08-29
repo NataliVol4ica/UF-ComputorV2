@@ -71,7 +71,7 @@ namespace ComputorV2
         }
         public void ExecuteAllowedCommand(string command = null)
         {
-            _consoleProcessor.WriteLine(_allowedOperations);
+            _consoleProcessor.WriteLine(ComputorTools.GetAllowedOperations());
         }
         public void ExecuteHelpCommand(string command = null)
         {
@@ -136,29 +136,6 @@ namespace ComputorV2
                 { CommandType.AssignVar, ExecuteAssignVarCommand},
                 { CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand}
             };
-        }
-
-        private const string _allowedOperations = " >> Rational << \n\n"
-                                                  + " + -abs rational \n"
-                                                  + " rational all rational \n"
-                                                  + " rational +-* complex \n"
-                                                  + " rational* matrix \n\n"
-                                                  + " >> Complex << \n\n"
-                                                  + " +-abs complex \n"
-                                                  + " complex ^ int \n"
-                                                  + " complex +-* rational"
-                                                  + " \n complex +-* complex \n\n"
-                                                  + " >> Matrix << \n\n"
-                                                  + " +- matrix \n"
-                                                  + " matrix */ rational \n"
-                                                  + " matrix + - matrix of same size \n"
-                                                  + " matrix A[LxM] * matrix B[MxN]"
-                                                  + " T(matrix) - transponation \n"
-                                                  + " R(matrix) - reverse \n"
-                                                  + " abs(matrix) - opredelitel \n\n"
-                                                  + " >> Func << \n\n"
-                                                  + " func cannot be in the right part of equation if it has no known variable or value as parameter \n"
-                                                  + " func(x) -> x: expression containing rational, complex, funcs \n"
-                                                  + " func(x) = exp -> expr must only contain rationals and x. Pows must be integers \n";
+        }       
     }
 }

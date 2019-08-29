@@ -29,7 +29,6 @@ namespace ComputorV2.Tests.ComputorV2Tests
             computor.ExecuteVarsCommand();
 
             _consoleProcessor.Verify(cp => cp.WriteLine(variablesString));
-
         }
     }
 }
