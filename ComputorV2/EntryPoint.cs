@@ -6,7 +6,7 @@ namespace ComputorV2
     {
         static void Main()
         {
-            new ConsoleReader().StartReading();
+            new Computor(new ConsoleReader()).StartReading();
         }
     }
 }

@@ -39,9 +39,9 @@ namespace ComputorV2
             opInfoMap = new[]
             {
                 new OperationInfo("-", OpArity.Binary, 1, OpAssoc.Left),
-                new OperationInfo("-", OpArity.Unary,  3, OpAssoc.Left),
+                new OperationInfo("-", OpArity.Unary,  3, OpAssoc.Right),
                 new OperationInfo("+", OpArity.Binary, 1, OpAssoc.Left),
-                new OperationInfo("+", OpArity.Unary,  3, OpAssoc.Left),
+                new OperationInfo("+", OpArity.Unary,  3, OpAssoc.Right),
                 new OperationInfo("*", OpArity.Binary, 2, OpAssoc.Left),
                 new OperationInfo("/", OpArity.Binary, 2, OpAssoc.Left),
                 new OperationInfo("%", OpArity.Binary, 2, OpAssoc.Left)
