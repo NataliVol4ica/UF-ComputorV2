@@ -1,41 +1,25 @@
-﻿using System;
+﻿using ComputorV2.ExternalConnections;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace ComputorV2
 {
     public class Computor
     {
-        private IConsoleReader _consoleReader;
+        // Dependency Injections
+        private readonly IConsoleProcessor _consoleProcessor;
+        private readonly VariableStorage _variableStorage;
 
         private readonly Dictionary<CommandType, Action<string>> CommandExecutors;
 
         private bool _isExitCommandEntered;
-        private Dictionary<string, Expression> _variables;
-        private static readonly Regex _validVariableNameRegEx;
-
-        public List<string> Variables => _variables.Select(d => d.Key).ToList();
         public bool _detailed = false;
 
-        static Computor()
+        public Computor(IConsoleProcessor consoleProcessor = null, VariableStorage varStorage = null)
         {
-            _validVariableNameRegEx = new Regex(@"^[a-z]+$", RegexOptions.IgnoreCase);
-        }
-        public Computor(IConsoleReader consoleReader = null)
-        {
-            _consoleReader = consoleReader ?? new ConsoleReader();
-            _variables = new Dictionary<string, Expression>();
+            _consoleProcessor = consoleProcessor ?? new ConsoleProcessor();
             CommandExecutors = GetCommandExecutorsDictionary();
-        }
-
-
-
-        public Computor(Dictionary<string, Expression> variables)
-        {
-            _variables = variables;
-            CommandExecutors = GetCommandExecutorsDictionary();
+            _variableStorage = varStorage ?? new VariableStorage();
         }
         public void StartReading()
         {
@@ -44,8 +28,8 @@ namespace ComputorV2
             {
                 try
                 {
-                    Console.Write("> ");
-                    var inputString = Console.ReadLine();
+                    _consoleProcessor.Write("> ");
+                    var inputString = _consoleProcessor.ReadLine();
                     if (String.IsNullOrEmpty(inputString))
                         continue;
                     var cmdType = ConsoleReaderTools.GetCommandType(inputString);
@@ -53,16 +37,16 @@ namespace ComputorV2
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                    _consoleProcessor.WriteLine(e.Message);
                 }
             } while (!_isExitCommandEntered);
-            Console.WriteLine("See ya!");
-            Console.ReadLine();
+            _consoleProcessor.WriteLine("See ya!");
+            _consoleProcessor.ReadLine();
         }
 
         public List<RPNToken> GetVariableRPNTokens(string varName)
         {
-            return _variables[varName].Tokens;
+            return _variableStorage[varName].Tokens;
         }
 
         #region command executors
@@ -72,32 +56,31 @@ namespace ComputorV2
         }
         public void ExecuteDetailedCommand(string command = null)
         {
-            Console.WriteLine("Display detailed expression evaluation process? [y/n]");
-            var input = Console.ReadLine().ToLower();
+            _consoleProcessor.WriteLine("Display detailed expression evaluation process? [y/n]");
+            var input = _consoleProcessor.ReadLine().ToLower();
             if (input == "y" || input == "yes")
                 _detailed = true;
             else if (input == "n" || input == "no")
                 _detailed = false;
             else
-                Console.WriteLine($"Invalid answer. The detailed will remain {_detailed}");
+                _consoleProcessor.WriteLine($"Invalid answer. The detailed will remain {_detailed}");
         }
         public void ExecuteVarsCommand(string command = null)
         {
-            var varsText = String.Join("\n", _variables.Select(d => $"{d.Key} = {d.Value}"));
-            Console.WriteLine(varsText);
+            _consoleProcessor.WriteLine(_variableStorage.GetVariablesString());
         }
         public void ExecuteAllowedCommand(string command = null)
         {
-            Console.WriteLine(_allowedOperations);
+            _consoleProcessor.WriteLine(_allowedOperations);
         }
-        public static void ExecuteHelpCommand(string command = null)
+        public void ExecuteHelpCommand(string command = null)
         {
             var helpText = ConsoleReaderTools.GetHelp();
-            Console.WriteLine(helpText);
+            _consoleProcessor.WriteLine(helpText);
         }
         public void ExecuteResetCommand(string command = null)
         {
-            _variables = new Dictionary<string, Expression>();
+            _variableStorage.EraseVariablesData();
         }
         public void ExecuteAssignVarCommand(string command)
         {
@@ -106,16 +89,17 @@ namespace ComputorV2
             var parts = command.Split('=');
             var cmdVarName = parts[0].Trim().ToLower();
             var cmdExpression = parts[1].Trim().ToLower();
-            if (!IsValidVarName(cmdVarName))
+            if (!VariableStorage.IsValidVarName(cmdVarName))
                 throw new ArgumentException($"the variable name {cmdVarName} is not valid");
             try
             {
-                _variables[cmdVarName] = ExpressionProcessor.CreateExpression(str: cmdExpression, consoleReaderRef: this, detailedMode: _detailed);
-                Console.WriteLine($"> {_variables[cmdVarName]}");
+                var newExpression = ExpressionProcessor.CreateExpression(str: cmdExpression, computorRef: this, detailedMode: _detailed);
+                var consoleOutput = _variableStorage.AddOrUpdateVariableValue(cmdVarName, newExpression);
+                _consoleProcessor.WriteLine($"> {consoleOutput}");
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error. {e.Message}");
+                _consoleProcessor.WriteLine($"Error. {e.Message}");
             }
         }
 
@@ -126,31 +110,18 @@ namespace ComputorV2
             try
             {
                 var executedExpression = ExpressionProcessor.CreateExpression(cmdExpression, this);
-                Console.WriteLine($"{executedExpression}");
+                _consoleProcessor.WriteLine($"{executedExpression}");
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error. {e.Message}");
+                _consoleProcessor.WriteLine($"Error. {e.Message}");
             }
         }
         #endregion
 
-        public static bool IsValidVarName(string name)
+        public List<string> GetVariablesNameList()
         {
-            var varNAme = name.Trim();
-            if (varNAme == "i" || varNAme == "I")
-                return false;
-            return _validVariableNameRegEx.IsMatch(varNAme);
-        }
-        public string this[string varName]
-        {
-            get
-            {
-                var lowVarName = varName.ToLower();
-                if (_variables.ContainsKey(lowVarName))
-                    return _variables[lowVarName].ToString();
-                return null;
-            }
+            return _variableStorage.VariablesNames;
         }
 
         private Dictionary<CommandType, Action<string>> GetCommandExecutorsDictionary()

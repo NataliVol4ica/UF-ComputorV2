@@ -1,4 +1,4 @@
-using ComputorV2;
+using ComputorV2.ExternalConnections;
 using NUnit.Framework;
 using System;
 
@@ -14,13 +14,13 @@ namespace ComputorV2Tests.ConsoleReaderTests.Unit
         [Test]
         public void IsValidVarName_valid()
         {
-            var actual = ConsoleReader.IsValidVarName("lalala");
+            var actual = ConsoleProcessor.IsValidVarName("lalala");
             Assert.IsTrue(actual);
 
-            actual = ConsoleReader.IsValidVarName("varA");
+            actual = ConsoleProcessor.IsValidVarName("varA");
             Assert.IsTrue(actual);
 
-            actual = ConsoleReader.IsValidVarName("  \t \r varA ");
+            actual = ConsoleProcessor.IsValidVarName("  \t \r varA ");
             Assert.IsTrue(actual);
         }
 
@@ -29,22 +29,22 @@ namespace ComputorV2Tests.ConsoleReaderTests.Unit
         {
             var expected = false;
 
-            var actual = ConsoleReader.IsValidVarName("");
+            var actual = ConsoleProcessor.IsValidVarName("");
             Assert.AreEqual(expected, actual);
 
-            actual = ConsoleReader.IsValidVarName(" lalala1 ");
+            actual = ConsoleProcessor.IsValidVarName(" lalala1 ");
             Assert.AreEqual(expected, actual);
 
-            actual = ConsoleReader.IsValidVarName("name name");
+            actual = ConsoleProcessor.IsValidVarName("name name");
             Assert.AreEqual(expected, actual);
 
-            actual = ConsoleReader.IsValidVarName(" 100500");
+            actual = ConsoleProcessor.IsValidVarName(" 100500");
             Assert.AreEqual(expected, actual);
 
-            actual = ConsoleReader.IsValidVarName("i");
+            actual = ConsoleProcessor.IsValidVarName("i");
             Assert.AreEqual(expected, actual);
 
-            actual = ConsoleReader.IsValidVarName("   \t    \r I  ");
+            actual = ConsoleProcessor.IsValidVarName("   \t    \r I  ");
             Assert.AreEqual(expected, actual);
         }
     }

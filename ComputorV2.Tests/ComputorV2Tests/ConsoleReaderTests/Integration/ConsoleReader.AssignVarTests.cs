@@ -1,4 +1,4 @@
-using ComputorV2;
+using ComputorV2.ExternalConnections;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using System;
@@ -16,19 +16,19 @@ namespace ComputorV2Tests.ConsoleReaderTests.Integration
         [Test]
         public void ExecuteAssignVarCommand_Null_NothingHappens()
         {
-            new ConsoleReader().ExecuteAssignVarCommand(null);
+            new ConsoleProcessor().ExecuteAssignVarCommand(null);
         }
         [Test]
         public void ExecuteAssignVarCommand_EmptyString_NothingHappens()
         {
-            new ConsoleReader().ExecuteAssignVarCommand("");
+            new ConsoleProcessor().ExecuteAssignVarCommand("");
         }
 
 
         [Test]
         public void ExecuteAssignVarCommand_BigDecimal_VarAssigned()
         {
-            var cr = new ConsoleReader();
+            var cr = new ConsoleProcessor();
             cr.ExecuteAssignVarCommand("VarA = 999999999999999999999.991");
 
             var expected = "999999999999999999999.991";
@@ -40,7 +40,7 @@ namespace ComputorV2Tests.ConsoleReaderTests.Integration
         [Test]
         public void ExecuteAssignVarCommand_BigDecimalWithZeroes_SimplifyExpected()
         {
-            var cr = new ConsoleReader();
+            var cr = new ConsoleProcessor();
             cr.ExecuteAssignVarCommand("VarA = 00000000000000000000.0000000000000000000001");
 
             var expected = "0.0000000000000000000001";
@@ -52,7 +52,7 @@ namespace ComputorV2Tests.ConsoleReaderTests.Integration
         [Test]
         public void ExecuteAssignVarCommand_SumWithExistingVar_ValidResultExpected()
         {
-            var cr = new ConsoleReader();
+            var cr = new ConsoleProcessor();
             cr.ExecuteAssignVarCommand("VarA = 0.0000000000000000000001");
             cr.ExecuteAssignVarCommand("VarB = vARa + 7");
 
@@ -65,7 +65,7 @@ namespace ComputorV2Tests.ConsoleReaderTests.Integration
         [Test]
         public void ExecuteAssignVarCommand_DivideByZero_NullExpected()
         {
-            var cr = new ConsoleReader();
+            var cr = new ConsoleProcessor();
             cr.ExecuteAssignVarCommand("VarA = 7.777777");
             cr.ExecuteAssignVarCommand("VarB = vARa - 7.777777");
             cr.ExecuteAssignVarCommand("VarC = 20 /      varb");
@@ -78,7 +78,7 @@ namespace ComputorV2Tests.ConsoleReaderTests.Integration
         [Test]
         public void ExecuteAssignVarCommand_ManyBracketTests_AllOkExpected()
         {
-            var cr = new ConsoleReader();
+            var cr = new ConsoleProcessor();
             cr.ExecuteAssignVarCommand("VarA = (2)");
             cr.ExecuteAssignVarCommand("VarB = ((((2))))");
             cr.ExecuteAssignVarCommand("VarC = ((-((2))))");
@@ -102,7 +102,7 @@ namespace ComputorV2Tests.ConsoleReaderTests.Integration
         [TestCase("-2 - 3", "-5")]
         public void ExecuteAssignVarCommand_WhenCalled_SimplifyExpected(string command, string expected)
         {
-            var cr = new ConsoleReader();
+            var cr = new ConsoleProcessor();
             cr.ExecuteAssignVarCommand($"VarA = {command}");
             Assert.That(cr["VarA"], Is.EqualTo(expected));
         }     

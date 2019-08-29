@@ -3,6 +3,7 @@ using ComputorV2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ComputorV2.ExternalConnections;
 
 namespace ComputorV2Tests.ExpressionProcessorTests
 {
@@ -15,7 +16,7 @@ namespace ComputorV2Tests.ExpressionProcessorTests
             var expr = "abs ( - 2 ) + 3.5 * ( 1 )";
             var stringTokens = new List<string>(expr.Split(" "));
             var actual = ExpressionProcessor
-                .RecognizeLexems(stringTokens, new ConsoleReader())
+                .RecognizeLexems(stringTokens, new ConsoleProcessor())
                 .Select(t => t.tokenType)
                 .ToList();
             var expected = new List<TokenType> {
@@ -43,7 +44,7 @@ namespace ComputorV2Tests.ExpressionProcessorTests
             var expr = "2 + someunrealvar ";
             var stringTokens = new List<string>(expr.Split(" "));
             Assert.That(() => ExpressionProcessor
-                .RecognizeLexems(stringTokens, new ConsoleReader()),
+                .RecognizeLexems(stringTokens, new ConsoleProcessor()),
                 Throws.TypeOf<ArgumentException>()
                 .With.Message.EqualTo("Invalid token: 'someunrealvar'"));
         }
@@ -102,9 +103,9 @@ namespace ComputorV2Tests.ExpressionProcessorTests
             Assert.AreEqual("x", rawActual[4].str);
         }
 
-        private ConsoleReader GenerateCRWithSomeVars()
+        private ConsoleProcessor GenerateCRWithSomeVars()
         {
-            return new ConsoleReader(
+            return new ConsoleProcessor(
                 new Dictionary<string, Expression>
                 {
                     {"somevar", new Expression(

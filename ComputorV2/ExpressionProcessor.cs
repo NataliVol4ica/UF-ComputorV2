@@ -52,12 +52,12 @@ namespace ComputorV2
         #endregion
 
         public static Expression CreateExpression(string str,
-            ConsoleReader consoleReaderRef,
+            Computor computorRef,
             bool isFunction = false,
             string functionParameterName = null, bool detailedMode = false)
         {
             var stringTokens = Tokenize(str);
-            var tokens = RecognizeLexems(stringTokens, consoleReaderRef, functionParameterName);
+            var tokens = RecognizeLexems(stringTokens, computorRef, functionParameterName);
             var simplifiedTokens = Simplify(tokens, detailedMode);
             var newTokenList = new List<RPNToken>
             {
@@ -96,10 +96,10 @@ namespace ComputorV2
         }
         // Step 2
         public static List<RPNToken> RecognizeLexems(List<string> stringTokens,
-            ConsoleReader consoleReaderRef,
+            Computor computorRef,
             string funcParameter = null)
         {
-            var variables = consoleReaderRef.Variables;
+            var variablesNameList = computorRef.GetVariablesNameList();
 
             var tokenList = new List<RPNToken>();
             TokenType tokenType;
@@ -133,7 +133,7 @@ namespace ComputorV2
                 }
                 else if (_bigDecimalRegex.IsMatch(token))
                     tokenType = TokenType.DecimalNumber;
-                else if (variables.Contains(token))
+                else if (variablesNameList.Contains(token))
                     tokenType = TokenType.Variable;
                 else
                     throw new ArgumentException($"Invalid token: '{token}'");
@@ -141,7 +141,7 @@ namespace ComputorV2
                 if (tokenType == TokenType.Variable)
                 {
                     tokenList.Add(new RPNToken("(", TokenType.OBracket));
-                    tokenList.AddRange(consoleReaderRef.GetVariableRPNTokens(token));
+                    tokenList.AddRange(computorRef.GetVariableRPNTokens(token));
                     tokenList.Add(new RPNToken(")", TokenType.CBracket));
                 }
                 else
@@ -203,7 +203,6 @@ namespace ComputorV2
                         $"Buffer {String.Join(", ", bufferStack)} \n " +
                         $"Result {String.Join(", ", outputStack)}");
             }
-            var outputQueue = new Queue<BigNumber>(outputStack);
             while (bufferStack.Count() > 0)
                 CalculateToken(outputStack, bufferStack.Pop(), detailedMode);
             if (outputStack.Count() > 1)

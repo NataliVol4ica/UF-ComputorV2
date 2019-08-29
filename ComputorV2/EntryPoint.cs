@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ComputorV2.ExternalConnections;
+using System;
 
 namespace ComputorV2
 {
@@ -6,7 +7,7 @@ namespace ComputorV2
     {
         static void Main()
         {
-            new Computor(new ConsoleReader()).StartReading();
+            new Computor(new ConsoleProcessor()).StartReading();
         }
     }
 }
