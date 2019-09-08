@@ -25,7 +25,7 @@ namespace ComputorV2
         {
             _variables = new Dictionary<string, Expression>();
         }
-        public string AddOrUpdateVariableValue(string varName, Expression expression)
+        public virtual string AddOrUpdateVariableValue(string varName, Expression expression)
         {
             _variables[varName] = expression;
             return _variables[varName].ToString();

@@ -9,17 +9,21 @@ namespace ComputorV2
         // Dependency Injections
         private readonly IConsoleProcessor _consoleProcessor;
         private readonly VariableStorage _variableStorage;
+        private readonly ExpressionProcessor _expressionProcessor;
 
         private readonly Dictionary<CommandType, Action<string>> CommandExecutors;
 
         private bool _isExitCommandEntered;
         public bool _detailed = false;
 
-        public Computor(IConsoleProcessor consoleProcessor = null, VariableStorage varStorage = null)
+        public Computor(IConsoleProcessor consoleProcessor = null, 
+            VariableStorage varStorage = null,
+            ExpressionProcessor expressionProcessor = null)
         {
             _consoleProcessor = consoleProcessor ?? new ConsoleProcessor();
             CommandExecutors = GetCommandExecutorsDictionary();
             _variableStorage = varStorage ?? new VariableStorage();
+            _expressionProcessor = expressionProcessor ?? new ExpressionProcessor();
         }
         public void StartReading()
         {
@@ -84,8 +88,8 @@ namespace ComputorV2
         }
         public void ExecuteAssignVarCommand(string command)
         {
-            if (String.IsNullOrEmpty(command))
-                return;
+            if (String.IsNullOrWhiteSpace(command))
+                throw new ArgumentNullException("Command string cannot be null");
             var parts = command.Split('=');
             var cmdVarName = parts[0].Trim().ToLower();
             var cmdExpression = parts[1].Trim().ToLower();
@@ -93,8 +97,10 @@ namespace ComputorV2
                 throw new ArgumentException($"the variable name {cmdVarName} is not valid");
             try
             {
-                var newExpression = ExpressionProcessor.CreateExpression(str: cmdExpression, computorRef: this, detailedMode: _detailed);
-                var consoleOutput = _variableStorage.AddOrUpdateVariableValue(cmdVarName, newExpression);
+                var newExpression = _expressionProcessor
+                    .CreateExpression(str: cmdExpression, variableStorage: _variableStorage, detailedMode: _detailed);
+                var consoleOutput = _variableStorage
+                    .AddOrUpdateVariableValue(cmdVarName, newExpression);
                 _consoleProcessor.WriteLine($"> {consoleOutput}");
             }
             catch (Exception e)
@@ -109,7 +115,7 @@ namespace ComputorV2
             var cmdExpression = parts[0].Trim().ToLower();
             try
             {
-                var executedExpression = ExpressionProcessor.CreateExpression(cmdExpression, this);
+                var executedExpression = _expressionProcessor.CreateExpression(cmdExpression, _variableStorage);
                 _consoleProcessor.WriteLine($"{executedExpression}");
             }
             catch (Exception e)
@@ -118,12 +124,7 @@ namespace ComputorV2
             }
         }
         #endregion
-
-        public List<string> GetVariablesNameList()
-        {
-            return _variableStorage.VariablesNames;
-        }
-
+        
         private Dictionary<CommandType, Action<string>> GetCommandExecutorsDictionary()
         {
             return new Dictionary<CommandType, Action<string>>{

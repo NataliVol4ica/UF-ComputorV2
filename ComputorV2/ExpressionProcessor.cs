@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace ComputorV2
 {
-    public static class ExpressionProcessor
+    public class ExpressionProcessor
     {
         #region Regex static data
         private static readonly Regex expressionRegex;
@@ -51,13 +51,13 @@ namespace ComputorV2
         }
         #endregion
 
-        public static Expression CreateExpression(string str,
-            Computor computorRef,
+        public virtual Expression CreateExpression(string str,
+            VariableStorage variableStorage,
             bool isFunction = false,
             string functionParameterName = null, bool detailedMode = false)
         {
             var stringTokens = Tokenize(str);
-            var tokens = RecognizeLexems(stringTokens, computorRef, functionParameterName);
+            var tokens = RecognizeLexems(stringTokens, variableStorage, functionParameterName);
             var simplifiedTokens = Simplify(tokens, detailedMode);
             var newTokenList = new List<RPNToken>
             {
@@ -69,13 +69,13 @@ namespace ComputorV2
             };
             return new Expression(newTokenList, isFunction, str);
         }
-        public static Expression CreateExpression(List<RPNToken> tokens, bool isFunction = false)
+        public virtual Expression CreateExpression(List<RPNToken> tokens, bool isFunction = false)
         {
             return new Expression(tokens, isFunction);
         }
 
         // Step 1
-        public static List<string> Tokenize(string str)
+        private List<string> Tokenize(string str)
         {
             if (str is null)
                 throw new ArgumentException("Cannot tokenize null string");
@@ -95,11 +95,11 @@ namespace ComputorV2
             return stringTokens;
         }
         // Step 2
-        public static List<RPNToken> RecognizeLexems(List<string> stringTokens,
-            Computor computorRef,
+        private List<RPNToken> RecognizeLexems(List<string> stringTokens,
+            VariableStorage variableStorage,
             string funcParameter = null)
         {
-            var variablesNameList = computorRef.GetVariablesNameList();
+            var variablesNameList = variableStorage.VariablesNames;
 
             var tokenList = new List<RPNToken>();
             TokenType tokenType;
@@ -141,7 +141,7 @@ namespace ComputorV2
                 if (tokenType == TokenType.Variable)
                 {
                     tokenList.Add(new RPNToken("(", TokenType.OBracket));
-                    tokenList.AddRange(computorRef.GetVariableRPNTokens(token));
+                    tokenList.AddRange(variableStorage[token].Tokens);
                     tokenList.Add(new RPNToken(")", TokenType.CBracket));
                 }
                 else
@@ -150,7 +150,7 @@ namespace ComputorV2
             return tokenList;
         }
         // Step 3
-        public static BigNumber Simplify(List<RPNToken> tokens, bool detailedMode = false)
+        private BigNumber Simplify(List<RPNToken> tokens, bool detailedMode = false)
         {
             if (tokens is null || tokens.Count == 0)
                 return null;
@@ -231,6 +231,7 @@ namespace ComputorV2
                 return true;
             return false;
         }
+        //todo : move to struct
         private static int CompareOperationPriorities(OperationInfo left, OperationInfo right)
         {
             if ((right.assoc == OpAssoc.Left && right.priority <= left.priority) ||
@@ -251,6 +252,7 @@ namespace ComputorV2
         }
 
         #region Calculations
+        //todo : separate class
         private static BigNumber CalculateBinaryOp(BigNumber right, BigNumber left, string op, bool detailedMode = false)
         {
             if (op.Equals("+"))
@@ -291,6 +293,7 @@ namespace ComputorV2
             throw new NotImplementedException("RPNParser met unimplemented operator \"" + op + "\"");
         }
 
+        //todo : separate class
         private static BigNumber CalcUnaryOp(BigNumber operand, string op)
         {
             var initArgString = operand.ToString();
@@ -306,6 +309,7 @@ namespace ComputorV2
             return operand;
         }
 
+        //todo : separate class
         private static BigNumber CalcFunc(BigNumber arg, string func)
         {
             var initArgString = arg.ToString();

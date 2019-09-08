@@ -11,12 +11,16 @@ namespace ComputorV2.Tests.ComputorV2Tests
     {
         Mock<IConsoleProcessor> _consoleProcessor;
         Mock<VariableStorage> _variableStorage;
+        Mock<ExpressionProcessor> _expressionProcessor;
+
+        private readonly Expression _emptyExpression = new Expression(new List<RPNToken>(), false);
 
         [SetUp]
         public void Setup()
         {
             _consoleProcessor = new Mock<IConsoleProcessor>();
             _variableStorage = new Mock<VariableStorage>();
+            _expressionProcessor = new Mock<ExpressionProcessor>();
         }
 
         [Test]
@@ -29,6 +33,66 @@ namespace ComputorV2.Tests.ComputorV2Tests
             computor.ExecuteVarsCommand();
 
             _consoleProcessor.Verify(cp => cp.WriteLine(variablesString));
+        }
+        [Test]
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("   \t\n")]
+        public void ExecuteAssignVarCommand_WhenCalledWithNullString_ThrowsArgumentNullException(string varname)
+        {
+            var computor = new Computor(_consoleProcessor.Object, _variableStorage.Object);
+
+            Assert.That(() => computor.ExecuteAssignVarCommand(varname),
+                Throws.TypeOf<ArgumentNullException>());
+        }
+
+        [Test]
+        [TestCase("")]
+        [TestCase("i")]
+        [TestCase("23")]
+        [TestCase("varA1")]
+        public void ExecuteAssignVarCommand_WhenCalledWithInvalidVarName_ThrowsArgumentException(string varName)
+        {
+            var cmd = varName + " = 3";
+            var computor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
+
+            Assert.That(() => computor.ExecuteAssignVarCommand(cmd),
+                Throws.TypeOf<ArgumentException>());
+        }
+
+        [Test]
+        public void ExecuteAssignVarCommand_CreatesExpressionWithException_WritesAnErrorToConsole()
+        {
+            string cpStringParameter = default(string);
+            _expressionProcessor
+                .Setup(ep => ep.CreateExpression(It.IsAny<string>(), It.IsAny<VariableStorage>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .Throws<Exception>();
+            _consoleProcessor
+                .Setup(cp => cp.WriteLine(It.IsAny<string>()))
+                .Callback<string>(str=>cpStringParameter=str);
+
+            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
+            testedComputor.ExecuteAssignVarCommand("vara = 2 / 0");
+
+            _consoleProcessor.Verify(cp => cp.WriteLine(It.IsAny<string>()));
+            StringAssert.Contains("Error", cpStringParameter);
+        }
+
+        [Test]
+        public void ExecuteAssignVarCommand_WhenAllOk_CallsVariableStorageAddOrUpdateAndWritesOutput()
+        {
+            _expressionProcessor
+                .Setup(ep => ep.CreateExpression(It.IsAny<string>(), It.IsAny<VariableStorage>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .Returns(_emptyExpression);
+            _variableStorage
+                .Setup(vs => vs.AddOrUpdateVariableValue(It.IsAny<string>(), It.IsAny<Expression>()))
+                .Returns("AddOrUpdateReturnValue");
+            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
+
+            testedComputor.ExecuteAssignVarCommand("vara = 2 + 2");
+
+            _variableStorage.Verify(vs => vs.AddOrUpdateVariableValue("vara", _emptyExpression));
+            _consoleProcessor.Verify(cp => cp.WriteLine($"> AddOrUpdateReturnValue"));
         }
     }
 }
