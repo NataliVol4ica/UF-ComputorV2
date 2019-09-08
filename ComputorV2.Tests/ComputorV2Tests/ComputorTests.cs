@@ -10,8 +10,8 @@ namespace ComputorV2.Tests.ComputorV2Tests
     public class ComputorTests
     {
         Mock<IConsoleProcessor> _consoleProcessor;
-        Mock<VariableStorage> _variableStorage;
-        Mock<ExpressionProcessor> _expressionProcessor;
+        Mock<IVariableStorage> _variableStorage;
+        Mock<IExpressionProcessor> _expressionProcessor;
 
         private readonly Expression _emptyExpression = new Expression(new List<RPNToken>(), false);
 
@@ -19,8 +19,8 @@ namespace ComputorV2.Tests.ComputorV2Tests
         public void Setup()
         {
             _consoleProcessor = new Mock<IConsoleProcessor>();
-            _variableStorage = new Mock<VariableStorage>();
-            _expressionProcessor = new Mock<ExpressionProcessor>();
+            _variableStorage = new Mock<IVariableStorage>();
+            _expressionProcessor = new Mock<IExpressionProcessor>();
         }
 
         [Test]
@@ -63,9 +63,9 @@ namespace ComputorV2.Tests.ComputorV2Tests
         [Test]
         public void ExecuteAssignVarCommand_CreatesExpressionWithException_WritesAnErrorToConsole()
         {
-            string cpStringParameter = default(string);
+            string cpStringParameter = default;
             _expressionProcessor
-                .Setup(ep => ep.CreateExpression(It.IsAny<string>(), It.IsAny<VariableStorage>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .Setup(ep => ep.CreateExpression(It.IsAny<string>(), It.IsAny<IVariableStorage>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<Exception>();
             _consoleProcessor
                 .Setup(cp => cp.WriteLine(It.IsAny<string>()))
@@ -82,7 +82,7 @@ namespace ComputorV2.Tests.ComputorV2Tests
         public void ExecuteAssignVarCommand_WhenAllOk_CallsVariableStorageAddOrUpdateAndWritesOutput()
         {
             _expressionProcessor
-                .Setup(ep => ep.CreateExpression(It.IsAny<string>(), It.IsAny<VariableStorage>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .Setup(ep => ep.CreateExpression(It.IsAny<string>(), It.IsAny<IVariableStorage>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(_emptyExpression);
             _variableStorage
                 .Setup(vs => vs.AddOrUpdateVariableValue(It.IsAny<string>(), It.IsAny<Expression>()))
@@ -92,7 +92,7 @@ namespace ComputorV2.Tests.ComputorV2Tests
             testedComputor.ExecuteAssignVarCommand("vara = 2 + 2");
 
             _variableStorage.Verify(vs => vs.AddOrUpdateVariableValue("vara", _emptyExpression));
-            _consoleProcessor.Verify(cp => cp.WriteLine($"> AddOrUpdateReturnValue"));
+            _consoleProcessor.Verify(cp => cp.WriteLine("> AddOrUpdateReturnValue"));
         }
     }
 }

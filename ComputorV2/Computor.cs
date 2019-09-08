@@ -8,8 +8,8 @@ namespace ComputorV2
     {
         // Dependency Injections
         private readonly IConsoleProcessor _consoleProcessor;
-        private readonly VariableStorage _variableStorage;
-        private readonly ExpressionProcessor _expressionProcessor;
+        private readonly IVariableStorage _variableStorage;
+        private readonly IExpressionProcessor _expressionProcessor;
 
         private readonly Dictionary<CommandType, Action<string>> CommandExecutors;
 
@@ -17,8 +17,8 @@ namespace ComputorV2
         public bool _detailed = false;
 
         public Computor(IConsoleProcessor consoleProcessor = null, 
-            VariableStorage varStorage = null,
-            ExpressionProcessor expressionProcessor = null)
+            IVariableStorage varStorage = null,
+            IExpressionProcessor expressionProcessor = null)
         {
             _consoleProcessor = consoleProcessor ?? new ConsoleProcessor();
             CommandExecutors = GetCommandExecutorsDictionary();
@@ -46,11 +46,6 @@ namespace ComputorV2
             } while (!_isExitCommandEntered);
             _consoleProcessor.WriteLine("See ya!");
             _consoleProcessor.ReadLine();
-        }
-
-        public List<RPNToken> GetVariableRPNTokens(string varName)
-        {
-            return _variableStorage[varName].Tokens;
         }
 
         #region command executors

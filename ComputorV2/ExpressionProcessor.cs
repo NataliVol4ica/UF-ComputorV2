@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace ComputorV2
 {
-    public class ExpressionProcessor
+    public class ExpressionProcessor : IExpressionProcessor
     {
         #region Regex static data
         private static readonly Regex expressionRegex;
@@ -51,8 +51,8 @@ namespace ComputorV2
         }
         #endregion
 
-        public virtual Expression CreateExpression(string str,
-            VariableStorage variableStorage,
+        public Expression CreateExpression(string str,
+            IVariableStorage variableStorage,
             bool isFunction = false,
             string functionParameterName = null, bool detailedMode = false)
         {
@@ -69,7 +69,7 @@ namespace ComputorV2
             };
             return new Expression(newTokenList, isFunction, str);
         }
-        public virtual Expression CreateExpression(List<RPNToken> tokens, bool isFunction = false)
+        public Expression CreateExpression(List<RPNToken> tokens, bool isFunction = false)
         {
             return new Expression(tokens, isFunction);
         }
@@ -96,7 +96,7 @@ namespace ComputorV2
         }
         // Step 2
         private List<RPNToken> RecognizeLexems(List<string> stringTokens,
-            VariableStorage variableStorage,
+            IVariableStorage variableStorage,
             string funcParameter = null)
         {
             var variablesNameList = variableStorage.VariablesNames;

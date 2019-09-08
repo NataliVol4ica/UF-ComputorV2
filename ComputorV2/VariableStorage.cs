@@ -5,18 +5,18 @@ using System.Text.RegularExpressions;
 
 namespace ComputorV2
 {
-    public class VariableStorage
+    public class VariableStorage : IVariableStorage
     {
         private static readonly Regex _validVariableNameRegEx = new Regex(@"^[a-z]+$", RegexOptions.IgnoreCase);
         private Dictionary<string, Expression> _variables;
         public List<string> VariablesNames => _variables.Select(d => d.Key).ToList();
-       
+
         public VariableStorage()
         {
             _variables = new Dictionary<string, Expression>();
         }
 
-        public virtual string GetVariablesString()
+        public string GetVariablesString()
         {
             var varsText = String.Join("\n", _variables.Select(d => $"{d.Key} = {d.Value}"));
             return varsText;
@@ -25,7 +25,7 @@ namespace ComputorV2
         {
             _variables = new Dictionary<string, Expression>();
         }
-        public virtual string AddOrUpdateVariableValue(string varName, Expression expression)
+        public string AddOrUpdateVariableValue(string varName, Expression expression)
         {
             _variables[varName] = expression;
             return _variables[varName].ToString();
