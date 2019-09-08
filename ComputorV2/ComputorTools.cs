@@ -69,6 +69,8 @@ namespace ComputorV2
         }
         public static CommandType GetCommandType(string command)
         {
+            if (String.IsNullOrWhiteSpace(command))
+                throw new ArgumentException($"Empty command: '{command}'");
             var cmd = command.Trim().ToLower();
             var cmdType = GetSimpleCommandType(cmd);
             if (cmdType is null)

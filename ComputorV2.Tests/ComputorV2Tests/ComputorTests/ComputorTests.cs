@@ -3,47 +3,52 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace ComputorV2.Tests.ComputorV2Tests
 {
     public class ComputorTests
     {
-        Mock<IConsoleProcessor> _consoleProcessor;
-        Mock<IVariableStorage> _variableStorage;
-        Mock<IExpressionProcessor> _expressionProcessor;
+        Mock<IConsoleProcessor> _consoleProcessor = new Mock<IConsoleProcessor>();
+        Mock<IVariableStorage> _variableStorage = new Mock<IVariableStorage>();
+        Mock<IExpressionProcessor> _expressionProcessor = new Mock<IExpressionProcessor>();
 
+        private List<string> _consoleOutputLines = new List<string>();
         private readonly Expression _emptyExpression = new Expression(new List<RPNToken>(), false);
 
         [SetUp]
         public void Setup()
         {
-            _consoleProcessor = new Mock<IConsoleProcessor>();
-            _variableStorage = new Mock<IVariableStorage>();
-            _expressionProcessor = new Mock<IExpressionProcessor>();
+            _consoleProcessor
+                .Setup(cp => cp.WriteLine(It.IsAny<string>()))
+                .Callback<string>(str => _consoleOutputLines.Add(str));
         }
 
         [Test]
         public void ExecuteVarsCommand_WhenCalled_PrintsVarsData()
         {
+            //Arrange
             var variablesString = "a = 2\nb = 3";
-
             _variableStorage.Setup(vs => vs.GetVariablesString()).Returns(variablesString);
-            var computor = new Computor(_consoleProcessor.Object, _variableStorage.Object);
-            computor.ExecuteVarsCommand();
-
+            SetupConsoleMockToReturnCommandAndExit("Vars");
+            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
+            //Act
+            testedComputor.StartReading();
+            //Assert
             _consoleProcessor.Verify(cp => cp.WriteLine(variablesString));
         }
         [Test]
         [TestCase(null)]
         [TestCase("")]
         [TestCase("   \t\n")]
-        public void ExecuteAssignVarCommand_WhenCalledWithNullString_ThrowsArgumentNullException(string varname)
+        public void ExecuteAssignVarCommand_WhenCalledWithNullString_WritesAnErrorToConsole(string varName)
         {
-            var computor = new Computor(_consoleProcessor.Object, _variableStorage.Object);
+            SetupConsoleMockToReturnCommandAndExit(varName);
+            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
 
-            Assert.That(() => computor.ExecuteAssignVarCommand(varname),
-                Throws.TypeOf<ArgumentNullException>());
+            testedComputor.StartReading();
+
+            _consoleProcessor.Verify(cp => cp.WriteLine(It.IsAny<string>()));
+            StringAssert.Contains("Error", _consoleOutputLines[0]);
         }
 
         [Test]
@@ -51,31 +56,31 @@ namespace ComputorV2.Tests.ComputorV2Tests
         [TestCase("i")]
         [TestCase("23")]
         [TestCase("varA1")]
-        public void ExecuteAssignVarCommand_WhenCalledWithInvalidVarName_ThrowsArgumentException(string varName)
+        public void ExecuteAssignVarCommand_WhenCalledWithInvalidVarName_WritesAnErrorToConsole(string varName)
         {
             var cmd = varName + " = 3";
-            var computor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
+            SetupConsoleMockToReturnCommandAndExit(cmd);
+            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
 
-            Assert.That(() => computor.ExecuteAssignVarCommand(cmd),
-                Throws.TypeOf<ArgumentException>());
+            testedComputor.StartReading();
+
+            _consoleProcessor.Verify(cp => cp.WriteLine(It.IsAny<string>()));
+            StringAssert.Contains("Error", _consoleOutputLines[0]);
         }
 
         [Test]
         public void ExecuteAssignVarCommand_CreatesExpressionWithException_WritesAnErrorToConsole()
         {
-            string cpStringParameter = default;
             _expressionProcessor
                 .Setup(ep => ep.CreateExpression(It.IsAny<string>(), It.IsAny<IVariableStorage>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<Exception>();
-            _consoleProcessor
-                .Setup(cp => cp.WriteLine(It.IsAny<string>()))
-                .Callback<string>(str=>cpStringParameter=str);
 
+            SetupConsoleMockToReturnCommandAndExit("vara = 2 / 0");
             var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
-            testedComputor.ExecuteAssignVarCommand("vara = 2 / 0");
+            testedComputor.StartReading();
 
             _consoleProcessor.Verify(cp => cp.WriteLine(It.IsAny<string>()));
-            StringAssert.Contains("Error", cpStringParameter);
+            StringAssert.Contains("Error", _consoleOutputLines[0]);
         }
 
         [Test]
@@ -87,12 +92,20 @@ namespace ComputorV2.Tests.ComputorV2Tests
             _variableStorage
                 .Setup(vs => vs.AddOrUpdateVariableValue(It.IsAny<string>(), It.IsAny<Expression>()))
                 .Returns("AddOrUpdateReturnValue");
+            SetupConsoleMockToReturnCommandAndExit("vara = 2 + 2");
             var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
-
-            testedComputor.ExecuteAssignVarCommand("vara = 2 + 2");
+            testedComputor.StartReading(); ;
 
             _variableStorage.Verify(vs => vs.AddOrUpdateVariableValue("vara", _emptyExpression));
             _consoleProcessor.Verify(cp => cp.WriteLine("> AddOrUpdateReturnValue"));
+        }
+
+        private void SetupConsoleMockToReturnCommandAndExit(string command)
+        {
+            _consoleProcessor
+                    .SetupSequence(cp => cp.ReadLine())
+                    .Returns(command)
+                    .Returns("Exit");
         }
     }
 }

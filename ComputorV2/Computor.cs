@@ -6,7 +6,6 @@ namespace ComputorV2
 {
     public class Computor
     {
-        // Dependency Injections
         private readonly IConsoleProcessor _consoleProcessor;
         private readonly IVariableStorage _variableStorage;
         private readonly IExpressionProcessor _expressionProcessor;
@@ -14,7 +13,7 @@ namespace ComputorV2
         private readonly Dictionary<CommandType, Action<string>> CommandExecutors;
 
         private bool _isExitCommandEntered;
-        public bool _detailed = false;
+        private bool _detailed = false;
 
         public Computor(IConsoleProcessor consoleProcessor = null, 
             IVariableStorage varStorage = null,
@@ -41,7 +40,7 @@ namespace ComputorV2
                 }
                 catch (Exception e)
                 {
-                    _consoleProcessor.WriteLine(e.Message);
+                    _consoleProcessor.WriteLine($"Error. {e.Message}");
                 }
             } while (!_isExitCommandEntered);
             _consoleProcessor.WriteLine("See ya!");
@@ -49,11 +48,11 @@ namespace ComputorV2
         }
 
         #region command executors
-        public void ExecuteExitCommand(string command = null)
+        private void ExecuteExitCommand(string command = null)
         {
             _isExitCommandEntered = true;
         }
-        public void ExecuteDetailedCommand(string command = null)
+        private void ExecuteDetailedCommand(string command = null)
         {
             _consoleProcessor.WriteLine("Display detailed expression evaluation process? [y/n]");
             var input = _consoleProcessor.ReadLine().ToLower();
@@ -64,24 +63,24 @@ namespace ComputorV2
             else
                 _consoleProcessor.WriteLine($"Invalid answer. The detailed will remain {_detailed}");
         }
-        public void ExecuteVarsCommand(string command = null)
+        private void ExecuteVarsCommand(string command = null)
         {
             _consoleProcessor.WriteLine(_variableStorage.GetVariablesString());
         }
-        public void ExecuteAllowedCommand(string command = null)
+        private void ExecuteAllowedCommand(string command = null)
         {
             _consoleProcessor.WriteLine(ComputorTools.GetAllowedOperations());
         }
-        public void ExecuteHelpCommand(string command = null)
+        private void ExecuteHelpCommand(string command = null)
         {
             var helpText = ComputorTools.GetHelp();
             _consoleProcessor.WriteLine(helpText);
         }
-        public void ExecuteResetCommand(string command = null)
+        private void ExecuteResetCommand(string command = null)
         {
             _variableStorage.EraseVariablesData();
         }
-        public void ExecuteAssignVarCommand(string command)
+        private void ExecuteAssignVarCommand(string command)
         {
             if (String.IsNullOrWhiteSpace(command))
                 throw new ArgumentNullException("Command string cannot be null");
@@ -104,7 +103,7 @@ namespace ComputorV2
             }
         }
 
-        public void ExecuteEvaluateExpressionCommand(string command)
+        private void ExecuteEvaluateExpressionCommand(string command)
         {
             var parts = command.Split('=');
             var cmdExpression = parts[0].Trim().ToLower();
