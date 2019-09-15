@@ -19,19 +19,19 @@ namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
 
             Assert.Throws<ArgumentException>(() =>
             numToPow.Pow(fakeBigNumber.Object));
-
         }
         [Test]
         public void Pow_WhenCalledWithNotInteger_ThrowsEXception() { }
         [Test]
         public void Pow_WhenCalledWithZero_ReturnsOne() { }
         [Test]
-        public void Pow_WhenCalledWithPositivePows_ReturnsPow() { }
+        [TestCase("1", "1", "1")]
+        public void Pow_WhenCalledWithPositivePows_ReturnsPow(string str, string pow, string expected) { }
         [Test]
         [TestCase("1", "-1", "1")]
         [TestCase("2", "-1", "0.5")]
         [TestCase("2", "-2", "0.25")]
         [TestCase("5", "-3", "0.008")]
-        public void Pow_WhenCalledWithNegativePows_ReturnsPow() { }
+        public void Pow_WhenCalledWithNegativePows_ReturnsPow(string str, string pow, string expected) { }
     }
 }

@@ -17,11 +17,13 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
 
         private static volatile int _fracPrecision = 20;
 
-        private volatile int _dotPos = 0;
-        private volatile int _fracLen = -1;
+        private int? _dotPos = null;
+        private int? _fracLen = null;
+        private bool? _isInteger = null;
 
         private readonly Object dotPosMutex = new Object();
         private readonly Object fracLenMutex = new Object();
+        private readonly Object isIntegerMutex = new Object();
 
         public BigDecimal() { }
         public BigDecimal(BigDecimal from)
@@ -30,7 +32,7 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             if (from.Sign < 0)
                 Negate();
             DotPos = from.DotPos;
-            Fractional = from.Fractional;
+            FractionalLength = from.FractionalLength;
         }
         public BigDecimal(string str)
         {
@@ -57,39 +59,60 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         {
             get
             {
-                if (_dotPos == 0)
+                if (!_dotPos.HasValue)
                 {
                     lock (dotPosMutex)
                     {
                         FindDotPos();
                     }
                 }
-                return _dotPos;
+                return _dotPos.Value;
             }
             private set
             {
                 _dotPos = value;
             }
         }
-        public int Integer
+        public bool IsInteger
+        {
+            get
+            {
+                if (!_isInteger.HasValue)
+                {
+                    lock (isIntegerMutex)
+                    {
+                        if (FractionalLength == 0)
+                            _isInteger = true;
+                        else
+                            _isInteger = false;
+                    }
+                }
+                return _isInteger.Value;
+            }
+            private set
+            {
+                _isInteger = value;
+            }
+        }
+        public int IntegerLength
         {
             get
             {
                 return DotPos;
             }
         }
-        public int Fractional
+        public int FractionalLength
         {
             get
             {
-                if (_fracLen < 0)
+                if (!_fracLen.HasValue)
                     lock (fracLenMutex)
                     {
                         _fracLen = CleanString.Length - DotPos;
                         if (_fracLen > 0)
                             _fracLen--;
                     }
-                return _fracLen;
+                return _fracLen.Value;
             }
             private set
             {
@@ -133,8 +156,8 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             List<int> ret = new List<int>();
             int IntZeros, FracZeros;
 
-            IntZeros = Math.Max(num.Integer, desiredInt) - num.Integer;
-            FracZeros = Math.Max(num.Fractional, desiredFrac) - num.Fractional;
+            IntZeros = Math.Max(num.IntegerLength, desiredInt) - num.IntegerLength;
+            FracZeros = Math.Max(num.FractionalLength, desiredFrac) - num.FractionalLength;
             ret.AddRange(Enumerable.Repeat(0, FracZeros));
             for (int i = num.CleanString.Length - 1; i >= 0; i--)
                 if (num.CleanString[i] != '.')
@@ -215,8 +238,8 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             if (bfLeft.Sign != bfRight.Sign)
                 return bfLeft.Substract(-bfRight);
 
-            int desiredInt = Math.Max(bfLeft.Integer, bfRight.Integer);
-            int desiredFrac = Math.Max(bfLeft.Fractional, bfRight.Fractional);
+            int desiredInt = Math.Max(bfLeft.IntegerLength, bfRight.IntegerLength);
+            int desiredFrac = Math.Max(bfLeft.FractionalLength, bfRight.FractionalLength);
             var leftList = BigDecimalToIntList(bfLeft, desiredInt, desiredFrac);
             var rightList = BigDecimalToIntList(bfRight, desiredInt, desiredFrac);
             var resultList = leftList.SumWithList(rightList);
@@ -249,8 +272,8 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
                 sign = -sign;
                 Swap(ref bfLeft, ref bfRight);
             }
-            int desiredInt = Math.Max(bfLeft.Integer, bfRight.Integer);
-            int desiredFrac = Math.Max(bfLeft.Fractional, bfRight.Fractional);
+            int desiredInt = Math.Max(bfLeft.IntegerLength, bfRight.IntegerLength);
+            int desiredFrac = Math.Max(bfLeft.FractionalLength, bfRight.FractionalLength);
             var leftList = BigDecimalToIntList(bfLeft, desiredInt, desiredFrac);
             var rightList = BigDecimalToIntList(bfRight, desiredInt, desiredFrac);
             var resultList = leftList.SubByList(rightList);
@@ -269,9 +292,9 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             BigDecimal bfLeft = this;
             BigDecimal bfRight = (BigDecimal)op;
 
-            if (bfLeft.Integer + bfLeft.Fractional < bfRight.Integer + bfRight.Fractional)
+            if (bfLeft.IntegerLength + bfLeft.FractionalLength < bfRight.IntegerLength + bfRight.FractionalLength)
                 Swap(ref bfLeft, ref bfRight);
-            int newDot = bfLeft.Fractional + bfRight.Fractional;
+            int newDot = bfLeft.FractionalLength + bfRight.FractionalLength;
             var leftList = BigDecimalToIntList(bfLeft);
             var rightList = BigDecimalToIntList(bfRight);
             var resultList = leftList.MulWithList(rightList);
@@ -292,7 +315,7 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             BigDecimal bfLeft = this;
             BigDecimal bfRight = (BigDecimal)op;
 
-            int multiplier = Math.Max(bfLeft.Fractional, bfRight.Fractional);
+            int multiplier = Math.Max(bfLeft.FractionalLength, bfRight.FractionalLength);
             var leftList = BigDecimalToIntList(bfLeft, 0, multiplier + FracPrecision);
             var rightList = BigDecimalToIntList(bfRight, 0, multiplier);
             leftList.RemoveTailingZeros();
@@ -389,9 +412,9 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             {
                 if (right.Sign < 0)
                     return true;
-                if (left.Integer > right.Integer)
+                if (left.IntegerLength > right.IntegerLength)
                     return true;
-                if (left.Integer < right.Integer)
+                if (left.IntegerLength < right.IntegerLength)
                     return false;
                 if (string.Compare(left.CleanString, right.CleanString) > 0)
                     return true;
@@ -399,9 +422,9 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             }
             if (right.Sign > 0)
                 return false;
-            if (left.Integer > right.Integer)
+            if (left.IntegerLength > right.IntegerLength)
                 return false;
-            if (left.Integer < right.Integer)
+            if (left.IntegerLength < right.IntegerLength)
                 return true;
             if (string.Compare(left.CleanString, right.CleanString) > 0)
                 return false;
@@ -456,7 +479,7 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
 
         private void FindDotPos()
         {
-            if (_dotPos > 0)
+            if (_dotPos.HasValue)
                 return;
             _dotPos = CleanString.IndexOf(delimiter);
             if (_dotPos < 0)
