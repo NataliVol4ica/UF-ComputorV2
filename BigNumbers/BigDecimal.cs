@@ -150,8 +150,11 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
 
             if (digits is null || digits.Count == 0)
                 return "";
-            if (dotPos < 0)
+            if (dotPos <= 0)
+            {
+                digits.AddRange(Enumerable.Repeat(0, 1 - dotPos));
                 dotPos = 1;
+            }
             sb = new StringBuilder();
             reverseDot = digits.Count - dotPos;
             for (i = digits.Count - 1; i >= reverseDot; i--)
@@ -162,7 +165,8 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
                 while (i >= 0)
                     sb.Append(ToChar(digits[i--]));
             }
-            return sb.ToString();
+            var result = sb.ToString();
+            return result;
         }
 
         public override BigNumber Abs()

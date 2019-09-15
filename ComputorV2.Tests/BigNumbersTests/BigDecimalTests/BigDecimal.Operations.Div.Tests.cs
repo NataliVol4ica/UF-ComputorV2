@@ -49,43 +49,28 @@ namespace BigNumbersTests.BigDecimalTests
         }
 
         [Test]
-        public void Zero_Zero()
+        [TestCase("0", "0", "0")]
+        [TestCase("-5", "0", "0")]
+        public void Division_WhenDividingOnZero_ThrowsException(string a, string b, string expexted)
         {
             Assert.Throws<DivideByZeroException>(() =>
-            DoTesting("0", "0", "0"));
+            DoTesting(a,b,expexted));
         }
 
         [Test]
-        public void Zero_m5()
+        [TestCase("0", "-5", "0")]
+        [TestCase("-6", "5", "-1.2")]
+        [TestCase("20.1", "0.05", "402")]
+        [TestCase("20.1", "5", "4.02")]
+        [TestCase("0", "-5", "0")]
+        [TestCase("25", "100", "0.25")]
+        [TestCase("25", "1000", "0.025")]
+        [TestCase("25", "100000000", "0.00000025")]
+        public void Division_WhenCalled_ReturnsExpectedResult(string a, string b, string expexted)
         {
-            DoTesting("0", "-5", "0");
-        }
-
-        [Test]
-        public void M5_zero()
-        {
-            Assert.Throws<DivideByZeroException>(() =>
-            DoTesting("-5", "0", "0"));
-        }
-
-        [Test]
-        public void M6_p5()
-        {
-            DoTesting("-6", "5", "-1.2");
-        }
-
-        [Test]
-        public void P20D1_p0D05()
-        {
-            DoTesting("20.1", "0.05", "402");
+            DoTesting(a, b, expexted);
         }
         
-        [Test]
-        public void P20D1_p5()
-        {
-            DoTesting("20.1", "5", "4.02");
-        }
-
         [Test]
         public void Random_10000_tests()
         {
