@@ -21,7 +21,14 @@ namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
             numToPow.Pow(fakeBigNumber.Object));
         }
         [Test]
-        public void Pow_WhenCalledWithNotInteger_ThrowsEXception() { }
+        public void Pow_WhenCalledWithNotInteger_ThrowsEXception() {
+            var fakeBigDecimal = new Mock<BigDecimal>();
+            fakeBigDecimal.SetupGet(bd => bd.IsInteger).Returns(false);
+            var numToPow = new BigDecimal("5");
+
+            Assert.Throws<ArgumentException>(() =>
+            numToPow.Pow(fakeBigDecimal.Object));
+        }
         [Test]
         public void Pow_WhenCalledWithZero_ReturnsOne() { }
         [Test]
