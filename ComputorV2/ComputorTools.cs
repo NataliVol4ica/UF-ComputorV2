@@ -16,13 +16,14 @@ namespace ComputorV2
         EvaluateExpression
     }
 
-    public static class ConsoleReaderTools
+    public static class ComputorTools
     {
         static readonly Dictionary<string, CommandType> _commandStringTypes;
         static readonly Dictionary<string, string> _commandDescriptions;
         static readonly string _helpText;
+        static readonly string _allowedOperations;
 
-        static ConsoleReaderTools()
+        static ComputorTools()
         {
             _commandStringTypes = new Dictionary<string, CommandType>
             {
@@ -43,9 +44,33 @@ namespace ComputorV2
                 {"allowed", "View list of allowed operations in-between types"}
             };
             _helpText = String.Join("\n", _commandDescriptions.Select(d => $"{d.Key}: {d.Value}"));
+            _allowedOperations = " >> Rational << \n\n"
+                                                  + " + -abs rational \n"
+                                                  + " rational all rational \n"
+                                                  + " rational +-* complex \n"
+                                                  + " rational* matrix \n\n"
+                                                  + " >> Complex << \n\n"
+                                                  + " +-abs complex \n"
+                                                  + " complex ^ int \n"
+                                                  + " complex +-* rational"
+                                                  + " \n complex +-* complex \n\n"
+                                                  + " >> Matrix << \n\n"
+                                                  + " +- matrix \n"
+                                                  + " matrix */ rational \n"
+                                                  + " matrix + - matrix of same size \n"
+                                                  + " matrix A[LxM] * matrix B[MxN]"
+                                                  + " T(matrix) - transponation \n"
+                                                  + " R(matrix) - reverse \n"
+                                                  + " abs(matrix) - opredelitel \n\n"
+                                                  + " >> Func << \n\n"
+                                                  + " func cannot be in the right part of equation if it has no known variable or value as parameter \n"
+                                                  + " func(x) -> x: expression containing rational, complex, funcs \n"
+                                                  + " func(x) = exp -> expr must only contain rationals and x. Pows must be integers \n";
         }
         public static CommandType GetCommandType(string command)
         {
+            if (String.IsNullOrWhiteSpace(command))
+                throw new ArgumentException($"Empty command: '{command}'");
             var cmd = command.Trim().ToLower();
             var cmdType = GetSimpleCommandType(cmd);
             if (cmdType is null)
@@ -56,6 +81,10 @@ namespace ComputorV2
         public static string GetHelp()
         {
             return _helpText;
+        }
+        public static string GetAllowedOperations()
+        {
+            return _allowedOperations;
         }
 
         private static CommandType? GetSimpleCommandType(string command)
@@ -78,6 +107,5 @@ namespace ComputorV2
                 return CommandType.EvaluateExpression;
             return CommandType.AssignVar;
         }
-
     }
 }

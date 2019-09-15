@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace ComputorV2
 {
-    public static class ExpressionProcessor
+    public class ExpressionProcessor : IExpressionProcessor
     {
         #region Regex static data
         private static readonly Regex expressionRegex;
@@ -23,6 +23,7 @@ namespace ComputorV2
 
         private static readonly List<string> funcs = new List<string> { "abs" };
         private static readonly ILookup<string, OperationInfo> opInfoMap;
+        private readonly IVariableStorage _variableStorage;
 
         static ExpressionProcessor()
         {
@@ -39,9 +40,9 @@ namespace ComputorV2
             opInfoMap = new[]
             {
                 new OperationInfo("-", OpArity.Binary, 1, OpAssoc.Left),
-                new OperationInfo("-", OpArity.Unary,  3, OpAssoc.Left),
+                new OperationInfo("-", OpArity.Unary,  3, OpAssoc.Right),
                 new OperationInfo("+", OpArity.Binary, 1, OpAssoc.Left),
-                new OperationInfo("+", OpArity.Unary,  3, OpAssoc.Left),
+                new OperationInfo("+", OpArity.Unary,  3, OpAssoc.Right),
                 new OperationInfo("*", OpArity.Binary, 2, OpAssoc.Left),
                 new OperationInfo("/", OpArity.Binary, 2, OpAssoc.Left),
                 new OperationInfo("%", OpArity.Binary, 2, OpAssoc.Left)
@@ -51,13 +52,17 @@ namespace ComputorV2
         }
         #endregion
 
-        public static Expression CreateExpression(string str,
-            ConsoleReader consoleReaderRef,
+        public ExpressionProcessor(IVariableStorage variableStorage)
+        {
+            _variableStorage = variableStorage;
+        }
+
+        public Expression CreateExpression(string str,
             bool isFunction = false,
             string functionParameterName = null, bool detailedMode = false)
         {
             var stringTokens = Tokenize(str);
-            var tokens = RecognizeLexems(stringTokens, consoleReaderRef, functionParameterName);
+            var tokens = RecognizeLexems(stringTokens, functionParameterName);
             var simplifiedTokens = Simplify(tokens, detailedMode);
             var newTokenList = new List<RPNToken>
             {
@@ -69,16 +74,16 @@ namespace ComputorV2
             };
             return new Expression(newTokenList, isFunction, str);
         }
-        public static Expression CreateExpression(List<RPNToken> tokens, bool isFunction = false)
+        public Expression CreateExpression(List<RPNToken> tokens, bool isFunction = false)
         {
             return new Expression(tokens, isFunction);
         }
 
         // Step 1
-        public static List<string> Tokenize(string str)
+        private List<string> Tokenize(string str)
         {
-            if (str is null)
-                throw new ArgumentException("Cannot tokenize null string");
+            if (String.IsNullOrWhiteSpace(str))
+                throw new ArgumentException("Cannot tokenize empty string");
             var stringTokens = new List<string>();
             int lastMatchPos = 0;
             int lastMatchLen = 0;
@@ -95,11 +100,10 @@ namespace ComputorV2
             return stringTokens;
         }
         // Step 2
-        public static List<RPNToken> RecognizeLexems(List<string> stringTokens,
-            ConsoleReader consoleReaderRef,
+        private List<RPNToken> RecognizeLexems(List<string> stringTokens,
             string funcParameter = null)
         {
-            var variables = consoleReaderRef.Variables;
+            var variablesNameList = _variableStorage.VariablesNames;
 
             var tokenList = new List<RPNToken>();
             TokenType tokenType;
@@ -133,7 +137,7 @@ namespace ComputorV2
                 }
                 else if (_bigDecimalRegex.IsMatch(token))
                     tokenType = TokenType.DecimalNumber;
-                else if (variables.Contains(token))
+                else if (variablesNameList.Contains(token))
                     tokenType = TokenType.Variable;
                 else
                     throw new ArgumentException($"Invalid token: '{token}'");
@@ -141,7 +145,7 @@ namespace ComputorV2
                 if (tokenType == TokenType.Variable)
                 {
                     tokenList.Add(new RPNToken("(", TokenType.OBracket));
-                    tokenList.AddRange(consoleReaderRef.GetVariableRPNTokens(token));
+                    tokenList.AddRange(_variableStorage[token].Tokens);
                     tokenList.Add(new RPNToken(")", TokenType.CBracket));
                 }
                 else
@@ -150,7 +154,7 @@ namespace ComputorV2
             return tokenList;
         }
         // Step 3
-        public static BigNumber Simplify(List<RPNToken> tokens, bool detailedMode = false)
+        private BigNumber Simplify(List<RPNToken> tokens, bool detailedMode = false)
         {
             if (tokens is null || tokens.Count == 0)
                 return null;
@@ -203,7 +207,6 @@ namespace ComputorV2
                         $"Buffer {String.Join(", ", bufferStack)} \n " +
                         $"Result {String.Join(", ", outputStack)}");
             }
-            var outputQueue = new Queue<BigNumber>(outputStack);
             while (bufferStack.Count() > 0)
                 CalculateToken(outputStack, bufferStack.Pop(), detailedMode);
             if (outputStack.Count() > 1)
@@ -232,6 +235,7 @@ namespace ComputorV2
                 return true;
             return false;
         }
+        //todo : move to struct
         private static int CompareOperationPriorities(OperationInfo left, OperationInfo right)
         {
             if ((right.assoc == OpAssoc.Left && right.priority <= left.priority) ||
@@ -252,6 +256,7 @@ namespace ComputorV2
         }
 
         #region Calculations
+        //todo : separate class
         private static BigNumber CalculateBinaryOp(BigNumber right, BigNumber left, string op, bool detailedMode = false)
         {
             if (op.Equals("+"))
@@ -292,6 +297,7 @@ namespace ComputorV2
             throw new NotImplementedException("RPNParser met unimplemented operator \"" + op + "\"");
         }
 
+        //todo : separate class
         private static BigNumber CalcUnaryOp(BigNumber operand, string op)
         {
             var initArgString = operand.ToString();
@@ -307,6 +313,7 @@ namespace ComputorV2
             return operand;
         }
 
+        //todo : separate class
         private static BigNumber CalcFunc(BigNumber arg, string func)
         {
             var initArgString = arg.ToString();

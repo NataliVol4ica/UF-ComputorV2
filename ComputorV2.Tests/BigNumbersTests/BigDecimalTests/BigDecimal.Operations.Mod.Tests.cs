@@ -12,11 +12,19 @@ namespace BigNumbersTests.BigDecimalTests
         static readonly Random rnd = new Random((int)DateTime.Now.Ticks);
         static void DoTesting(string left, string right, string result)
         {
-            BigDecimal A = new BigDecimal(left);
-            BigDecimal B = new BigDecimal(right);
+            BigDecimal A, B, C = new BigDecimal();
+            try
+            {
+                A = new BigDecimal(left);
+                B = new BigDecimal(right);
 
-            BigDecimal C = A % B;
-            Assert.AreEqual(result, C.ToString());
+                C = A % B;
+                Assert.AreEqual(result, C.ToString());
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"A is made of {left}, B is made of {right}.\n Expected result is {result}\n Actual result is{C.ToString()}");
+            }
         }
         public static string DecimalToString(decimal number)
         {
@@ -51,7 +59,7 @@ namespace BigNumbersTests.BigDecimalTests
         [Test]
         public void Zero_Zero()
         {
-            Assert.Throws<ArgumentException>(() =>
+            Assert.Throws<Exception>(() =>
             DoTesting("0", "0", "0"));
         }
 
@@ -64,7 +72,7 @@ namespace BigNumbersTests.BigDecimalTests
         [Test]
         public void M5_zero()
         {
-            Assert.Throws<ArgumentException>(() =>
+            Assert.Throws<Exception>(() =>
             DoTesting("-5", "0", "0"));
         }
 
