@@ -230,7 +230,7 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         public override BigNumber Substract(BigNumber op)
         {
             if (!(op is BigDecimal))
-                throw new ArgumentException("Cannot Add BigDecimal and " + op.GetType());
+                throw new ArgumentException("Cannot Sub BigDecimal and " + op.GetType());
 
             BigDecimal bfLeft = this;
             BigDecimal bfRight = (BigDecimal)op;
@@ -264,7 +264,7 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         public override BigNumber Multiply(BigNumber op)
         {
             if (!(op is BigDecimal))
-                throw new ArgumentException("Cannot Add BigDecimal and " + op.GetType());
+                throw new ArgumentException("Cannot Mul BigDecimal and " + op.GetType());
 
             BigDecimal bfLeft = this;
             BigDecimal bfRight = (BigDecimal)op;
@@ -285,7 +285,7 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         public override BigNumber Divide(BigNumber op)
         {
             if (!(op is BigDecimal))
-                throw new ArgumentException("Cannot Add BigDecimal and " + op.GetType());
+                throw new ArgumentException("Cannot Div BigDecimal and " + op.GetType());
 
             if (op.CleanString == "0")
                 throw new DivideByZeroException();
@@ -309,7 +309,7 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         public override BigNumber Mod(BigNumber op)
         {
             if (!(op is BigDecimal))
-                throw new ArgumentException("Cannot Add BigDecimal and " + op.GetType());
+                throw new ArgumentException("Cannot Mod BigDecimal and " + op.GetType());
 
             if (op.CleanString == "0")
                 throw new ArgumentException("Cannot calculate BigDecimal % 0");
@@ -322,6 +322,16 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             FracPrecision = temp;
             BigDecimal bfAns = bfLeft - bfDiv * bfRight;
             return bfAns;
+        }
+
+        public override BigNumber Pow(BigNumber op)
+        {
+            if (!(op is BigDecimal))
+                throw new ArgumentException("Cannot Mod BigDecimal and " + op.GetType());
+
+            if (op.CleanString == "0")
+                return new BigDecimal("1");
+            throw new NotFiniteNumberException();
         }
 
         public override int this[int index]

@@ -22,6 +22,7 @@ namespace BigNumbers
         public abstract BigNumber Multiply(BigNumber op);
         public abstract BigNumber Divide(BigNumber op);
         public abstract BigNumber Mod(BigNumber op);
+        public abstract BigNumber Pow(BigNumber op);
         public abstract BigNumber Abs();
 
         public void Negate()
