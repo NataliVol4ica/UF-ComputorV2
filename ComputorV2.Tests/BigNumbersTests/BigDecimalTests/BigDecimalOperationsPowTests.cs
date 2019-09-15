@@ -30,15 +30,32 @@ namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
             numToPow.Pow(fakeBigDecimal.Object));
         }
         [Test]
-        public void Pow_WhenCalledWithZero_ReturnsOne() { }
+        public void Pow_WhenCalledWithZero_ReturnsOne()
+        {
+            var numToPow = new BigDecimal("5");
+
+            var actualString = numToPow.Pow(new BigDecimal("0")).ToString();
+            Assert.AreEqual("1", actualString);
+        }
         [Test]
         [TestCase("1", "1", "1")]
-        public void Pow_WhenCalledWithPositivePows_ReturnsPow(string str, string pow, string expected) { }
+        [TestCase("0", "2", "0")]
+        [TestCase("1", "2", "1")]
+        [TestCase("1", "100", "1")]
+        [TestCase("1", "1000000000", "1")]
+        [TestCase("2", "10", "1024")]
+        public void Pow_WhenCalledWithPositivePows_ReturnsPow(string str, string pow, string expected)
+        {
+
+        }
         [Test]
         [TestCase("1", "-1", "1")]
         [TestCase("2", "-1", "0.5")]
         [TestCase("2", "-2", "0.25")]
         [TestCase("5", "-3", "0.008")]
-        public void Pow_WhenCalledWithNegativePows_ReturnsPow(string str, string pow, string expected) { }
+        public void Pow_WhenCalledWithNegativePows_ReturnsPow(string str, string pow, string expected)
+        {
+
+        }
     }
 }

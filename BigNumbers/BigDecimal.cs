@@ -373,15 +373,18 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         public override BigNumber Pow(BigNumber op)
         {
             if (!(op is BigDecimal))
-                throw new ArgumentException("Cannot Mod BigDecimal and " + op.GetType());
+                throw new ArgumentException($"Cannot Mod BigDecimal and {op.GetType()}");
+
             var left = this;
             var right = (BigDecimal)op;
 
             if (!right.IsInteger)
-
-
+                throw new ArgumentException("Cannot Pow BigDecimal and non-integer number");
             if (right.CleanString == "0")
                 return new BigDecimal("1");
+
+            //http://math.msu.su/~shvetz/54/inf/perl-problems/chFastPower_sIdeas.xhtml
+
             throw new NotFiniteNumberException();
         }
 
