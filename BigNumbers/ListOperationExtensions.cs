@@ -112,6 +112,6 @@ Normalizer NormFunc, out List<int> remainder)
         {
             while (list.Last() == 0 && list.Count > 1)
                 list.RemoveAt(list.Count - 1);
-        }
+        }       
     }
 }

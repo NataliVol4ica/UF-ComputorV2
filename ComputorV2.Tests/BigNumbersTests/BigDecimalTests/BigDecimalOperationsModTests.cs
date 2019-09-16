@@ -57,43 +57,23 @@ namespace BigNumbersTests.BigDecimalTests
         }
 
         [Test]
-        public void Zero_Zero()
+        public void Mod_WhenModWithZero_ThrowsException()
         {
             Assert.Throws<Exception>(() =>
-            DoTesting("0", "0", "0"));
+            DoTesting("3", "0", "0"));
         }
 
         [Test]
-        public void Zero_m5()
+        [TestCase("0", "-5", "0")]
+        [TestCase("-6", "5", "-1")]
+        [TestCase("20.1", "0.05", "0")]
+        [TestCase("20.1", "5", "0.1")]
+        [TestCase("6897.1312", "7785.3", "6897.1312")]
+        public void Mod_WhenCalled_ReturnsMod(string a, string b, string expected)
         {
-            DoTesting("0", "-5", "0");
+            DoTesting(a, b, expected);
         }
-
-        [Test]
-        public void M5_zero()
-        {
-            Assert.Throws<Exception>(() =>
-            DoTesting("-5", "0", "0"));
-        }
-
-        [Test]
-        public void M6_p5()
-        {
-            DoTesting("-6", "5", "-1");
-        }
-
-        [Test]
-        public void P20D1_p0D05()
-        {
-            DoTesting("20.1", "0.05", "0");
-        }
-
-        [Test]
-        public void P20D1_p5()
-        {
-            DoTesting("20.1", "5", "0.1");
-        }
-
+        
         [Test]
         public void Random_10000_tests()
         {

@@ -37,6 +37,11 @@ namespace ComputorV2Tests.ExpressionProcessorTests
         [TestCase("8*3%5", "4")]
         [TestCase("2+--2", "4")]
         [TestCase("(6 / 3) * 7 + ((5 - 7) * (21 % (12/6)))", "12")]
+        [TestCase("2 ^ 0", "1")]
+        [TestCase("2 ^ -1", "0.5")]
+        [TestCase("2 ^ 2", "4")]
+        [TestCase("2 ^ 3", "8")]
+        [TestCase("2 ^ 3 ^ 2", "512")]
         public void CreateExpression_WhenCalled_CreatesExpression(string str, string expected)
         {
             var actual = _processor.CreateExpression(str).ToString();

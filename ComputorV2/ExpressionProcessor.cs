@@ -11,7 +11,7 @@ namespace ComputorV2
     {
         #region Regex static data
         private static readonly Regex expressionRegex;
-        private static readonly string regexFormat = @"\G\s*({0}|\+|-|\*|/|%|\(|\))\s*";
+        private static readonly string regexFormat = @"\G\s*({0}|\+|-|\*|/|%|\^|\(|\))\s*";
 
         private static readonly Dictionary<string, string> _numbersRegexes = new Dictionary<string, string>
         {
@@ -45,9 +45,8 @@ namespace ComputorV2
                 new OperationInfo("+", OpArity.Unary,  3, OpAssoc.Right),
                 new OperationInfo("*", OpArity.Binary, 2, OpAssoc.Left),
                 new OperationInfo("/", OpArity.Binary, 2, OpAssoc.Left),
-                new OperationInfo("%", OpArity.Binary, 2, OpAssoc.Left)
-                //example of OpAssoc.Right operator is
-                //new OperationInfo("^", OpArity.Binary, 2, OpAssoc.Right)
+                new OperationInfo("%", OpArity.Binary, 2, OpAssoc.Left),
+                new OperationInfo("^", OpArity.Binary, 2, OpAssoc.Right)
             }.ToLookup(op => op.op);
         }
         #endregion
@@ -292,6 +291,13 @@ namespace ComputorV2
                 var result = left % right;
                 if (detailedMode)
                     Console.WriteLine($"   Calculating {left} % {right} = {result}");
+                return result;
+            }
+            if (op.Equals("^"))
+            {
+                var result = left.Pow(right);
+                if (detailedMode)
+                    Console.WriteLine($"   Calculating {left} ^ {right} = {result}");
                 return result;
             }
             throw new NotImplementedException("RPNParser met unimplemented operator \"" + op + "\"");
