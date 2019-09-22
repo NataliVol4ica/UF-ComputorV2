@@ -16,10 +16,12 @@ namespace ComputorV2
         private static readonly Dictionary<string, string> _numbersRegexes = new Dictionary<string, string>
         {
             { "VariableNameRegex", @"[a-z]+" },
+            { "BigComplexRegex", @"(\d+(\.\d+)?)?i" },
             { "BigDecimalRegex", @"\d+(\.\d+)?" }
         };
 
         private static readonly Regex _bigDecimalRegex;
+        private static readonly Regex _bigComplexRegex;
 
         private static readonly List<string> funcs = new List<string> { "abs" };
         private static readonly ILookup<string, OperationInfo> opInfoMap;
@@ -27,7 +29,8 @@ namespace ComputorV2
 
         static ExpressionProcessor()
         {
-            _bigDecimalRegex = new Regex(_numbersRegexes["BigDecimalRegex"], RegexOptions.Compiled);
+            _bigDecimalRegex = new Regex($"^{_numbersRegexes["BigDecimalRegex"]}$", RegexOptions.Compiled);
+            _bigComplexRegex = new Regex($"^{_numbersRegexes["BigComplexRegex"]}$", RegexOptions.Compiled);
 
             var numericRegexString = String.Join("|", _numbersRegexes.Select(d => d.Value));
             var funcRegexString = String.Join("|", funcs);
@@ -60,7 +63,7 @@ namespace ComputorV2
             bool isFunction = false,
             string functionParameterName = null, bool detailedMode = false)
         {
-            var stringTokens = Tokenize(str);
+            var stringTokens = Tokenize(str.ToLower());
             var tokens = RecognizeLexems(stringTokens, functionParameterName);
             var simplifiedTokens = Simplify(tokens, detailedMode);
             var newTokenList = new List<RPNToken>
@@ -118,7 +121,8 @@ namespace ComputorV2
                         (prev.Value == TokenType.CBracket ||
                         prev.Value == TokenType.Variable ||
                         prev.Value == TokenType.FunctionParameter ||
-                        prev.Value == TokenType.DecimalNumber)) //todo: if new number type is created then append this 'if' with new type
+                        prev.Value == TokenType.DecimalNumber ||
+                        prev.Value == TokenType.ComplexNumber)) //todo: if new number type is created then append this 'if' with new type
                         tokenType = TokenType.BinOp;
                     else
                         tokenType = TokenType.UnOp;
@@ -136,6 +140,8 @@ namespace ComputorV2
                 }
                 else if (_bigDecimalRegex.IsMatch(token))
                     tokenType = TokenType.DecimalNumber;
+                else if (_bigComplexRegex.IsMatch(token))
+                    tokenType = TokenType.ComplexNumber;
                 else if (variablesNameList.Contains(token))
                     tokenType = TokenType.Variable;
                 else
@@ -171,6 +177,8 @@ namespace ComputorV2
                 currentToken = inputQueue.Dequeue();
                 if (currentToken.tokenType == TokenType.DecimalNumber)
                     outputStack.Push(new BigDecimal(currentToken.str));
+                else if (currentToken.tokenType == TokenType.ComplexNumber)
+                    outputStack.Push(new BigComplex(currentToken.str));
                 else if (currentToken.tokenType == TokenType.Function)
                     bufferStack.Push(currentToken);
                 else if (currentToken.tokenType == TokenType.BinOp ||
@@ -245,11 +253,11 @@ namespace ComputorV2
         private static void CalculateToken(Stack<BigNumber> result, RPNToken op, bool detailedMode = false)
         {
             if (op.tokenType == TokenType.Function)
-                result.Push(CalcFunc(result.Pop(), op.str));
+                result.Push(CalculateFunc(result.Pop(), op.str));
             else if (op.tokenType == TokenType.BinOp)
                 result.Push(CalculateBinaryOp(result.Pop(), result.Pop(), op.str, detailedMode));
             else if (op.tokenType == TokenType.UnOp)
-                result.Push(CalcUnaryOp(result.Pop(), op.str));
+                result.Push(CalculateUnaryOp(result.Pop(), op.str));
             else
                 throw new ArgumentException($"Unexpected token '{op.str}'");
         }
@@ -295,7 +303,7 @@ namespace ComputorV2
             }
             if (op.Equals("^"))
             {
-                var result = left.Pow(right);
+                var result = left.Pow((BigDecimal)right);
                 if (detailedMode)
                     Console.WriteLine($"   Calculating {left} ^ {right} = {result}");
                 return result;
@@ -304,23 +312,27 @@ namespace ComputorV2
         }
 
         //todo : separate class
-        private static BigNumber CalcUnaryOp(BigNumber operand, string op)
+        private static BigNumber CalculateUnaryOp(BigNumber operand, string op)
         {
-            var initArgString = operand.ToString();
+            BigNumber ret;
             switch (op)
             {
                 case "+":
+                    ret = operand.Copy();
                     break;
                 case "-":
-                    operand.Negate();
+                    ret = operand.Copy();
+                    ret.Negate();
                     break;
+                default:
+                    throw new ArgumentException($"Unsupported operation {op}");
             }
-            Console.WriteLine($"   Calculating {op}({initArgString}) = {operand}");
-            return operand;
+            Console.WriteLine($"   Calculating {op}({operand}) = {ret}");
+            return ret;
         }
 
         //todo : separate class
-        private static BigNumber CalcFunc(BigNumber arg, string func)
+        private static BigNumber CalculateFunc(BigNumber arg, string func)
         {
             var initArgString = arg.ToString();
             switch (func)
@@ -329,7 +341,7 @@ namespace ComputorV2
                     arg = BigNumber.Abs(arg);
                     break;
             }
-            Console.WriteLine($"   Calculating {func}({initArgString}) = {arg}");
+            Console.WriteLine($"   Calculating |{initArgString}| = {arg}");
             return arg;
         }
         #endregion

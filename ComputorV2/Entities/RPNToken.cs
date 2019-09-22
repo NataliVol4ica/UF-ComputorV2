@@ -13,7 +13,8 @@ namespace ComputorV2
         DecimalNumber,
         Function,
         FunctionParameter,
-        Variable
+        Variable,
+        ComplexNumber
     }
 
     public struct RPNToken

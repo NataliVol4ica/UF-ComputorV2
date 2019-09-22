@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ComputorV2Tests\ConsoleReaderTests\**" />
+    <EmbeddedResource Remove="ComputorV2Tests\ConsoleReaderTests\**" />
+    <None Remove="ComputorV2Tests\ConsoleReaderTests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="BigNumbersTests\BigDecimalTests\ve-5B07.tmp" />
   </ItemGroup>
 
@@ -19,10 +25,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ComputorV2\ComputorV2.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ComputorV2Tests\ConsoleReaderTests\" />
   </ItemGroup>
 
 </Project>

@@ -10,10 +10,12 @@ namespace BigNumbers
     {
 
         private static readonly string delimiter = ".";
-        private static readonly Regex validStringRegEx = new
-Regex(@"^\s*[+-]?\d+(\.\d+)?\s*$", RegexOptions.Compiled);
-        private static readonly Regex cleanStringRegEx =
-new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compiled);
+        private static readonly Regex validStringRegEx = new Regex(
+            @"^\s*[+-]?\d+(\.\d+)?\s*$",
+            RegexOptions.Compiled);
+        private static readonly Regex cleanStringRegEx = new Regex(
+            @"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", 
+            RegexOptions.Compiled);
 
         private static volatile int _fracPrecision = 20;
 
@@ -223,6 +225,24 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             return ret;
         }
 
+        public override void Negate()
+        {
+            if (String.Compare(CleanString, "0") != 0)
+                Sign = -Sign;
+            else
+                Sign = 1;
+        }
+        public override BigNumber Negative()
+        {
+            BigDecimal ret = new BigDecimal(this);
+            ret.Negate();
+            return ret;
+        }
+        public override BigNumber Copy()
+        {
+            BigDecimal ret = new BigDecimal(this);
+            return ret;
+        }
         public override void NormalizeList(List<int> digits)
         {
             int i;
@@ -252,6 +272,8 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
 
         public override BigNumber Add(BigNumber op)
         {
+            if (op is BigComplex)
+                return new BigComplex(this) + (BigComplex)op;
             if (!(op is BigDecimal))
                 throw new ArgumentException("Cannot Add BigDecimal to " + op.GetType());
 
@@ -275,6 +297,8 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         }
         public override BigNumber Substract(BigNumber op)
         {
+            if (op is BigComplex)
+                return new BigComplex(this) + (BigComplex)op;
             if (!(op is BigDecimal))
                 throw new ArgumentException("Cannot Sub BigDecimal and " + op.GetType());
 
@@ -309,6 +333,8 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         }
         public override BigNumber Multiply(BigNumber op)
         {
+            if (op is BigComplex)
+                return new BigComplex(this) + (BigComplex)op;
             if (!(op is BigDecimal))
                 throw new ArgumentException("Cannot Mul BigDecimal and " + op.GetType());
 
@@ -330,6 +356,8 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         }
         public override BigNumber Divide(BigNumber op)
         {
+            if (op is BigComplex)
+                return new BigComplex(this) + (BigComplex)op;
             if (!(op is BigDecimal))
                 throw new ArgumentException("Cannot Div BigDecimal and " + op.GetType());
 
@@ -354,6 +382,8 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
         }
         public override BigNumber Mod(BigNumber op)
         {
+            if (op is BigComplex)
+                return new BigComplex(this) + (BigComplex)op;
             if (!(op is BigDecimal))
                 throw new ArgumentException("Cannot Mod BigDecimal and " + op.GetType());
 
@@ -369,33 +399,7 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             BigDecimal bfAns = bdLeft - bfDiv * bdRight;
             return bfAns;
         }
-
-        public override BigNumber Pow(BigNumber op)
-        {
-            if (!(op is BigDecimal))
-                throw new ArgumentException($"Cannot Mod BigDecimal and {op.GetType()}");
-
-            var numberToPow = this;
-            var pow = (BigDecimal)op;
-
-            if (!pow.IsInteger)
-                throw new ArgumentException("Cannot Pow BigDecimal and non-integer number");
-            if (pow.CleanString == "0")
-                return new BigDecimal("1");
-
-            bool isNegative = false;
-            if (pow.Sign == -1)
-            {
-                isNegative = true;
-                pow = -pow;
-            }
-            var result = DoPow(numberToPow, numberToPow, pow);
-            if (isNegative)
-                result = new BigDecimal(1) / result;
-            return result;
-        }
-
-
+ 
         public override int this[int index]
         {
             get
@@ -414,31 +418,31 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             return ret;
         }
 
-        public static BigDecimal operator +(BigDecimal left, BigDecimal right)
+        public static BigDecimal operator +(BigDecimal left, BigNumber right)
         {
             if (left is null || right is null)
                 return null;
             return (BigDecimal)left.Add(right);
         }
-        public static BigDecimal operator -(BigDecimal left, BigDecimal right)
+        public static BigDecimal operator -(BigDecimal left, BigNumber right)
         {
             if (left is null || right is null)
                 return null;
             return (BigDecimal)left.Substract(right);
         }
-        public static BigDecimal operator *(BigDecimal left, BigDecimal right)
+        public static BigDecimal operator *(BigDecimal left, BigNumber right)
         {
             if (left is null || right is null)
                 return null;
             return (BigDecimal)left.Multiply(right);
         }
-        public static BigDecimal operator /(BigDecimal left, BigDecimal right)
+        public static BigDecimal operator /(BigDecimal left, BigNumber right)
         {
             if (left is null || right is null)
                 return null;
             return (BigDecimal)left.Divide(right);
         }
-        public static BigDecimal operator %(BigDecimal left, BigDecimal right)
+        public static BigDecimal operator %(BigDecimal left, BigNumber right)
         {
             if (left is null || right is null)
                 return null;
@@ -502,10 +506,6 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
                 Negate();
         }
 
-        public BigDecimal Copy()
-        {
-            return new BigDecimal(this);
-        }
         public override int GetHashCode()
         {
             return base.GetHashCode();
@@ -523,21 +523,6 @@ new Regex(@"[1-9]+[0-9]*(\.[0-9]*[1-9]+)?|0\.[0-9]*[1-9]+", RegexOptions.Compile
             _dotPos = CleanString.IndexOf(delimiter);
             if (_dotPos < 0)
                 _dotPos = CleanString.Length;
-        }
-        private BigDecimal DoPow(BigDecimal number, BigDecimal initialNumber, BigDecimal pow)
-        {
-            if (pow.CleanString == "1")
-                return initialNumber;
-            if (pow.CleanString == "2")
-                return initialNumber * initialNumber;
-            if (pow.IsEven)
-            {
-                var evenResult = DoPow(number, initialNumber, pow / new BigDecimal(2));
-                return evenResult * evenResult;
-            }
-            var newPow = (pow - new BigDecimal(1)) / new BigDecimal(2);
-            var oddResult = DoPow(number, initialNumber, newPow);
-            return oddResult * oddResult * initialNumber;
         }
 
     }

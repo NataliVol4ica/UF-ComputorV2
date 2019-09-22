@@ -2,24 +2,14 @@
 using Moq;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
 {
-    public class BigDecimalOperationsPowTests
+    public class PowCalculatorTests
     {
         [SetUp]
         public void Setup() { }
-        [Test]
-        public void Pow_WhenCalledWithNotBigDecimal_ThrowsEXception()
-        {
-            var fakeBigNumber = new Mock<BigNumber>();
-            var numToPow = new BigDecimal("5");
 
-            Assert.Throws<ArgumentException>(() =>
-            numToPow.Pow(fakeBigNumber.Object));
-        }
         [Test]
         public void Pow_WhenCalledWithNotInteger_ThrowsEXception() {
             var fakeBigDecimal = new Mock<BigDecimal>();
