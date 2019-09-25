@@ -16,7 +16,7 @@ namespace ComputorV2Tests.ExpressionProcessorTests
         public void Setup()
         {
             _varNames = new List<string> { "vara", "varb", "varc", "vard"};
-            _variableStorage.Setup(vs => vs.VariablesNames).Returns(_varNames);
+            _variableStorage.Setup(vs => vs.AllVariablesNames).Returns(_varNames);
             _processor = new ExpressionProcessor(_variableStorage.Object);
         }
 

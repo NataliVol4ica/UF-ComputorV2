@@ -1,5 +1,6 @@
 using ComputorV2;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace ComputorV2Tests.ConsoleReaderTests.Unit
 {
@@ -20,10 +21,32 @@ namespace ComputorV2Tests.ConsoleReaderTests.Unit
         [TestCase(" 100500", false)]
         [TestCase("i", false)]
         [TestCase("I", false)]
-        public void IsValidVarName_valid(string varname, bool expected)
+        public void IsValidVarName_WhenCalled_ReturnsResult(string varname, bool expected)
         {
             var actual = VariableStorage.IsValidVarName(varname);
             Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        [TestCase("lalala", "", "", false)]
+        [TestCase("varA", "", "", false)]
+        [TestCase("varA()", "", "", false)]
+        [TestCase("varA(()", "", "", false)]
+        [TestCase(" f(c) ","f", "c", true)]
+        [TestCase(" f(C) ","f", "C", true)]
+        [TestCase("f(existingVar)", "", "", false)]
+        [TestCase(" f(i)", "", "", false)]
+        [TestCase("f(a1)", "", "", false)]
+        [TestCase("functionName(parameterName)", "functionName", "parameterName", true)]
+        public void IsValidFunctionDeclaration_WhenCalled_ReturnsResult(
+            string funcStr, string expectedFuncName, string expectedParamName, bool expectedResult)
+        {
+            var vs = new VariableStorage();
+            vs.AddOrUpdateVariableValue("existingvar", new Expression(new List<RPNToken>(), false));
+            var actual =vs
+                .IsValidFunctionDeclaration(funcStr, out string fName, out string pName, out string reason);
+            Assert.AreEqual(expectedResult, actual);
+            Assert.AreEqual(expectedFuncName, fName);
+            Assert.AreEqual(expectedParamName, pName);
         }
     }
 }

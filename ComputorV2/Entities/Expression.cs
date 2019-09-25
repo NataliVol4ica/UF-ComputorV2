@@ -27,5 +27,25 @@ namespace ComputorV2
             var str = String.Join(" ", Tokens);
             return str;
         }
+
+        public BigNumber EvaluateFunctionWithTokens(ExpressionProcessor ep, List<RPNToken> parameterTokens)
+        {
+            if (!IsFunction)
+                throw new ArgumentException($"Cannot calculate function value of a variable");
+            var resultTokens = new List<RPNToken>();
+            var tokensToInsert = new List<RPNToken>();
+            tokensToInsert.Add(RPNToken.OpeningBracketToken());
+            tokensToInsert.AddRange(parameterTokens);
+            tokensToInsert.Add(RPNToken.ClosingBracketToken());
+            for (int i = 0; i < Tokens.Count; i++)
+            {
+                if (Tokens[i].tokenType == TokenType.FunctionParameter)
+                    resultTokens.AddRange(tokensToInsert);
+                else
+                    resultTokens.Add(Tokens[i]);
+            }
+
+            return ep.SimplifyTokensIntoBigNumber(resultTokens);
+        }
     }
 }

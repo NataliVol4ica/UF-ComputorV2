@@ -8,12 +8,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputorV2", "ComputorV2\Co
 		{B8A2549A-F966-442B-9287-CF28E1409EEE} = {B8A2549A-F966-442B-9287-CF28E1409EEE}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputorV2.Tests", "ComputorV2.Tests\ComputorV2.Tests.csproj", "{515B9CD1-DFBB-4237-A506-FFC4DA7E33AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputorV2.UnitTests", "ComputorV2.Tests\ComputorV2.UnitTests.csproj", "{515B9CD1-DFBB-4237-A506-FFC4DA7E33AA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CF8BFE91-03BE-426D-A00B-6AE1B4557C5D} = {CF8BFE91-03BE-426D-A00B-6AE1B4557C5D}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BigNumbers", "BigNumbers\BigNumbers.csproj", "{B8A2549A-F966-442B-9287-CF28E1409EEE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BigNumbers", "BigNumbers\BigNumbers.csproj", "{B8A2549A-F966-442B-9287-CF28E1409EEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputorV2.IntegrationTests", "ComputorV2.IntegrationTests\ComputorV2.IntegrationTests.csproj", "{AC74C23A-2F8C-40A5-987D-A631DD56D698}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{B8A2549A-F966-442B-9287-CF28E1409EEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8A2549A-F966-442B-9287-CF28E1409EEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8A2549A-F966-442B-9287-CF28E1409EEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC74C23A-2F8C-40A5-987D-A631DD56D698}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC74C23A-2F8C-40A5-987D-A631DD56D698}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC74C23A-2F8C-40A5-987D-A631DD56D698}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC74C23A-2F8C-40A5-987D-A631DD56D698}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

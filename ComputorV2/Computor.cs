@@ -103,6 +103,34 @@ namespace ComputorV2
             }
         }
 
+        private void ExecuteDeclareFunctionCommand(string command)
+        {
+            if (String.IsNullOrWhiteSpace(command))
+                throw new ArgumentNullException("Command string cannot be null");
+            var parts = command.Split('=');
+            var funcPart = parts[0].Trim().ToLower();
+            var funcExpression = parts[1].Trim().ToLower();
+            if (!_variableStorage.IsValidFunctionDeclaration(funcPart, out string funcName, out string paramName, out string reason))
+                throw new ArgumentException($"The function signature is not valid. {reason}");
+
+            try
+            {
+                var functionExpression = _expressionProcessor
+                    .CreateFunctionExpression(funcExpression, paramName);
+                var consoleOutput = _variableStorage
+                    .AddOrUpdateVariableValue(funcName, functionExpression);
+                _consoleProcessor.WriteLine($"> {funcName}(X) = {consoleOutput}");
+            }
+            catch (Exception e)
+            {
+                _consoleProcessor.WriteLine($"{e.Message}");
+            }
+        }
+        private void ExecuteSolveEquationCommand(string command)
+        {
+            throw new NotImplementedException();
+        }
+
         private void ExecuteEvaluateExpressionCommand(string command)
         {
             var parts = command.Split('=');
@@ -129,7 +157,9 @@ namespace ComputorV2
                 { CommandType.ShowHelp, ExecuteHelpCommand },
                 { CommandType.Reset, ExecuteResetCommand },
                 { CommandType.AssignVar, ExecuteAssignVarCommand},
-                { CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand}
+                { CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand},
+                { CommandType.DeclareFunction, ExecuteDeclareFunctionCommand},
+                { CommandType.SolveEquation, ExecuteSolveEquationCommand}
             };
         }       
     }

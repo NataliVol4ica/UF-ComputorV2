@@ -36,6 +36,9 @@ namespace ComputorV2.Tests.ComputorV2Tests
             //Assert
             _consoleProcessor.Verify(cp => cp.WriteLine(variablesString));
         }
+
+        #region Assign Var
+
         [Test]
         [TestCase(null)]
         [TestCase("")]
@@ -72,7 +75,7 @@ namespace ComputorV2.Tests.ComputorV2Tests
         public void ExecuteAssignVarCommand_CreatesExpressionWithException_WritesAnErrorToConsole()
         {
             _expressionProcessor
-                .Setup(ep => ep.CreateExpression(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .Setup(ep => ep.CreateExpression(It.IsAny<string>(), It.IsAny<bool>()))
                 .Throws<Exception>();
 
             SetupConsoleMockToReturnCommandAndExit("vara = 2 / 0");
@@ -87,18 +90,24 @@ namespace ComputorV2.Tests.ComputorV2Tests
         public void ExecuteAssignVarCommand_WhenAllOk_CallsVariableStorageAddOrUpdateAndWritesOutput()
         {
             _expressionProcessor
-                .Setup(ep => ep.CreateExpression(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .Setup(ep => ep.CreateExpression(It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(_emptyExpression);
             _variableStorage
                 .Setup(vs => vs.AddOrUpdateVariableValue(It.IsAny<string>(), It.IsAny<Expression>()))
                 .Returns("AddOrUpdateReturnValue");
             SetupConsoleMockToReturnCommandAndExit("vara = 2 + 2");
             var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
-            testedComputor.StartReading(); ;
+            testedComputor.StartReading();
 
             _variableStorage.Verify(vs => vs.AddOrUpdateVariableValue("vara", _emptyExpression));
             _consoleProcessor.Verify(cp => cp.WriteLine("> AddOrUpdateReturnValue"));
         }
+
+        #endregion
+
+        #region Functions
+        
+        #endregion
 
         private void SetupConsoleMockToReturnCommandAndExit(string command)
         {

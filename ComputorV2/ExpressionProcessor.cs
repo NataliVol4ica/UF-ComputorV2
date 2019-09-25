@@ -59,26 +59,31 @@ namespace ComputorV2
             _variableStorage = variableStorage;
         }
 
-        public Expression CreateExpression(string str,
-            bool isFunction = false,
-            string functionParameterName = null, bool detailedMode = false)
+        public Expression CreateExpression(string str, bool detailedMode = false)
         {
             var stringTokens = Tokenize(str.ToLower());
-            var tokens = RecognizeLexems(stringTokens, functionParameterName);
-            var simplifiedTokens = Simplify(tokens, detailedMode);
+            var tokens = RecognizeLexems(stringTokens);
+            var bigNumberResult = Simplify(tokens, detailedMode);
             var newTokenList = new List<RPNToken>
             {
                 new RPNToken
                 {
-                    str = simplifiedTokens.ToString(),
+                    str = bigNumberResult.ToString(),
                     tokenType = TokenType.DecimalNumber
                 }
             };
-            return new Expression(newTokenList, isFunction, str);
+            return new Expression(newTokenList, false, str);
         }
-        public Expression CreateExpression(List<RPNToken> tokens, bool isFunction = false)
+        public BigNumber SimplifyTokensIntoBigNumber(List<RPNToken> tokens)
         {
-            return new Expression(tokens, isFunction);
+            return Simplify(tokens, false);
+        }
+                
+        public Expression CreateFunctionExpression(string funcExpression, string paramName)
+        {
+            var stringTokens = Tokenize(funcExpression.ToLower());
+            var tokens = RecognizeLexems(stringTokens, paramName);
+            return new Expression(tokens, true, funcExpression);
         }
 
         // Step 1
@@ -105,8 +110,6 @@ namespace ComputorV2
         private List<RPNToken> RecognizeLexems(List<string> stringTokens,
             string funcParameter = null)
         {
-            var variablesNameList = _variableStorage.VariablesNames;
-
             var tokenList = new List<RPNToken>();
             TokenType tokenType;
             TokenType? prev = null;
@@ -136,14 +139,16 @@ namespace ComputorV2
                 else if (!(funcParameter is null) && token == funcParameter)
                 {
                     tokenType = TokenType.FunctionParameter;
-                    token = "x";
+                    token = "X";
                 }
                 else if (_bigDecimalRegex.IsMatch(token))
                     tokenType = TokenType.DecimalNumber;
                 else if (_bigComplexRegex.IsMatch(token))
                     tokenType = TokenType.ComplexNumber;
-                else if (variablesNameList.Contains(token))
+                else if (_variableStorage.ContainsVariable(token))
                     tokenType = TokenType.Variable;
+                else if (_variableStorage.ContainsFunction(token))
+                    tokenType = TokenType.Function;
                 else
                     throw new ArgumentException($"Invalid token: '{token}'");
                 prev = tokenType;
@@ -225,7 +230,7 @@ namespace ComputorV2
         }
 
         // Tools
-        private static OperationInfo GetOperationInfo(RPNToken token)
+        private  OperationInfo GetOperationInfo(RPNToken token)
         {
             OpArity arity = token.tokenType == TokenType.BinOp ?
                                     OpArity.Binary :
@@ -236,21 +241,21 @@ namespace ComputorV2
                                     curOps.Single(o => o.arity == arity);
             return curOp;
         }
-        private static bool IsOperation(RPNToken t)
+        private  bool IsOperation(RPNToken t)
         {
             if (t.tokenType == TokenType.BinOp || t.tokenType == TokenType.UnOp)
                 return true;
             return false;
         }
         //todo : move to struct
-        private static int CompareOperationPriorities(OperationInfo left, OperationInfo right)
+        private  int CompareOperationPriorities(OperationInfo left, OperationInfo right)
         {
             if ((right.assoc == OpAssoc.Left && right.priority <= left.priority) ||
                 (right.assoc == OpAssoc.Right && right.priority < left.priority))
                 return 1;
             return -1;
         }
-        private static void CalculateToken(Stack<BigNumber> result, RPNToken op, bool detailedMode = false)
+        private  void CalculateToken(Stack<BigNumber> result, RPNToken op, bool detailedMode = false)
         {
             if (op.tokenType == TokenType.Function)
                 result.Push(CalculateFunc(result.Pop(), op.str));
@@ -263,8 +268,7 @@ namespace ComputorV2
         }
 
         #region Calculations
-        //todo : separate class
-        private static BigNumber CalculateBinaryOp(BigNumber right, BigNumber left, string op, bool detailedMode = false)
+        private  BigNumber CalculateBinaryOp(BigNumber right, BigNumber left, string op, bool detailedMode = false)
         {
             if (op.Equals("+"))
             {
@@ -311,8 +315,7 @@ namespace ComputorV2
             throw new NotImplementedException("RPNParser met unimplemented operator \"" + op + "\"");
         }
 
-        //todo : separate class
-        private static BigNumber CalculateUnaryOp(BigNumber operand, string op)
+        private  BigNumber CalculateUnaryOp(BigNumber operand, string op)
         {
             BigNumber ret;
             switch (op)
@@ -331,19 +334,32 @@ namespace ComputorV2
             return ret;
         }
 
-        //todo : separate class
-        private static BigNumber CalculateFunc(BigNumber arg, string func)
+        private BigNumber CalculateFunc(BigNumber arg, string func)
         {
-            var initArgString = arg.ToString();
+            BigNumber returnValue = null;
             switch (func)
             {
                 case "abs":
-                    arg = BigNumber.Abs(arg);
+                    returnValue = BigNumber.Abs(arg);
+                    Console.WriteLine($"   Calculating |{arg}| = {returnValue}");
+                    break;
+                default:
+                    if (!_variableStorage.ContainsFunction(func))
+                        throw new ArgumentException($"Variable storage does not contain function '{func}'");
+                    var argumentRpnTokens = GetRPNTokensForBigNumber(arg);
+                    returnValue = _variableStorage[func].EvaluateFunctionWithTokens(this, argumentRpnTokens);
+                    Console.WriteLine($"   Calculating {func}({arg}) = {returnValue}");
                     break;
             }
-            Console.WriteLine($"   Calculating |{initArgString}| = {arg}");
-            return arg;
+            return returnValue;
         }
         #endregion
+
+        public List<RPNToken> GetRPNTokensForBigNumber(BigNumber bn)
+        {
+            var stringTokens = Tokenize(bn.ToString());
+            var rpnTokens = RecognizeLexems(stringTokens);
+            return rpnTokens;
+        }
     }
 }

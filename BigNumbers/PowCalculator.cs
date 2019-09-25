@@ -4,7 +4,6 @@ namespace BigNumbers
 {
     public static class PowCalculator
     {
-
         public static BigNumber CalculatePow(BigNumber numberToPow, BigDecimal pow)
         {
             if (!pow.IsInteger)

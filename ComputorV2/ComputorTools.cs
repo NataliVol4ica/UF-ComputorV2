@@ -13,7 +13,9 @@ namespace ComputorV2
         ShowHelp,
         Reset,
         AssignVar,
-        EvaluateExpression
+        DeclareFunction,
+        SolveEquation,
+        EvaluateExpression,
     }
 
     public static class ComputorTools
@@ -103,8 +105,20 @@ namespace ComputorV2
                 throw new ArgumentException($"Unknown command: '{cmd}'");
             if (numOfEqualities > 1)
                 throw new ArgumentException($"Command cannot contain: '{numOfEqualities}' equal signs");
-            if (cmd.Split('=')[1].Trim() == "?")
+            var cmdParts = cmd.Split('=');
+            bool isEvaluateCommand = cmdParts[1].Trim() == "?";
+            bool isSolveEquation = !isEvaluateCommand && cmdParts[1].Contains("?");
+            bool isFunction = cmdParts[0].Contains('(');
+            if (isSolveEquation)
+            {
+                if (!isFunction)
+                    throw new ArgumentException("Cannot solve equation because function is missing");
+                return CommandType.SolveEquation;
+            }
+            if (isEvaluateCommand)
                 return CommandType.EvaluateExpression;
+            if (isFunction)
+                return CommandType.DeclareFunction;
             return CommandType.AssignVar;
         }
     }

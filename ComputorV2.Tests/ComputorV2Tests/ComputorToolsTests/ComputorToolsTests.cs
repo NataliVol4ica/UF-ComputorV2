@@ -45,7 +45,18 @@ namespace ComputorV2Tests
         [TestCase("= ?\r", CommandType.EvaluateExpression)]
         [TestCase("a = 2", CommandType.AssignVar)]
         [TestCase("b = \t 2 + 2 * 2", CommandType.AssignVar)]
-        public void GetCommandType_WhenCalledWithValidCommand_ReturnsCommandType(string cmd, CommandType cmdType)
+        public void GetCommandType_Vars_WhenCalledWithValidCommand_ReturnsCommandType(string cmd, CommandType cmdType)
+        {
+            var actual = ComputorTools.GetCommandType(cmd);
+            var expected = cmdType;
+            Assert.AreEqual(expected, actual);
+        }
+        [Test]
+        [TestCase("f(x)=2", CommandType.DeclareFunction)]
+        [TestCase("f(x)=?", CommandType.EvaluateExpression)]
+        [TestCase("f(x)=f2(x)", CommandType.DeclareFunction)]
+        [TestCase("f(x)=f2(x) ?", CommandType.SolveEquation)]
+        public void GetCommandType_Funcs_WhenCalledWithValidCommand_ReturnsCommandType(string cmd, CommandType cmdType)
         {
             var actual = ComputorTools.GetCommandType(cmd);
             var expected = cmdType;
