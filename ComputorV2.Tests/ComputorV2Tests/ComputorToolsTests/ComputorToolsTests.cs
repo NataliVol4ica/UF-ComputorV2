@@ -56,6 +56,7 @@ namespace ComputorV2Tests
         [TestCase("f(x)=?", CommandType.EvaluateExpression)]
         [TestCase("f(x)=f2(x)", CommandType.DeclareFunction)]
         [TestCase("f(x)=f2(x) ?", CommandType.SolveEquation)]
+        [TestCase("f(x)= y ?", CommandType.SolveEquation)]
         public void GetCommandType_Funcs_WhenCalledWithValidCommand_ReturnsCommandType(string cmd, CommandType cmdType)
         {
             var actual = ComputorTools.GetCommandType(cmd);

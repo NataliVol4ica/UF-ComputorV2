@@ -1,6 +1,8 @@
-﻿using ComputorV2.ExternalConnections;
+﻿using ComputorV2.EquationSolverWithTools;
+using ComputorV2.ExternalConnections;
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace ComputorV2
 {
@@ -9,6 +11,7 @@ namespace ComputorV2
         private readonly IConsoleProcessor _consoleProcessor;
         private readonly IVariableStorage _variableStorage;
         private readonly IExpressionProcessor _expressionProcessor;
+        private readonly EquationSolver _equationSolver;
 
         private readonly Dictionary<CommandType, Action<string>> CommandExecutors;
 
@@ -17,12 +20,14 @@ namespace ComputorV2
 
         public Computor(IConsoleProcessor consoleProcessor = null, 
             IVariableStorage varStorage = null,
-            IExpressionProcessor expressionProcessor = null)
+            IExpressionProcessor expressionProcessor = null,
+            EquationSolver equationSolver = null)
         {
             _consoleProcessor = consoleProcessor ?? new ConsoleProcessor();
             CommandExecutors = GetCommandExecutorsDictionary();
             _variableStorage = varStorage ?? new VariableStorage();
             _expressionProcessor = expressionProcessor ?? new ExpressionProcessor(_variableStorage);
+            _equationSolver = equationSolver ?? new EquationSolver();
         }
         public void StartReading()
         {
@@ -128,7 +133,21 @@ namespace ComputorV2
         }
         private void ExecuteSolveEquationCommand(string command)
         {
-            throw new NotImplementedException();
+            var cleanCmd = command.ToLower().Replace("?", "");
+            var funcRegex = new Regex(@"\s*[a-z]+\s*\(\s*[a-z]+\s*\)\s*");
+            var equationToSolve = funcRegex.Replace(cleanCmd, new MatchEvaluator(CapText));
+            var varRegex = new Regex(@"\s*[a-z]+\s*");
+            equationToSolve = varRegex.Replace(equationToSolve, new MatchEvaluator(CapText));
+            _consoleProcessor.WriteLine($"The equation is : \"{equationToSolve}\"");
+            var solutionLines = _equationSolver.SolveEquation(equationToSolve);
+            _consoleProcessor.Write(solutionLines);
+        }
+
+        string CapText(Match m)
+        {            
+            string match = m.ToString();
+            var parts = match.Split(new char[] { '(', ')' });
+            return _variableStorage[parts[0].Trim()].ToString();
         }
 
         private void ExecuteEvaluateExpressionCommand(string command)

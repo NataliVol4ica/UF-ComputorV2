@@ -83,6 +83,17 @@ namespace ComputorV2
         {
             var stringTokens = Tokenize(funcExpression.ToLower());
             var tokens = RecognizeLexems(stringTokens, paramName);
+            try {
+                var tokensForTrySolve = tokens
+                    .Select(t => t.tokenType == TokenType.FunctionParameter ?
+                    new RPNToken { str = "1", tokenType = TokenType.DecimalNumber } : t)
+                    .ToList();
+                var bigNumberResult = Simplify(tokensForTrySolve, false);
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException($"Cannot create function because its expression is invalid");
+            }
             return new Expression(tokens, true, funcExpression);
         }
 
@@ -163,6 +174,7 @@ namespace ComputorV2
             }
             return tokenList;
         }
+
         // Step 3
         private BigNumber Simplify(List<RPNToken> tokens, bool detailedMode = false)
         {
@@ -247,7 +259,6 @@ namespace ComputorV2
                 return true;
             return false;
         }
-        //todo : move to struct
         private  int CompareOperationPriorities(OperationInfo left, OperationInfo right)
         {
             if ((right.assoc == OpAssoc.Left && right.priority <= left.priority) ||

@@ -70,7 +70,7 @@ namespace Tests
         }
 
         [Test]
-        public void StartReading_EvaluatingFunction_ComplexTest1()
+        public void StartReading_EvaluatingFunction_ComplexTest()
         {
             _consoleProcessor
                      .SetupSequence(cp => cp.ReadLine())
@@ -83,6 +83,36 @@ namespace Tests
             testedComputor.StartReading();
 
             _consoleProcessor.Verify(cp => cp.WriteLine("> 533674"));
+        }
+
+        [Test]
+        public void StartReading_SolvingSimplestEquation_PrintsSolution(string func, string solution)
+        {
+            _consoleProcessor
+                     .SetupSequence(cp => cp.ReadLine())
+                     .Returns("x = 0 ?")
+                     .Returns("Exit");
+
+            var testedComputor = new Computor(_consoleProcessor.Object);
+            testedComputor.StartReading();
+
+            _consoleProcessor.Verify(cp => cp.WriteLine($"> {solution}"));
+        }
+
+        [Test]
+        [TestCase("x", "0")]
+        public void StartReading_SolvingEquationEqualsZero_PrintsSolution(string func, string solution)
+        {
+            _consoleProcessor
+                     .SetupSequence(cp => cp.ReadLine())
+                     .Returns($"f(x) = {func}")
+                     .Returns("f(x) = 0 ?")
+                     .Returns("Exit");
+
+            var testedComputor = new Computor(_consoleProcessor.Object);
+            testedComputor.StartReading();
+
+            _consoleProcessor.Verify(cp => cp.WriteLine($"> {solution}"));
         }
     }
 }
