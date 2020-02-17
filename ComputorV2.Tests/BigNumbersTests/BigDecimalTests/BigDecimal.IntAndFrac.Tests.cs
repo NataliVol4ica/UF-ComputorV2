@@ -14,6 +14,7 @@ namespace BigNumbersTests.BigDecimalTests
             Assert.AreEqual(1, actual.IntegerLength);
             Assert.AreEqual(0, actual.FractionalLength);
         }
+
         [Test]
         public void Hundred()
         {
@@ -22,6 +23,7 @@ namespace BigNumbersTests.BigDecimalTests
             Assert.AreEqual(3, actual.IntegerLength);
             Assert.AreEqual(0, actual.FractionalLength);
         }
+
         [Test]
         public void ZeroDot156()
         {
@@ -30,6 +32,7 @@ namespace BigNumbersTests.BigDecimalTests
             Assert.AreEqual(1, actual.IntegerLength);
             Assert.AreEqual(3, actual.FractionalLength);
         }
+
         [Test]
         public void BigNumber()
         {
@@ -37,6 +40,6 @@ namespace BigNumbersTests.BigDecimalTests
 
             Assert.AreEqual(6, actual.IntegerLength);
             Assert.AreEqual(5, actual.FractionalLength);
-        }       
+        }
     }
 }

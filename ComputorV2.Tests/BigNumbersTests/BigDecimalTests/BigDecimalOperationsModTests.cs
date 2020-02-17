@@ -1,6 +1,6 @@
-﻿using BigNumbers;
-using System;
+﻿using System;
 using System.Text;
+using BigNumbers;
 using NUnit.Framework;
 
 namespace BigNumbersTests.BigDecimalTests
@@ -8,8 +8,9 @@ namespace BigNumbersTests.BigDecimalTests
     [TestFixture]
     public class BigDecimalOperationsModTests
     {
-        static int i = 0;
-        static readonly Random rnd = new Random((int)DateTime.Now.Ticks);
+        static int i;
+        static readonly Random rnd = new Random((int) DateTime.Now.Ticks);
+
         static void DoTesting(string left, string right, string result)
         {
             BigDecimal A, B, C = new BigDecimal();
@@ -23,9 +24,11 @@ namespace BigNumbersTests.BigDecimalTests
             }
             catch (Exception e)
             {
-                throw new Exception($"A is made of {left}, B is made of {right}.\n Expected result is {result}\n Actual result is{C.ToString()}");
+                throw new Exception(
+                    $"A is made of {left}, B is made of {right}.\n Expected result is {result}\n Actual result is{C}");
             }
         }
+
         public static string DecimalToString(decimal number)
         {
             string str = number.ToString();
@@ -39,6 +42,7 @@ namespace BigNumbersTests.BigDecimalTests
                 sb.Remove(sb.Length - 1, 1);
             return sb.ToString();
         }
+
         static void RandomTest()
         {
             int a = rnd.Next(0, Int32.MaxValue);
@@ -52,15 +56,15 @@ namespace BigNumbersTests.BigDecimalTests
             decimal C = A % B;
 
             DoTesting(DecimalToString(A),
-                    DecimalToString(B),
-                    DecimalToString(C));
+                DecimalToString(B),
+                DecimalToString(C));
         }
 
         [Test]
         public void Mod_WhenModWithZero_ThrowsException()
         {
             Assert.Throws<Exception>(() =>
-            DoTesting("3", "0", "0"));
+                DoTesting("3", "0", "0"));
         }
 
         [Test]
@@ -73,7 +77,7 @@ namespace BigNumbersTests.BigDecimalTests
         {
             DoTesting(a, b, expected);
         }
-        
+
         [Test]
         public void Random_10000_tests()
         {

@@ -1,29 +1,30 @@
-﻿using BigNumbers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using BigNumbers;
 
 namespace ComputorV2
 {
     public class ExpressionProcessor : IExpressionProcessor
     {
         #region Regex static data
+
         private static readonly Regex expressionRegex;
         private static readonly string regexFormat = @"\G\s*({0}|\+|-|\*|/|%|\^|\(|\))\s*";
 
         private static readonly Dictionary<string, string> _numbersRegexes = new Dictionary<string, string>
         {
-            { "VariableNameRegex", @"[a-z]+" },
-            { "BigComplexRegex", @"(\d+(\.\d+)?)?i" },
-            { "BigDecimalRegex", @"\d+(\.\d+)?" }
+            {"VariableNameRegex", @"[a-z]+"},
+            {"BigComplexRegex", @"(\d+(\.\d+)?)?i"},
+            {"BigDecimalRegex", @"\d+(\.\d+)?"}
         };
 
         private static readonly Regex _bigDecimalRegex;
         private static readonly Regex _bigComplexRegex;
 
-        private static readonly List<string> funcs = new List<string> { "abs" };
+        private static readonly List<string> funcs = new List<string> {"abs"};
         private static readonly ILookup<string, OperationInfo> opInfoMap;
         private readonly IVariableStorage _variableStorage;
 
@@ -38,20 +39,21 @@ namespace ComputorV2
 
             expressionRegex = new Regex(String.Format(regexFormat, innerRegex), RegexOptions.Compiled);
 
-            Debug.WriteLine($"The Expression's regex is: \n{expressionRegex.ToString()}");
+            Debug.WriteLine($"The Expression's regex is: \n{expressionRegex}");
 
             opInfoMap = new[]
             {
                 new OperationInfo("-", OpArity.Binary, 1, OpAssoc.Left),
-                new OperationInfo("-", OpArity.Unary,  3, OpAssoc.Right),
+                new OperationInfo("-", OpArity.Unary, 3, OpAssoc.Right),
                 new OperationInfo("+", OpArity.Binary, 1, OpAssoc.Left),
-                new OperationInfo("+", OpArity.Unary,  3, OpAssoc.Right),
+                new OperationInfo("+", OpArity.Unary, 3, OpAssoc.Right),
                 new OperationInfo("*", OpArity.Binary, 2, OpAssoc.Left),
                 new OperationInfo("/", OpArity.Binary, 2, OpAssoc.Left),
                 new OperationInfo("%", OpArity.Binary, 2, OpAssoc.Left),
                 new OperationInfo("^", OpArity.Binary, 2, OpAssoc.Right)
             }.ToLookup(op => op.op);
         }
+
         #endregion
 
         public ExpressionProcessor(IVariableStorage variableStorage)
@@ -74,26 +76,31 @@ namespace ComputorV2
             };
             return new Expression(newTokenList, false, str);
         }
+
         public BigNumber SimplifyTokensIntoBigNumber(List<RPNToken> tokens)
         {
-            return Simplify(tokens, false);
+            return Simplify(tokens);
         }
-                
+
         public Expression CreateFunctionExpression(string funcExpression, string paramName)
         {
             var stringTokens = Tokenize(funcExpression.ToLower());
             var tokens = RecognizeLexems(stringTokens, paramName);
-            try {
+            try
+            {
                 var tokensForTrySolve = tokens
-                    .Select(t => t.tokenType == TokenType.FunctionParameter ?
-                    new RPNToken { str = "1", tokenType = TokenType.DecimalNumber } : t)
+                    .Select(t =>
+                        t.tokenType == TokenType.FunctionParameter
+                            ? new RPNToken {str = "1", tokenType = TokenType.DecimalNumber}
+                            : t)
                     .ToList();
-                var bigNumberResult = Simplify(tokensForTrySolve, false);
+                var bigNumberResult = Simplify(tokensForTrySolve);
             }
             catch (Exception e)
             {
-                throw new ArgumentException($"Cannot create function because its expression is invalid");
+                throw new ArgumentException("Cannot create function because its expression is invalid");
             }
+
             return new Expression(tokens, true, funcExpression);
         }
 
@@ -113,10 +120,12 @@ namespace ComputorV2
                 stringTokens.Add(match.Value.Trim());
                 match = match.NextMatch();
             }
+
             if (lastMatchPos + lastMatchLen < str.Length)
                 throw new ArgumentException("The expression is invalid");
             return stringTokens;
         }
+
         // Step 2
         private List<RPNToken> RecognizeLexems(List<string> stringTokens,
             string funcParameter = null)
@@ -133,10 +142,11 @@ namespace ComputorV2
                 {
                     if (!(prev is null) &&
                         (prev.Value == TokenType.CBracket ||
-                        prev.Value == TokenType.Variable ||
-                        prev.Value == TokenType.FunctionParameter ||
-                        prev.Value == TokenType.DecimalNumber ||
-                        prev.Value == TokenType.ComplexNumber)) //todo: if new number type is created then append this 'if' with new type
+                         prev.Value == TokenType.Variable ||
+                         prev.Value == TokenType.FunctionParameter ||
+                         prev.Value == TokenType.DecimalNumber ||
+                         prev.Value == TokenType.ComplexNumber)
+                    ) //todo: if new number type is created then append this 'if' with new type
                         tokenType = TokenType.BinOp;
                     else
                         tokenType = TokenType.UnOp;
@@ -162,6 +172,7 @@ namespace ComputorV2
                     tokenType = TokenType.Function;
                 else
                     throw new ArgumentException($"Invalid token: '{token}'");
+
                 prev = tokenType;
                 if (tokenType == TokenType.Variable)
                 {
@@ -172,6 +183,7 @@ namespace ComputorV2
                 else
                     tokenList.Add(new RPNToken(token, tokenType));
             }
+
             return tokenList;
         }
 
@@ -199,19 +211,20 @@ namespace ComputorV2
                 else if (currentToken.tokenType == TokenType.Function)
                     bufferStack.Push(currentToken);
                 else if (currentToken.tokenType == TokenType.BinOp ||
-                    currentToken.tokenType == TokenType.UnOp)
+                         currentToken.tokenType == TokenType.UnOp)
                 {
                     curOpInfo = GetOperationInfo(currentToken);
                     while (bufferStack.Count() > 0)
                     {
                         RPNToken cmpToken = bufferStack.Peek();
                         if (cmpToken.tokenType == TokenType.Function ||
-                             (IsOperation(cmpToken) && CompareOperationPriorities(GetOperationInfo(cmpToken), curOpInfo) > 0))
+                            (IsOperation(cmpToken) &&
+                             CompareOperationPriorities(GetOperationInfo(cmpToken), curOpInfo) > 0))
                             CalculateToken(outputStack, bufferStack.Pop());
                         else
                             break;
-
                     }
+
                     bufferStack.Push(currentToken);
                 }
                 else if (currentToken.tokenType == TokenType.OBracket)
@@ -225,48 +238,49 @@ namespace ComputorV2
                 }
                 else
                     throw new NotImplementedException($"Unimplemented token '{currentToken.str}'");
+
                 if (detailedMode)
                     Console.WriteLine($"Step {queueLen - inputQueue.Count}. Current token is {currentToken} \n " +
-                        $"Input {String.Join(", ", inputQueue)} \n " +
-                        $"Buffer {String.Join(", ", bufferStack)} \n " +
-                        $"Result {String.Join(", ", outputStack)}");
+                                      $"Input {String.Join(", ", inputQueue)} \n " +
+                                      $"Buffer {String.Join(", ", bufferStack)} \n " +
+                                      $"Result {String.Join(", ", outputStack)}");
             }
+
             while (bufferStack.Count() > 0)
                 CalculateToken(outputStack, bufferStack.Pop(), detailedMode);
             if (outputStack.Count() > 1)
-                throw new ArgumentException("Cannot calculate this expression. Remaining RPN buffer contains extra numbers.");
-            else if (outputStack.Count() == 0)
+                throw new ArgumentException(
+                    "Cannot calculate this expression. Remaining RPN buffer contains extra numbers.");
+            if (outputStack.Count() == 0)
                 return new BigDecimal("0");
             return outputStack.Pop();
-
         }
 
         // Tools
-        private  OperationInfo GetOperationInfo(RPNToken token)
+        private OperationInfo GetOperationInfo(RPNToken token)
         {
-            OpArity arity = token.tokenType == TokenType.BinOp ?
-                                    OpArity.Binary :
-                                    OpArity.Unary;
+            OpArity arity = token.tokenType == TokenType.BinOp ? OpArity.Binary : OpArity.Unary;
             var curOps = opInfoMap[token.str];
-            var curOp = curOps.Count() == 1 ?
-                                    curOps.Single() :
-                                    curOps.Single(o => o.arity == arity);
+            var curOp = curOps.Count() == 1 ? curOps.Single() : curOps.Single(o => o.arity == arity);
             return curOp;
         }
-        private  bool IsOperation(RPNToken t)
+
+        private bool IsOperation(RPNToken t)
         {
             if (t.tokenType == TokenType.BinOp || t.tokenType == TokenType.UnOp)
                 return true;
             return false;
         }
-        private  int CompareOperationPriorities(OperationInfo left, OperationInfo right)
+
+        private int CompareOperationPriorities(OperationInfo left, OperationInfo right)
         {
             if ((right.assoc == OpAssoc.Left && right.priority <= left.priority) ||
                 (right.assoc == OpAssoc.Right && right.priority < left.priority))
                 return 1;
             return -1;
         }
-        private  void CalculateToken(Stack<BigNumber> result, RPNToken op, bool detailedMode = false)
+
+        private void CalculateToken(Stack<BigNumber> result, RPNToken op, bool detailedMode = false)
         {
             if (op.tokenType == TokenType.Function)
                 result.Push(CalculateFunc(result.Pop(), op.str));
@@ -279,7 +293,8 @@ namespace ComputorV2
         }
 
         #region Calculations
-        private  BigNumber CalculateBinaryOp(BigNumber right, BigNumber left, string op, bool detailedMode = false)
+
+        private BigNumber CalculateBinaryOp(BigNumber right, BigNumber left, string op, bool detailedMode = false)
         {
             if (op.Equals("+"))
             {
@@ -288,6 +303,7 @@ namespace ComputorV2
                     Console.WriteLine($"   Calculating {left} + {right} = {result}");
                 return result;
             }
+
             if (op.Equals("-"))
             {
                 var result = left - right;
@@ -295,6 +311,7 @@ namespace ComputorV2
                     Console.WriteLine($"   Calculating {left} - {right} = {result}");
                 return result;
             }
+
             if (op.Equals("*"))
             {
                 var result = left * right;
@@ -302,6 +319,7 @@ namespace ComputorV2
                     Console.WriteLine($"   Calculating {left} * {right} = {result}");
                 return result;
             }
+
             if (op.Equals("/"))
             {
                 var result = left / right;
@@ -309,6 +327,7 @@ namespace ComputorV2
                     Console.WriteLine($"   Calculating {left} / {right} = {result}");
                 return result;
             }
+
             if (op.Equals("%"))
             {
                 var result = left % right;
@@ -316,17 +335,19 @@ namespace ComputorV2
                     Console.WriteLine($"   Calculating {left} % {right} = {result}");
                 return result;
             }
+
             if (op.Equals("^"))
             {
-                var result = left.Pow((BigDecimal)right);
+                var result = left.Pow((BigDecimal) right);
                 if (detailedMode)
                     Console.WriteLine($"   Calculating {left} ^ {right} = {result}");
                 return result;
             }
+
             throw new NotImplementedException("RPNParser met unimplemented operator \"" + op + "\"");
         }
 
-        private  BigNumber CalculateUnaryOp(BigNumber operand, string op)
+        private BigNumber CalculateUnaryOp(BigNumber operand, string op)
         {
             BigNumber ret;
             switch (op)
@@ -341,6 +362,7 @@ namespace ComputorV2
                 default:
                     throw new ArgumentException($"Unsupported operation {op}");
             }
+
             Console.WriteLine($"   Calculating {op}({operand}) = {ret}");
             return ret;
         }
@@ -362,8 +384,10 @@ namespace ComputorV2
                     Console.WriteLine($"   Calculating {func}({arg}) = {returnValue}");
                     break;
             }
+
             return returnValue;
         }
+
         #endregion
 
         public List<RPNToken> GetRPNTokensForBigNumber(BigNumber bn)

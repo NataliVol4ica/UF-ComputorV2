@@ -1,5 +1,5 @@
-﻿using BigNumbers;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using BigNumbers;
 using NUnit.Framework;
 
 namespace BigNumbersTests.BigDecimalTests
@@ -23,8 +23,8 @@ namespace BigNumbersTests.BigDecimalTests
         [Test]
         public void OneElemList_Test()
         {
-            var actual = new List<int> { 5 };
-            var expected = new List<int> { 5 };
+            var actual = new List<int> {5};
+            var expected = new List<int> {5};
             new BigDecimal().NormalizeList(actual);
             CompareLists(expected, actual);
         }
@@ -32,8 +32,8 @@ namespace BigNumbersTests.BigDecimalTests
         [Test]
         public void OneElemList_Unnormalized_Test()
         {
-            var actual = new List<int> { 15 };
-            var expected = new List<int> { 5, 1 };
+            var actual = new List<int> {15};
+            var expected = new List<int> {5, 1};
             new BigDecimal().NormalizeList(actual);
             CompareLists(expected, actual);
         }
@@ -41,8 +41,8 @@ namespace BigNumbersTests.BigDecimalTests
         [Test]
         public void OneElemList_VeryUnnormalized_Test()
         {
-            var actual = new List<int> { 135673 };
-            var expected = new List<int> { 3, 7, 6, 5, 3, 1 };
+            var actual = new List<int> {135673};
+            var expected = new List<int> {3, 7, 6, 5, 3, 1};
             new BigDecimal().NormalizeList(actual);
             CompareLists(expected, actual);
         }
@@ -50,8 +50,8 @@ namespace BigNumbersTests.BigDecimalTests
         [Test]
         public void BigList_Unnormalized_Test()
         {
-            var actual = new List<int> { 1, 11, 9 };
-            var expected = new List<int> { 1, 1, 0, 1 };
+            var actual = new List<int> {1, 11, 9};
+            var expected = new List<int> {1, 1, 0, 1};
             new BigDecimal().NormalizeList(actual);
             CompareLists(expected, actual);
         }

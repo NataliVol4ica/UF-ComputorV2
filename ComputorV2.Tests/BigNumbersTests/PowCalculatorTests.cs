@@ -1,24 +1,28 @@
-﻿using BigNumbers;
+﻿using System;
+using BigNumbers;
 using Moq;
 using NUnit.Framework;
-using System;
 
 namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
 {
     public class PowCalculatorTests
     {
         [SetUp]
-        public void Setup() { }
+        public void Setup()
+        {
+        }
 
         [Test]
-        public void Pow_WhenCalledWithNotInteger_ThrowsEXception() {
+        public void Pow_WhenCalledWithNotInteger_ThrowsEXception()
+        {
             var fakeBigDecimal = new Mock<BigDecimal>();
             fakeBigDecimal.SetupGet(bd => bd.IsInteger).Returns(false);
             var numToPow = new BigDecimal("5");
 
             Assert.Throws<ArgumentException>(() =>
-            numToPow.Pow(fakeBigDecimal.Object));
+                numToPow.Pow(fakeBigDecimal.Object));
         }
+
         [Test]
         public void Pow_WhenCalledWithZero_ReturnsOne()
         {
@@ -27,6 +31,7 @@ namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
             var actualString = numToPow.Pow(new BigDecimal("0")).ToString();
             Assert.AreEqual("1", actualString);
         }
+
         [Test]
         [TestCase("1", "1", "1")]
         [TestCase("0", "2", "0")]
@@ -41,6 +46,7 @@ namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
             var actualString = numToPow.Pow(new BigDecimal(pow)).ToString();
             Assert.AreEqual(expected, actualString);
         }
+
         [Test]
         [TestCase("1", "-1", "1")]
         [TestCase("2", "-1", "0.5")]

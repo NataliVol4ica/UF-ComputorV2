@@ -1,5 +1,5 @@
-﻿using BigNumbers;
-using System;
+﻿using System;
+using BigNumbers;
 using NUnit.Framework;
 
 namespace BigNumbersTests.BigDecimalTests
@@ -10,7 +10,7 @@ namespace BigNumbersTests.BigDecimalTests
         [Test]
         public void NullString_In_Constructor()
         {
-            Assert.Throws<ArgumentException>(() => new BigDecimal((string)null));
+            Assert.Throws<ArgumentException>(() => new BigDecimal((string) null));
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace BigNumbersTests.BigDecimalTests
             Assert.AreEqual("0", actual.ToString());
             Assert.AreEqual(1, actual.Sign);
         }
-        
+
         [Test]
         public void MinusZero_In_Constructor()
         {

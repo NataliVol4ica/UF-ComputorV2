@@ -20,6 +20,7 @@ namespace BigNumbers
                 resultList.Add(leftList[i] + rightList[i]);
             return resultList;
         }
+
         public static List<int> SubByList(this List<int> leftList, List<int> rightList)
         {
             if (leftList.CompareWithList(rightList) < 0)
@@ -30,6 +31,7 @@ namespace BigNumbers
                 resultList.Add(leftList[i] - rightList[i]);
             return resultList;
         }
+
         public static List<int> MulWithList(this List<int> leftList, List<int> rightList)
         {
             var resultList = new List<int>();
@@ -42,10 +44,12 @@ namespace BigNumbers
                 tempList = leftList.MulWithDigit(rightList[i], i);
                 resultList = resultList.SumWithList(tempList);
             }
+
             return resultList;
         }
+
         public static List<int> DivByList(this List<int> leftList, List<int> rightList,
-Normalizer NormFunc, out List<int> remainder)
+            Normalizer NormFunc, out List<int> remainder)
         {
             var resultList = new List<int>();
             remainder = new List<int>();
@@ -75,21 +79,24 @@ Normalizer NormFunc, out List<int> remainder)
                         sum++;
                         unnormed = false;
                     }
+
                     resultList.Add(sum);
                     if (indexToAdd >= 0)
                         remainder.Insert(0, leftList[indexToAdd]);
                     indexToAdd--;
                 } while (indexToAdd >= -1);
             }
+
             if (resultList.Count == 0)
                 resultList.Add(0);
             resultList.Reverse();
             return resultList;
         }
+
         public static List<int> MulWithDigit(this List<int> leftList, int digit, int padding = 0)
         {
             if (digit == 0)
-                return new List<int> { 0 };
+                return new List<int> {0};
             var resultList = new List<int>(leftList.Count);
             resultList.AddRange(Enumerable.Repeat(0, padding));
             for (int i = 0; i < leftList.Count; i++)
@@ -108,10 +115,11 @@ Normalizer NormFunc, out List<int> remainder)
                 return 0;
             return left[i] - right[i];
         }
+
         public static void RemoveTailingZeros(this List<int> list)
         {
             while (list.Last() == 0 && list.Count > 1)
                 list.RemoveAt(list.Count - 1);
-        }       
+        }
     }
 }

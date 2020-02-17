@@ -1,6 +1,6 @@
-using NUnit.Framework;
-using ComputorV2;
 using System;
+using ComputorV2;
+using NUnit.Framework;
 
 namespace ComputorV2Tests
 {
@@ -14,7 +14,7 @@ namespace ComputorV2Tests
         [TestCase(" \t\n")]
         [TestCase(null)]
         public void GetCommandType_WhenCalledWithInvalidCommand_ThrowsArgumentException(string command)
-        {           
+        {
             Assert.That(() => ComputorTools.GetCommandType(command),
                 Throws.TypeOf<ArgumentException>());
         }
@@ -23,11 +23,12 @@ namespace ComputorV2Tests
         [TestCase("==", 2)]
         [TestCase("a = 2 =3", 2)]
         [TestCase("a = 2 + 3 * 5 ; a = b; a = c;", 3)]
-        public void GetCommandType_WhenCalledWithCommandWithMultipleEqualities_ReturnsCommandType(string command, int equalities)
+        public void GetCommandType_WhenCalledWithCommandWithMultipleEqualities_ReturnsCommandType(string command,
+            int equalities)
         {
             Assert.That(() => ComputorTools.GetCommandType(command),
                 Throws.TypeOf<ArgumentException>()
-                .With.Message.EqualTo($"Command cannot contain: '{equalities}' equal signs"));
+                    .With.Message.EqualTo($"Command cannot contain: '{equalities}' equal signs"));
         }
 
         [Test]
@@ -51,6 +52,7 @@ namespace ComputorV2Tests
             var expected = cmdType;
             Assert.AreEqual(expected, actual);
         }
+
         [Test]
         [TestCase("f(x)=2", CommandType.DeclareFunction)]
         [TestCase("f(x)=?", CommandType.EvaluateExpression)]

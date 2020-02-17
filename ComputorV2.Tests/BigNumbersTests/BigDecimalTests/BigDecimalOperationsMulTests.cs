@@ -1,6 +1,6 @@
-﻿using BigNumbers;
-using System;
+﻿using System;
 using System.Text;
+using BigNumbers;
 using NUnit.Framework;
 
 namespace BigNumbersTests.BigDecimalTests
@@ -8,7 +8,8 @@ namespace BigNumbersTests.BigDecimalTests
     [TestFixture]
     public class BigDecimalOperationsMulTests
     {
-        static readonly Random rnd = new Random((int)DateTime.Now.Ticks);
+        static readonly Random rnd = new Random((int) DateTime.Now.Ticks);
+
         static void DoTesting(string left, string right, string result)
         {
             BigDecimal A = new BigDecimal(left);
@@ -17,6 +18,7 @@ namespace BigNumbersTests.BigDecimalTests
             BigDecimal C = A * B;
             Assert.AreEqual(result, C.ToString());
         }
+
         public static string DecimalToString(decimal number)
         {
             string str = number.ToString();
@@ -30,6 +32,7 @@ namespace BigNumbersTests.BigDecimalTests
                 sb.Remove(sb.Length - 1, 1);
             return sb.ToString();
         }
+
         static void RandomTest()
         {
             int a = rnd.Next(0, Int32.MaxValue);
@@ -43,8 +46,8 @@ namespace BigNumbersTests.BigDecimalTests
             decimal C = A * B;
 
             DoTesting(DecimalToString(A),
-                    DecimalToString(B),
-                    DecimalToString(C));
+                DecimalToString(B),
+                DecimalToString(C));
         }
 
         [Test]
@@ -62,7 +65,7 @@ namespace BigNumbersTests.BigDecimalTests
         [Test]
         public void M5_zero()
         {
-            DoTesting("-5", "0","0");
+            DoTesting("-5", "0", "0");
         }
 
         [Test]

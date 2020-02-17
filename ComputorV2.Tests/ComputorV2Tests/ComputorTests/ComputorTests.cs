@@ -1,8 +1,8 @@
-﻿using ComputorV2.ExternalConnections;
+﻿using System;
+using System.Collections.Generic;
+using ComputorV2.ExternalConnections;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 
 namespace ComputorV2.Tests.ComputorV2Tests
 {
@@ -30,7 +30,8 @@ namespace ComputorV2.Tests.ComputorV2Tests
             var variablesString = "a = 2\nb = 3";
             _variableStorage.Setup(vs => vs.GetVariablesString()).Returns(variablesString);
             SetupConsoleMockToReturnCommandAndExit("Vars");
-            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
+            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object,
+                _expressionProcessor.Object);
             //Act
             testedComputor.StartReading();
             //Assert
@@ -46,7 +47,8 @@ namespace ComputorV2.Tests.ComputorV2Tests
         public void ExecuteAssignVarCommand_WhenCalledWithNullString_WritesAnErrorToConsole(string varName)
         {
             SetupConsoleMockToReturnCommandAndExit(varName);
-            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
+            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object,
+                _expressionProcessor.Object);
 
             testedComputor.StartReading();
 
@@ -63,7 +65,8 @@ namespace ComputorV2.Tests.ComputorV2Tests
         {
             var cmd = varName + " = 3";
             SetupConsoleMockToReturnCommandAndExit(cmd);
-            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
+            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object,
+                _expressionProcessor.Object);
 
             testedComputor.StartReading();
 
@@ -79,7 +82,8 @@ namespace ComputorV2.Tests.ComputorV2Tests
                 .Throws<Exception>();
 
             SetupConsoleMockToReturnCommandAndExit("vara = 2 / 0");
-            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
+            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object,
+                _expressionProcessor.Object);
             testedComputor.StartReading();
 
             _consoleProcessor.Verify(cp => cp.WriteLine(It.IsAny<string>()));
@@ -96,7 +100,8 @@ namespace ComputorV2.Tests.ComputorV2Tests
                 .Setup(vs => vs.AddOrUpdateVariableValue(It.IsAny<string>(), It.IsAny<Expression>()))
                 .Returns("AddOrUpdateReturnValue");
             SetupConsoleMockToReturnCommandAndExit("vara = 2 + 2");
-            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object, _expressionProcessor.Object);
+            var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object,
+                _expressionProcessor.Object);
             testedComputor.StartReading();
 
             _variableStorage.Verify(vs => vs.AddOrUpdateVariableValue("vara", _emptyExpression));
@@ -106,15 +111,15 @@ namespace ComputorV2.Tests.ComputorV2Tests
         #endregion
 
         #region Functions
-        
+
         #endregion
 
         private void SetupConsoleMockToReturnCommandAndExit(string command)
         {
             _consoleProcessor
-                    .SetupSequence(cp => cp.ReadLine())
-                    .Returns(command)
-                    .Returns("Exit");
+                .SetupSequence(cp => cp.ReadLine())
+                .Returns(command)
+                .Returns("Exit");
         }
     }
 }

@@ -1,8 +1,5 @@
 ﻿using BigNumbers;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ComputorV2.Tests.BigNumbersTests.BigComplexTests
 {
@@ -27,6 +24,7 @@ namespace ComputorV2.Tests.BigNumbersTests.BigComplexTests
 
             Assert.AreEqual(expected, actual);
         }
+
         [Test]
         [TestCase("0", "0", "0")]
         [TestCase("0", "i", "-i")]
@@ -46,6 +44,7 @@ namespace ComputorV2.Tests.BigNumbersTests.BigComplexTests
             var actual = (left - right).ToString();
             Assert.AreEqual(expected, actual);
         }
+
         [Test]
         [TestCase("0", "0", "0")]
         [TestCase("0", "i", "0")]
@@ -64,6 +63,7 @@ namespace ComputorV2.Tests.BigNumbersTests.BigComplexTests
             var actual = (left * right).ToString();
             Assert.AreEqual(expected, actual);
         }
+
         [Test]
         [TestCase("0", "i", "0")]
         [TestCase("i", "i", "1")]
@@ -82,6 +82,7 @@ namespace ComputorV2.Tests.BigNumbersTests.BigComplexTests
             var actual = (left / right).ToString();
             Assert.AreEqual(expected, actual);
         }
+
         [Test]
         [TestCase("i", "2", "-1")]
         public void Pow_WhenCalled_ReturnsPow(string a, string pow, string expected)

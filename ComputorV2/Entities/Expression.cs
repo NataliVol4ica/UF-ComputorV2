@@ -1,9 +1,6 @@
-﻿using BigNumbers;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text.RegularExpressions;
+using BigNumbers;
 
 namespace ComputorV2
 {
@@ -18,10 +15,11 @@ namespace ComputorV2
             Tokens = tokens;
             IsFunction = isFunction;
             if (initialString is null)
-                InitialString = this.ToString();
+                InitialString = ToString();
             else
                 InitialString = initialString;
-        }      
+        }
+
         public override string ToString()
         {
             var str = String.Join(" ", Tokens);
@@ -31,7 +29,7 @@ namespace ComputorV2
         public BigNumber EvaluateFunctionWithTokens(ExpressionProcessor ep, List<RPNToken> parameterTokens)
         {
             if (!IsFunction)
-                throw new ArgumentException($"Cannot calculate function value of a variable");
+                throw new ArgumentException("Cannot calculate function value of a variable");
             var resultTokens = new List<RPNToken>();
             var tokensToInsert = new List<RPNToken>();
             tokensToInsert.Add(RPNToken.OpeningBracketToken());

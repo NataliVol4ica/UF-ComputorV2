@@ -1,6 +1,5 @@
-﻿using System;
+﻿using BigNumbers;
 using NUnit.Framework;
-using BigNumbers;
 
 namespace ComputorV2.Tests.BigNumbersTests.BigComplexTests
 {

@@ -9,7 +9,9 @@ namespace ComputorV2
     {
         private static readonly Regex _validVariableNameRegEx =
             new Regex(@"^[a-z]+$", RegexOptions.IgnoreCase);
+
         private Dictionary<string, Expression> _variables;
+
         public List<string> AllVariablesNames => _variables
             .Select(d => d.Key)
             .ToList();
@@ -41,15 +43,18 @@ namespace ComputorV2
                 d => d.Value.IsFunction ? $"{d.Key}(X) = {d.Value}" : $"{d.Key} = {d.Value}"));
             return varsText;
         }
+
         public void EraseVariablesData()
         {
             _variables = new Dictionary<string, Expression>();
         }
+
         public string AddOrUpdateVariableValue(string varName, Expression expression)
         {
             _variables[varName] = expression;
             return _variables[varName].ToString();
         }
+
         public static bool IsValidVarName(string name)
         {
             var varNAme = name.Trim();
@@ -57,6 +62,7 @@ namespace ComputorV2
                 return false;
             return _validVariableNameRegEx.IsMatch(varNAme);
         }
+
         public Expression this[string varName]
         {
             get
@@ -67,7 +73,9 @@ namespace ComputorV2
                 return null;
             }
         }
-        public bool IsValidFunctionDeclaration(string func, out string funcName, out string paramName, out string reason)
+
+        public bool IsValidFunctionDeclaration(string func, out string funcName, out string paramName,
+            out string reason)
         {
             funcName = "";
             paramName = "";
@@ -78,33 +86,39 @@ namespace ComputorV2
                 reason = $"{func} contains invalid number of '('";
                 return false;
             }
+
             if (cleanString.Count(c => c == ')') != 1)
             {
                 reason = $"{func} contains invalid number of ')'";
                 return false;
             }
-            var parts = cleanString.Split(new char[] { '(', ')' });
+
+            var parts = cleanString.Split('(', ')');
             if (!IsValidVarName(parts[0]))
             {
                 reason = $"{func} has invalid function name format";
                 return false;
             }
+
             if (!IsValidVarName(parts[1]))
             {
                 reason = $"{func} has invalid parameter name format";
                 return false;
             }
+
             if (_variables.TryGetValue(parts[1].ToLower(), out _))
             {
                 reason = $"{func} has invalid parameter name (it is a name of existing variable)." +
-                    $" Choose another parameter name or use 'reset' command.";
+                         " Choose another parameter name or use 'reset' command.";
                 return false;
             }
+
             if (parts[1].ToLower().Equals("i"))
             {
                 reason = $"{func} has invalid parameter name '{parts[1]}'";
                 return false;
             }
+
             funcName = parts[0];
             paramName = parts[1];
             return true;

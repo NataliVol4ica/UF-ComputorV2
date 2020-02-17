@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace BigNumbers
@@ -8,36 +7,42 @@ namespace BigNumbers
     public class BigComplex : BigNumber
     {
         private static readonly Regex validStringRegEx = new Regex(
-            @"^(\s*([+-]?\d+(\.\d+)?\s*[+-]\s*)?[+-]?(\d+(\.\d+)?)?\s*[iI]\s*)|(\s*[+-]?\d+(\.\d+)?\s*)$", 
+            @"^(\s*([+-]?\d+(\.\d+)?\s*[+-]\s*)?[+-]?(\d+(\.\d+)?)?\s*[iI]\s*)|(\s*[+-]?\d+(\.\d+)?\s*)$",
             RegexOptions.Compiled);
 
         #region Contructors
+
         static BigComplex()
         {
         }
+
         public BigComplex(string str)
         {
             var lowString = str?.ToLower();
             if (string.IsNullOrEmpty(lowString) ||
-               string.IsNullOrEmpty(validStringRegEx.Match(lowString).Value))
+                string.IsNullOrEmpty(validStringRegEx.Match(lowString).Value))
                 throw new ArgumentException("Cannot create BigComplex of \"" + str + "\"");
             CleanAndSaveNumericString(lowString.ToLower());
         }
+
         public BigComplex(BigComplex bc) : this(bc.ToString())
         {
         }
+
         public BigComplex(BigDecimal bc) : this(bc.ToString())
         {
         }
+
         public BigComplex(BigDecimal real, BigDecimal imaginary)
         {
             if (real is null || imaginary is null)
                 throw new ArgumentNullException("Cannot create BigComplex of null part");
-            this.Real = real;
-            this.Imaginary = imaginary;
+            Real = real;
+            Imaginary = imaginary;
         }
 
         #region Constructor tools
+
         private void CleanAndSaveNumericString(string str)
         {
             var noWsString = Regex.Replace(str, @"\s+", "");
@@ -46,7 +51,6 @@ namespace BigNumbers
             {
                 if (!parts[0].Contains("i"))
                 {
-
                     Real = new BigDecimal(CreateImaginaryMultiplierString(parts[0]));
                     Imaginary = new BigDecimal("0");
                 }
@@ -61,7 +65,8 @@ namespace BigNumbers
                 Real = new BigDecimal(parts[0]);
                 Imaginary = new BigDecimal(CreateImaginaryMultiplierString(parts[1]));
             }
-            CleanString = this.ToString();
+
+            CleanString = ToString();
         }
 
         private string CreateImaginaryMultiplierString(string initialStr)
@@ -73,6 +78,7 @@ namespace BigNumbers
                 noWsString = "-1";
             return noWsString;
         }
+
         private List<string> SplitComplexString(string inputString)
         {
             var result = new List<string>();
@@ -86,12 +92,15 @@ namespace BigNumbers
                         result.Add(substr);
                     lastPos = i;
                 }
+
             substr = inputString.Substring(lastPos, inputString.Length - lastPos);
             if (!String.IsNullOrWhiteSpace(substr))
                 result.Add(substr);
             return result;
         }
+
         #endregion
+
         #endregion
 
         #region Operations parent override
@@ -106,16 +115,18 @@ namespace BigNumbers
             var simplifiedResult = TryConvertBigNumberToBigComplex(result);
             return simplifiedResult;
         }
+
         public override BigNumber Substract(BigNumber op)
         {
             var right = TryConvertBigNumberToBigComplex(op);
             var left = this;
-            var realResult = left.Real- right.Real;
+            var realResult = left.Real - right.Real;
             var imaginaryResult = left.Imaginary - right.Imaginary;
             var result = new BigComplex(realResult, imaginaryResult);
             var simplifiedResult = TryConvertBigNumberToBigComplex(result);
             return simplifiedResult;
         }
+
         public override BigNumber Multiply(BigNumber op)
         {
             var right = TryConvertBigNumberToBigComplex(op);
@@ -130,6 +141,7 @@ namespace BigNumbers
             var simplifiedResult = TryConvertBigNumberToBigComplex(result);
             return simplifiedResult;
         }
+
         public override BigNumber Divide(BigNumber op)
         {
             var right = TryConvertBigNumberToBigComplex(op);
@@ -144,6 +156,7 @@ namespace BigNumbers
             var simplifiedResult = TryConvertBigNumberToBigComplex(result);
             return simplifiedResult;
         }
+
         public override BigNumber Mod(BigNumber op)
         {
             throw new NotImplementedException();
@@ -155,16 +168,17 @@ namespace BigNumbers
         private BigNumber TryToCreateBigDecimal()
         {
             if (Imaginary.ToString() == "0")
-                return new BigDecimal(this.ToString());
+                return new BigDecimal(ToString());
             return this;
         }
+
         private BigComplex TryConvertBigNumberToBigComplex(BigNumber number)
         {
             BigComplex result;
             if (number is BigDecimal)
-                result = new BigComplex((BigDecimal)number);
+                result = new BigComplex((BigDecimal) number);
             else if (number is BigComplex)
-                result = (BigComplex)number;
+                result = (BigComplex) number;
             else
                 throw new ArgumentException("Cannot Add BigComplex to " + number.GetType());
             return result;
@@ -175,6 +189,7 @@ namespace BigNumbers
         #endregion
 
         #region Function parent override
+
         public override BigNumber Abs()
         {
             throw new NotImplementedException("Cannot take abs of a complex number");
@@ -183,21 +198,24 @@ namespace BigNumbers
         #endregion
 
         #region Other parent overriden tools
+
         public override BigNumber Negative()
         {
             BigComplex ret = new BigComplex(this);
             ret.Negate();
             return ret;
         }
+
         public override BigNumber Copy()
         {
             BigComplex ret = new BigComplex(this);
             return ret;
         }
+
         public override string ToString()
         {
             if (Real.CleanString == "0" && Imaginary.CleanString == "0")
-                    return "0";
+                return "0";
             var realString = Real.ToString() != "0" ? Real.ToString() : "";
             string imaginaryString;
             if (Imaginary.CleanString == "0")
@@ -212,21 +230,27 @@ namespace BigNumbers
                     if (realString.Length > 0)
                         imaginaryString = $"+{imaginaryString}";
                 }
+
                 imaginaryString += "i";
             }
+
             return $"{realString}{imaginaryString}";
         }
+
         public override void Negate()
         {
             Real = -Real;
             Imaginary = -Imaginary;
-            CleanString = this.ToString();
+            CleanString = ToString();
         }
+
         public override int this[int index] => throw new NotImplementedException();
+
         public override void NormalizeList(List<int> digits)
         {
             throw new NotImplementedException();
         }
+
         #endregion
 
         #region Operators overload
@@ -242,34 +266,39 @@ namespace BigNumbers
         {
             if (left is null || right is null)
                 return null;
-            return (BigComplex)left.Add(right);
+            return (BigComplex) left.Add(right);
         }
+
         public static BigComplex operator -(BigComplex left, BigComplex right)
         {
             if (left is null || right is null)
                 return null;
-            return (BigComplex)left.Substract(right);
+            return (BigComplex) left.Substract(right);
         }
+
         public static BigComplex operator *(BigComplex left, BigComplex right)
         {
             if (left is null || right is null)
                 return null;
-            return (BigComplex)left.Multiply(right);
+            return (BigComplex) left.Multiply(right);
         }
+
         public static BigComplex operator /(BigComplex left, BigComplex right)
         {
             if (left is null || right is null)
                 return null;
-            return (BigComplex)left.Divide(right);
+            return (BigComplex) left.Divide(right);
         }
+
         public static BigComplex operator %(BigComplex left, BigComplex right)
         {
             if (left is null || right is null)
                 return null;
-            return (BigComplex)left.Mod(right);
+            return (BigComplex) left.Mod(right);
         }
+
         #endregion
-        
+
         public BigDecimal Imaginary { get; private set; }
         public BigDecimal Real { get; private set; }
     }

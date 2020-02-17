@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using ComputorV2;
 using NUnit.Framework;
-using System.Collections.Generic;
 
 namespace ComputorV2Tests.ConsoleReaderTests.Unit
 {
@@ -13,8 +13,8 @@ namespace ComputorV2Tests.ConsoleReaderTests.Unit
 
         [Test]
         [TestCase("lalala", true)]
-        [TestCase("varA",true)]
-        [TestCase("  \t \r varA ",true)]
+        [TestCase("varA", true)]
+        [TestCase("  \t \r varA ", true)]
         [TestCase("", false)]
         [TestCase(" lalala1 ", false)]
         [TestCase("name name", false)]
@@ -26,13 +26,14 @@ namespace ComputorV2Tests.ConsoleReaderTests.Unit
             var actual = VariableStorage.IsValidVarName(varname);
             Assert.AreEqual(expected, actual);
         }
+
         [Test]
         [TestCase("lalala", "", "", false)]
         [TestCase("varA", "", "", false)]
         [TestCase("varA()", "", "", false)]
         [TestCase("varA(()", "", "", false)]
-        [TestCase(" f(c) ","f", "c", true)]
-        [TestCase(" f(C) ","f", "C", true)]
+        [TestCase(" f(c) ", "f", "c", true)]
+        [TestCase(" f(C) ", "f", "C", true)]
         [TestCase("f(existingVar)", "", "", false)]
         [TestCase(" f(i)", "", "", false)]
         [TestCase("f(a1)", "", "", false)]
@@ -42,7 +43,7 @@ namespace ComputorV2Tests.ConsoleReaderTests.Unit
         {
             var vs = new VariableStorage();
             vs.AddOrUpdateVariableValue("existingvar", new Expression(new List<RPNToken>(), false));
-            var actual =vs
+            var actual = vs
                 .IsValidFunctionDeclaration(funcStr, out string fName, out string pName, out string reason);
             Assert.AreEqual(expectedResult, actual);
             Assert.AreEqual(expectedFuncName, fName);

@@ -1,8 +1,5 @@
 ﻿using BigNumbers;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
 {
@@ -15,6 +12,7 @@ namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
 
             Assert.IsFalse(testedNumber.IsEven);
         }
+
         [Test]
         public void IsEven_WhenCalledOddEvenIntNumber_ReturnsFalse()
         {
@@ -22,6 +20,7 @@ namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
 
             Assert.IsFalse(testedNumber.IsEven);
         }
+
         [Test]
         public void IsEven_WhenCalledOnEvenIntNumber_ReturnsTrue()
         {

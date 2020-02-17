@@ -1,8 +1,8 @@
-﻿using ComputorV2.EquationSolverWithTools;
-using ComputorV2.ExternalConnections;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using ComputorV2.EquationSolverWithTools;
+using ComputorV2.ExternalConnections;
 
 namespace ComputorV2
 {
@@ -16,9 +16,9 @@ namespace ComputorV2
         private readonly Dictionary<CommandType, Action<string>> CommandExecutors;
 
         private bool _isExitCommandEntered;
-        private bool _detailed = false;
+        private bool _detailed;
 
-        public Computor(IConsoleProcessor consoleProcessor = null, 
+        public Computor(IConsoleProcessor consoleProcessor = null,
             IVariableStorage varStorage = null,
             IExpressionProcessor expressionProcessor = null,
             EquationSolver equationSolver = null)
@@ -29,6 +29,7 @@ namespace ComputorV2
             _expressionProcessor = expressionProcessor ?? new ExpressionProcessor(_variableStorage);
             _equationSolver = equationSolver ?? new EquationSolver();
         }
+
         public void StartReading()
         {
             _isExitCommandEntered = false;
@@ -48,15 +49,18 @@ namespace ComputorV2
                     _consoleProcessor.WriteLine($"Error. {e.Message}");
                 }
             } while (!_isExitCommandEntered);
+
             _consoleProcessor.WriteLine("See ya!");
             _consoleProcessor.ReadLine();
         }
 
         #region command executors
+
         private void ExecuteExitCommand(string command = null)
         {
             _isExitCommandEntered = true;
         }
+
         private void ExecuteDetailedCommand(string command = null)
         {
             _consoleProcessor.WriteLine("Display detailed expression evaluation process? [y/n]");
@@ -68,23 +72,28 @@ namespace ComputorV2
             else
                 _consoleProcessor.WriteLine($"Invalid answer. The detailed will remain {_detailed}");
         }
+
         private void ExecuteVarsCommand(string command = null)
         {
             _consoleProcessor.WriteLine(_variableStorage.GetVariablesString());
         }
+
         private void ExecuteAllowedCommand(string command = null)
         {
             _consoleProcessor.WriteLine(ComputorTools.GetAllowedOperations());
         }
+
         private void ExecuteHelpCommand(string command = null)
         {
             var helpText = ComputorTools.GetHelp();
             _consoleProcessor.WriteLine(helpText);
         }
+
         private void ExecuteResetCommand(string command = null)
         {
             _variableStorage.EraseVariablesData();
         }
+
         private void ExecuteAssignVarCommand(string command)
         {
             if (String.IsNullOrWhiteSpace(command))
@@ -97,7 +106,7 @@ namespace ComputorV2
             try
             {
                 var newExpression = _expressionProcessor
-                    .CreateExpression(str: cmdExpression, detailedMode: _detailed);
+                    .CreateExpression(cmdExpression, _detailed);
                 var consoleOutput = _variableStorage
                     .AddOrUpdateVariableValue(cmdVarName, newExpression);
                 _consoleProcessor.WriteLine($"> {consoleOutput}");
@@ -115,7 +124,8 @@ namespace ComputorV2
             var parts = command.Split('=');
             var funcPart = parts[0].Trim().ToLower();
             var funcExpression = parts[1].Trim().ToLower();
-            if (!_variableStorage.IsValidFunctionDeclaration(funcPart, out string funcName, out string paramName, out string reason))
+            if (!_variableStorage.IsValidFunctionDeclaration(funcPart, out string funcName, out string paramName,
+                out string reason))
                 throw new ArgumentException($"The function signature is not valid. {reason}");
 
             try
@@ -131,22 +141,23 @@ namespace ComputorV2
                 _consoleProcessor.WriteLine($"{e.Message}");
             }
         }
+
         private void ExecuteSolveEquationCommand(string command)
         {
             var cleanCmd = command.ToLower().Replace("?", "");
             var funcRegex = new Regex(@"\s*[a-z]+\s*\(\s*[a-z]+\s*\)\s*");
-            var equationToSolve = funcRegex.Replace(cleanCmd, new MatchEvaluator(CapText));
+            var equationToSolve = funcRegex.Replace(cleanCmd, CapText);
             var varRegex = new Regex(@"\s*[a-z]+\s*");
-            equationToSolve = varRegex.Replace(equationToSolve, new MatchEvaluator(CapText));
+            equationToSolve = varRegex.Replace(equationToSolve, CapText);
             _consoleProcessor.WriteLine($"The equation is : \"{equationToSolve}\"");
             var solutionLines = _equationSolver.SolveEquation(equationToSolve);
             _consoleProcessor.Write(solutionLines);
         }
 
         string CapText(Match m)
-        {            
+        {
             string match = m.ToString();
-            var parts = match.Split(new char[] { '(', ')' });
+            var parts = match.Split('(', ')');
             return _variableStorage[parts[0].Trim()].ToString();
         }
 
@@ -164,22 +175,24 @@ namespace ComputorV2
                 _consoleProcessor.WriteLine($"Error. {e.Message}");
             }
         }
+
         #endregion
-        
+
         private Dictionary<CommandType, Action<string>> GetCommandExecutorsDictionary()
         {
-            return new Dictionary<CommandType, Action<string>>{
-                { CommandType.Exit, ExecuteExitCommand },
-                { CommandType.Detailed, ExecuteDetailedCommand },
-                { CommandType.ShowAlowedOperations, ExecuteAllowedCommand },
-                { CommandType.ShowVars, ExecuteVarsCommand },
-                { CommandType.ShowHelp, ExecuteHelpCommand },
-                { CommandType.Reset, ExecuteResetCommand },
-                { CommandType.AssignVar, ExecuteAssignVarCommand},
-                { CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand},
-                { CommandType.DeclareFunction, ExecuteDeclareFunctionCommand},
-                { CommandType.SolveEquation, ExecuteSolveEquationCommand}
+            return new Dictionary<CommandType, Action<string>>
+            {
+                {CommandType.Exit, ExecuteExitCommand},
+                {CommandType.Detailed, ExecuteDetailedCommand},
+                {CommandType.ShowAlowedOperations, ExecuteAllowedCommand},
+                {CommandType.ShowVars, ExecuteVarsCommand},
+                {CommandType.ShowHelp, ExecuteHelpCommand},
+                {CommandType.Reset, ExecuteResetCommand},
+                {CommandType.AssignVar, ExecuteAssignVarCommand},
+                {CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand},
+                {CommandType.DeclareFunction, ExecuteDeclareFunctionCommand},
+                {CommandType.SolveEquation, ExecuteSolveEquationCommand}
             };
-        }       
+        }
     }
 }

@@ -1,8 +1,5 @@
 ﻿using BigNumbers;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
 {

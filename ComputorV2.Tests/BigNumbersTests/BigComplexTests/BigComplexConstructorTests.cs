@@ -1,6 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System;
 using BigNumbers;
-using System;
+using NUnit.Framework;
 
 namespace ComputorV2.Tests.BigNumbersTests.BigComplexTests
 {
@@ -14,7 +14,7 @@ namespace ComputorV2.Tests.BigNumbersTests.BigComplexTests
         [TestCase("2+.i")]
         public void Constructor_WhenCalledWithInvalidString_ThrowsException(string input)
         {
-           var exception = Assert.Throws<ArgumentException>(() =>  new BigComplex(input));
+            var exception = Assert.Throws<ArgumentException>(() => new BigComplex(input));
             if (!(input is null))
                 StringAssert.Contains(input, exception.Message);
         }

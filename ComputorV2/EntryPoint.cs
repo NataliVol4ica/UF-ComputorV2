@@ -1,5 +1,4 @@
 ﻿using ComputorV2.ExternalConnections;
-using System;
 
 namespace ComputorV2
 {
