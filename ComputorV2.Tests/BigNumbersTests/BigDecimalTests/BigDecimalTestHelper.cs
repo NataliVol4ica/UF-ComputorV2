@@ -18,17 +18,25 @@ namespace ComputorV2.UnitTests.BigNumbersTests.BigDecimalTests
 
         public static void DoTesting(string left, string right, string expectedResult, Operation operation)
         {
-            var a = new BigDecimal(left);
-            var b = new BigDecimal(right);
-            BigDecimal c = _bnFunctions[operation](a, b);
             try
             {
-                Assert.AreEqual(expectedResult, c.ToString());
+                var a = new BigDecimal(left);
+                var b = new BigDecimal(right);
+                BigDecimal c = _bnFunctions[operation](a, b);
+                try
+                {
+                    Assert.AreEqual(expectedResult, c.ToString());
+                }
+                catch (AssertionException)
+                {
+                    throw new Exception(
+                        $"A = {a}, B = {b}.\n Expected result is {expectedResult}\n Actual result is{c}");
+                }
             }
-            catch (AssertionException)
+            catch (Exception)
             {
                 throw new Exception(
-                    $"A = {a}, B = {b}.\n Expected result is {expectedResult}\n Actual result is{c}");
+                    $"Unexpected exception for numbers A = {left}, B = {right}");
             }
         }
 
@@ -50,6 +58,10 @@ namespace ComputorV2.UnitTests.BigNumbersTests.BigDecimalTests
         {
             decimal a = GenerateRandomInt() / 10000;
             decimal b = GenerateRandomInt() / 100000;
+
+            if ((operation == Operation.Div || operation == Operation.Mod) && b == 0)
+                return;
+
             decimal c = _decFunctions[operation](a, b);
 
             DoTesting(DecimalToString(a),
