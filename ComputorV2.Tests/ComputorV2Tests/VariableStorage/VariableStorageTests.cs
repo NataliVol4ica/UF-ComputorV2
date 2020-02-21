@@ -44,7 +44,7 @@ namespace ComputorV2Tests.ConsoleReaderTests.Unit
             var vs = new VariableStorage();
             vs.AddOrUpdateVariableValue("existingvar", new Expression(new List<RPNToken>(), false));
             var actual = vs
-                .IsValidFunctionDeclaration(funcStr, out string fName, out string pName, out string reason);
+                .IsValidFunctionDeclaration(funcStr, out var fName, out var pName, out var reason);
             Assert.AreEqual(expectedResult, actual);
             Assert.AreEqual(expectedFuncName, fName);
             Assert.AreEqual(expectedParamName, pName);

@@ -1,13 +1,11 @@
 ﻿using System;
-using BigNumbers;
 using NUnit.Framework;
 
-namespace ComputorV2.UnitTests.BigNumbersTests.BigDecimalTests
+namespace BigNumbersTests.BigDecimalTests
 {
     [TestFixture]
     public class BigDecimalOperatorsUnitTests
     {
-
         [Test]
         [TestCase("0", "0", "0")]
         [TestCase("0", "-5", "-5")]
@@ -48,6 +46,49 @@ namespace ComputorV2.UnitTests.BigNumbersTests.BigDecimalTests
         }
 
         [Test]
+        [TestCase("0", "-5", "0")]
+        [TestCase("-6", "5", "-1.2")]
+        [TestCase("20.1", "0.05", "402")]
+        [TestCase("20.1", "5", "4.02")]
+        [TestCase("0", "-5", "0")]
+        [TestCase("25", "100", "0.25")]
+        [TestCase("25", "1000", "0.025")]
+        [TestCase("25", "100000000", "0.00000025")]
+        public void DivOperator_WhenCalled_ShouldReturnDivOfTwoNumbers(string op1, string op2, string expected)
+        {
+            BigDecimalTestHelper.DoTesting(op1, op2, expected, Operation.Div);
+        }
+
+        [Test]
+        [TestCase("0", "0", "0")]
+        [TestCase("-5", "0", "0")]
+        public void DivOperator_WhenDividingOnZero_ShouldThrowException(string op1, string op2, string expected)
+        {
+            Assert.Throws<DivideByZeroException>(() =>
+                BigDecimalTestHelper.DoTesting(op1, op2, expected, Operation.Div));
+        }
+
+        [Test]
+        [TestCase("0", "-5", "0")]
+        [TestCase("-6", "5", "-1")]
+        [TestCase("20.1", "0.05", "0")]
+        [TestCase("20.1", "5", "0.1")]
+        [TestCase("6897.1312", "7785.3", "6897.1312")]
+        public void ModOperator_WhenCalled_ShouldReturnModOfTwoNumbers(string op1, string op2, string expected)
+        {
+            BigDecimalTestHelper.DoTesting(op1, op2, expected, Operation.Mod);
+        }
+
+        [Test]
+        [TestCase("0", "0", "0")]
+        [TestCase("-5", "0", "0")]
+        public void ModOperator_WhenModdingOnZero_ShouldThrowException(string op1, string op2, string expected)
+        {
+            Assert.Throws<ArgumentException>(() =>
+                BigDecimalTestHelper.DoTesting(op1, op2, expected, Operation.Mod));
+        }
+
+        [Test]
         [TestCase(Operation.Add)]
         [TestCase(Operation.Sub)]
         [TestCase(Operation.Mul)]
@@ -55,7 +96,7 @@ namespace ComputorV2.UnitTests.BigNumbersTests.BigDecimalTests
         [TestCase(Operation.Mod)]
         public void Operators_10000RandomTests(Operation operation)
         {
-            for (int i = 0; i < 10000; i++)
+            for (var i = 0; i < 10000; i++)
                 BigDecimalTestHelper.ExecuteRandomTest(operation);
         }
     }

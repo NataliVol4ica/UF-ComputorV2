@@ -7,36 +7,6 @@ namespace ComputorV2.EquationSolverWithTools
 {
     public class EquationSolver
     {
-        #region Enums and Structs
-
-        protected enum TokenType
-        {
-            Number,
-            Operator,
-            Pow,
-            Equation,
-            Var
-        }
-
-        protected struct PolyToken
-        {
-            public PolyToken(string str, TokenType tokenType)
-            {
-                this.str = str;
-                this.tokenType = tokenType;
-            }
-
-            public TokenType tokenType;
-            public string str;
-
-            public override string ToString()
-            {
-                return str;
-            }
-        }
-
-        #endregion
-
         #region Variables
 
         private static readonly Regex tokenRegEx =
@@ -46,8 +16,8 @@ namespace ComputorV2.EquationSolverWithTools
 
         public string SolveEquation(string equation)
         {
-            string returnValue = "";
-            List<double> polynomial = Parse(equation);
+            var returnValue = "";
+            var polynomial = Parse(equation);
             ShortenCoef(polynomial);
             returnValue += $"Reduced form: {ToString(polynomial)} = 0\n";
             returnValue += $"Degree: {polynomial.Count - 1}\n";
@@ -59,19 +29,19 @@ namespace ComputorV2.EquationSolverWithTools
 
         private List<double> Parse(string expression)
         {
-            Queue<string> stringTokens = Tokenize(expression);
-            List<PolyToken> tokens = RecognizeLexems(stringTokens);
-            CompileExpression(tokens, out List<double> coefficients);
+            var stringTokens = Tokenize(expression);
+            var tokens = RecognizeLexems(stringTokens);
+            CompileExpression(tokens, out var coefficients);
             return coefficients;
         }
 
         private string ToString(List<double> poly)
         {
-            string str = "";
-            bool isFirst = true;
+            var str = "";
+            var isFirst = true;
             bool wroteCoef;
             double coef;
-            for (int i = 0; i < poly.Count; i++)
+            for (var i = 0; i < poly.Count; i++)
             {
                 coef = poly[i];
                 if (coef != 0.0)
@@ -122,7 +92,7 @@ namespace ComputorV2.EquationSolverWithTools
 
         private void ShortenCoef(List<double> coefficients)
         {
-            int cleanLen = coefficients.Count - 1;
+            var cleanLen = coefficients.Count - 1;
             while (cleanLen > 0 && coefficients[cleanLen] == 0.0)
                 cleanLen--;
             coefficients.RemoveRange(cleanLen + 1, coefficients.Count - cleanLen - 1);
@@ -130,8 +100,8 @@ namespace ComputorV2.EquationSolverWithTools
 
         private string Solve(List<double> coefficients)
         {
-            string returnValue = "";
-            List<string> solution = new List<string>();
+            var returnValue = "";
+            var solution = new List<string>();
             if (coefficients.Count == 1)
             {
                 if (coefficients[0] == 0.0)
@@ -143,21 +113,21 @@ namespace ComputorV2.EquationSolverWithTools
                 returnValue += $"Solution:\nX = {-coefficients[0] / coefficients[1]}";
             else
             {
-                double discr = coefficients[1] * coefficients[1] - 4 * coefficients[0] * coefficients[2];
+                var discr = coefficients[1] * coefficients[1] - 4 * coefficients[0] * coefficients[2];
                 returnValue += $"D = {coefficients[1]}^2 - 4*{coefficients[0]}*{coefficients[2]} = {discr}";
                 if (discr == 0)
                 {
                     returnValue += "\n";
                     returnValue += $"X = -{coefficients[1]}/(2*{coefficients[2]})\n";
-                    double x = -coefficients[1] / (2 * coefficients[2]);
+                    var x = -coefficients[1] / (2 * coefficients[2]);
                     returnValue += $"Solution:\nX = {x}\n";
                 }
                 else if (discr > 0)
                 {
                     returnValue += " > 0\n";
                     returnValue += $"X = (-{coefficients[1]} +- sqrt({discr}))/(2*{coefficients[2]})\n";
-                    double x1 = (-coefficients[1] + Math.Sqrt(discr)) / (2 * coefficients[2]);
-                    double x2 = (-coefficients[1] - Math.Sqrt(discr)) / (2 * coefficients[2]);
+                    var x1 = (-coefficients[1] + Math.Sqrt(discr)) / (2 * coefficients[2]);
+                    var x2 = (-coefficients[1] - Math.Sqrt(discr)) / (2 * coefficients[2]);
                     returnValue += $"Solution:\nX1 = {x1}\nX2 = {x2}\n";
                 }
                 else
@@ -165,10 +135,10 @@ namespace ComputorV2.EquationSolverWithTools
                     returnValue += " < 0\n";
                     returnValue += $"X = (-{coefficients[1]} +- sqrt({discr}))/(2*{coefficients[2]})\n";
                     returnValue += "Solution:\n";
-                    double a1 = -coefficients[1] / (2 * coefficients[2]);
-                    double a2 = Math.Abs(Math.Sqrt(-discr) / (2 * coefficients[2]));
-                    string s1 = a1 != 0 ? a1 + " " : "";
-                    string s2 = a2 != 1 ? " " + a2 : "";
+                    var a1 = -coefficients[1] / (2 * coefficients[2]);
+                    var a2 = Math.Abs(Math.Sqrt(-discr) / (2 * coefficients[2]));
+                    var s1 = a1 != 0 ? a1 + " " : "";
+                    var s2 = a2 != 1 ? " " + a2 : "";
                     returnValue += $"X1 = {s1}+{s2}i\n";
                     returnValue += $"X2 = {s1}-{s2}i\n";
                 }
@@ -179,11 +149,11 @@ namespace ComputorV2.EquationSolverWithTools
 
         private Queue<string> Tokenize(string expression)
         {
-            Queue<string> stringTokens = new Queue<string>();
-            int lastMatchPos = 0;
-            int lastMatchLen = 0;
-            string errorMessage = "";
-            Match match = tokenRegEx.Match(expression);
+            var stringTokens = new Queue<string>();
+            var lastMatchPos = 0;
+            var lastMatchLen = 0;
+            var errorMessage = "";
+            var match = tokenRegEx.Match(expression);
             while (match.Success)
             {
                 if (lastMatchPos + lastMatchLen < match.Index)
@@ -244,10 +214,10 @@ namespace ComputorV2.EquationSolverWithTools
             int pow;
             double doublePow;
             int sign;
-            int tokenIndex = 0;
+            var tokenIndex = 0;
             int numOfOperators;
-            bool isStart = true;
-            bool metEquation = false;
+            var isStart = true;
+            var metEquation = false;
             while (tokenIndex < tokens.Count)
             {
                 if (tokens[tokenIndex].tokenType == TokenType.Equation)
@@ -341,5 +311,35 @@ namespace ComputorV2.EquationSolverWithTools
             if (!metEquation)
                 throw new EquationSolverSyntaxException("Expression is missing \"=\"");
         }
+
+        #region Enums and Structs
+
+        protected enum TokenType
+        {
+            Number,
+            Operator,
+            Pow,
+            Equation,
+            Var
+        }
+
+        protected struct PolyToken
+        {
+            public PolyToken(string str, TokenType tokenType)
+            {
+                this.str = str;
+                this.tokenType = tokenType;
+            }
+
+            public TokenType tokenType;
+            public string str;
+
+            public override string ToString()
+            {
+                return str;
+            }
+        }
+
+        #endregion
     }
 }

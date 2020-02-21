@@ -8,9 +8,8 @@ namespace Tests
 {
     public class ComputorIntegrationTests
     {
-        readonly Mock<IConsoleProcessor> _consoleProcessor = new Mock<IConsoleProcessor>();
-
         private readonly List<string> _consoleOutputLines = new List<string>();
+        private readonly Mock<IConsoleProcessor> _consoleProcessor = new Mock<IConsoleProcessor>();
         private readonly Expression _emptyExpression = new Expression(new List<RPNToken>(), false);
 
         [SetUp]

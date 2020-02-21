@@ -20,10 +20,10 @@ namespace ComputorV2
 
     public static class ComputorTools
     {
-        static readonly Dictionary<string, CommandType> _commandStringTypes;
-        static readonly Dictionary<string, string> _commandDescriptions;
-        static readonly string _helpText;
-        static readonly string _allowedOperations;
+        private static readonly Dictionary<string, CommandType> _commandStringTypes;
+        private static readonly Dictionary<string, string> _commandDescriptions;
+        private static readonly string _helpText;
+        private static readonly string _allowedOperations;
 
         static ComputorTools()
         {
@@ -108,9 +108,9 @@ namespace ComputorV2
             if (numOfEqualities > 1)
                 throw new ArgumentException($"Command cannot contain: '{numOfEqualities}' equal signs");
             var cmdParts = cmd.Split('=');
-            bool isEvaluateCommand = cmdParts[1].Trim() == "?";
-            bool isSolveEquation = !isEvaluateCommand && cmdParts[1].Contains("?");
-            bool isFunction = cmdParts[0].Contains('(');
+            var isEvaluateCommand = cmdParts[1].Trim() == "?";
+            var isSolveEquation = !isEvaluateCommand && cmdParts[1].Contains("?");
+            var isFunction = cmdParts[0].Contains('(');
             if (isSolveEquation)
             {
                 if (!isFunction)

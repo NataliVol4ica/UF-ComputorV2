@@ -10,7 +10,7 @@ namespace BigNumbers
                 throw new ArgumentException("Cannot Pow BigDecimal and non-integer number");
             if (pow.CleanString == "0")
                 return new BigDecimal("1");
-            bool isNegative = false;
+            var isNegative = false;
             if (pow.Sign == -1)
             {
                 isNegative = true;

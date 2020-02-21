@@ -8,12 +8,11 @@ namespace ComputorV2.Tests.ComputorV2Tests
 {
     public class ComputorTests
     {
-        readonly Mock<IConsoleProcessor> _consoleProcessor = new Mock<IConsoleProcessor>();
-        readonly Mock<IVariableStorage> _variableStorage = new Mock<IVariableStorage>();
-        readonly Mock<IExpressionProcessor> _expressionProcessor = new Mock<IExpressionProcessor>();
-
         private readonly List<string> _consoleOutputLines = new List<string>();
+        private readonly Mock<IConsoleProcessor> _consoleProcessor = new Mock<IConsoleProcessor>();
         private readonly Expression _emptyExpression = new Expression(new List<RPNToken>(), false);
+        private readonly Mock<IExpressionProcessor> _expressionProcessor = new Mock<IExpressionProcessor>();
+        private readonly Mock<IVariableStorage> _variableStorage = new Mock<IVariableStorage>();
 
         [SetUp]
         public void Setup()
@@ -36,6 +35,14 @@ namespace ComputorV2.Tests.ComputorV2Tests
             testedComputor.StartReading();
             //Assert
             _consoleProcessor.Verify(cp => cp.WriteLine(variablesString));
+        }
+
+        private void SetupConsoleMockToReturnCommandAndExit(string command)
+        {
+            _consoleProcessor
+                .SetupSequence(cp => cp.ReadLine())
+                .Returns(command)
+                .Returns("Exit");
         }
 
         #region Assign Var
@@ -113,13 +120,5 @@ namespace ComputorV2.Tests.ComputorV2Tests
         #region Functions
 
         #endregion
-
-        private void SetupConsoleMockToReturnCommandAndExit(string command)
-        {
-            _consoleProcessor
-                .SetupSequence(cp => cp.ReadLine())
-                .Returns(command)
-                .Returns("Exit");
-        }
     }
 }

@@ -6,11 +6,12 @@ namespace BigNumbers
     {
         public string CleanString { get; protected set; } = "0";
         public int Sign { get; protected set; } = 1;
+        public abstract int this[int index] { get; }
 
 
         public static void Swap<T>(ref T left, ref T right)
         {
-            T buf = left;
+            var buf = left;
             left = right;
             right = buf;
         }
@@ -33,7 +34,6 @@ namespace BigNumbers
         public abstract BigNumber Negative();
         public abstract BigNumber Abs();
         public abstract void Negate();
-        public abstract int this[int index] { get; }
 
         public static BigNumber operator +(BigNumber left, BigNumber right)
         {
@@ -95,7 +95,7 @@ namespace BigNumbers
 
         public override string ToString()
         {
-            return (Sign > 0 ? CleanString : "-" + CleanString);
+            return Sign > 0 ? CleanString : "-" + CleanString;
         }
     }
 }

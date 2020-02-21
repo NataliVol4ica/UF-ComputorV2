@@ -12,13 +12,18 @@ namespace ComputorV2
 
         private Dictionary<string, Expression> _variables;
 
+        public VariableStorage()
+        {
+            _variables = new Dictionary<string, Expression>();
+        }
+
         public List<string> AllVariablesNames => _variables
             .Select(d => d.Key)
             .ToList();
 
         public bool ContainsVariable(string funcName)
         {
-            var containsVar = _variables.TryGetValue(funcName, out Expression expr);
+            var containsVar = _variables.TryGetValue(funcName, out var expr);
             if (!containsVar)
                 return false;
             return !expr.IsFunction;
@@ -26,15 +31,10 @@ namespace ComputorV2
 
         public bool ContainsFunction(string funcName)
         {
-            var containsVar = _variables.TryGetValue(funcName, out Expression expr);
+            var containsVar = _variables.TryGetValue(funcName, out var expr);
             if (!containsVar)
                 return false;
             return expr.IsFunction;
-        }
-
-        public VariableStorage()
-        {
-            _variables = new Dictionary<string, Expression>();
         }
 
         public string GetVariablesString()
@@ -53,14 +53,6 @@ namespace ComputorV2
         {
             _variables[varName] = expression;
             return _variables[varName].ToString();
-        }
-
-        public static bool IsValidVarName(string name)
-        {
-            var varNAme = name.Trim();
-            if (varNAme == "i" || varNAme == "I")
-                return false;
-            return _validVariableNameRegEx.IsMatch(varNAme);
         }
 
         public Expression this[string varName]
@@ -122,6 +114,14 @@ namespace ComputorV2
             funcName = parts[0];
             paramName = parts[1];
             return true;
+        }
+
+        public static bool IsValidVarName(string name)
+        {
+            var varNAme = name.Trim();
+            if (varNAme == "i" || varNAme == "I")
+                return false;
+            return _validVariableNameRegEx.IsMatch(varNAme);
         }
     }
 }

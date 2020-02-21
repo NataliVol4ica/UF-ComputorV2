@@ -10,6 +10,18 @@ namespace BigNumbers
             @"^(\s*([+-]?\d+(\.\d+)?\s*[+-]\s*)?[+-]?(\d+(\.\d+)?)?\s*[iI]\s*)|(\s*[+-]?\d+(\.\d+)?\s*)$",
             RegexOptions.Compiled);
 
+        public BigDecimal Imaginary { get; private set; }
+        public BigDecimal Real { get; private set; }
+
+        #region Function parent override
+
+        public override BigNumber Abs()
+        {
+            throw new NotImplementedException("Cannot take abs of a complex number");
+        }
+
+        #endregion
+
         #region Contructors
 
         static BigComplex()
@@ -84,7 +96,7 @@ namespace BigNumbers
             var result = new List<string>();
             var lastPos = 0;
             string substr;
-            for (int i = 0; i < inputString.Length; i++)
+            for (var i = 0; i < inputString.Length; i++)
                 if (inputString[i] == '+' || inputString[i] == '-')
                 {
                     substr = inputString.Substring(lastPos, i - lastPos);
@@ -188,27 +200,18 @@ namespace BigNumbers
 
         #endregion
 
-        #region Function parent override
-
-        public override BigNumber Abs()
-        {
-            throw new NotImplementedException("Cannot take abs of a complex number");
-        }
-
-        #endregion
-
         #region Other parent overriden tools
 
         public override BigNumber Negative()
         {
-            BigComplex ret = new BigComplex(this);
+            var ret = new BigComplex(this);
             ret.Negate();
             return ret;
         }
 
         public override BigNumber Copy()
         {
-            BigComplex ret = new BigComplex(this);
+            var ret = new BigComplex(this);
             return ret;
         }
 
@@ -257,7 +260,7 @@ namespace BigNumbers
 
         public static BigComplex operator -(BigComplex num)
         {
-            BigComplex ret = new BigComplex(num);
+            var ret = new BigComplex(num);
             ret.Negate();
             return ret;
         }
@@ -298,8 +301,5 @@ namespace BigNumbers
         }
 
         #endregion
-
-        public BigDecimal Imaginary { get; private set; }
-        public BigDecimal Real { get; private set; }
     }
 }

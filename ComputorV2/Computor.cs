@@ -9,14 +9,14 @@ namespace ComputorV2
     public class Computor
     {
         private readonly IConsoleProcessor _consoleProcessor;
-        private readonly IVariableStorage _variableStorage;
-        private readonly IExpressionProcessor _expressionProcessor;
         private readonly EquationSolver _equationSolver;
+        private readonly IExpressionProcessor _expressionProcessor;
+        private readonly IVariableStorage _variableStorage;
 
         private readonly Dictionary<CommandType, Action<string>> CommandExecutors;
+        private bool _detailed;
 
         private bool _isExitCommandEntered;
-        private bool _detailed;
 
         public Computor(IConsoleProcessor consoleProcessor = null,
             IVariableStorage varStorage = null,
@@ -52,6 +52,23 @@ namespace ComputorV2
 
             _consoleProcessor.WriteLine("See ya!");
             _consoleProcessor.ReadLine();
+        }
+
+        private Dictionary<CommandType, Action<string>> GetCommandExecutorsDictionary()
+        {
+            return new Dictionary<CommandType, Action<string>>
+            {
+                {CommandType.Exit, ExecuteExitCommand},
+                {CommandType.Detailed, ExecuteDetailedCommand},
+                {CommandType.ShowAlowedOperations, ExecuteAllowedCommand},
+                {CommandType.ShowVars, ExecuteVarsCommand},
+                {CommandType.ShowHelp, ExecuteHelpCommand},
+                {CommandType.Reset, ExecuteResetCommand},
+                {CommandType.AssignVar, ExecuteAssignVarCommand},
+                {CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand},
+                {CommandType.DeclareFunction, ExecuteDeclareFunctionCommand},
+                {CommandType.SolveEquation, ExecuteSolveEquationCommand}
+            };
         }
 
         #region command executors
@@ -124,8 +141,8 @@ namespace ComputorV2
             var parts = command.Split('=');
             var funcPart = parts[0].Trim().ToLower();
             var funcExpression = parts[1].Trim().ToLower();
-            if (!_variableStorage.IsValidFunctionDeclaration(funcPart, out string funcName, out string paramName,
-                out string reason))
+            if (!_variableStorage.IsValidFunctionDeclaration(funcPart, out var funcName, out var paramName,
+                out var reason))
                 throw new ArgumentException($"The function signature is not valid. {reason}");
 
             try
@@ -154,9 +171,9 @@ namespace ComputorV2
             _consoleProcessor.Write(solutionLines);
         }
 
-        string CapText(Match m)
+        private string CapText(Match m)
         {
-            string match = m.ToString();
+            var match = m.ToString();
             var parts = match.Split('(', ')');
             return _variableStorage[parts[0].Trim()].ToString();
         }
@@ -177,22 +194,5 @@ namespace ComputorV2
         }
 
         #endregion
-
-        private Dictionary<CommandType, Action<string>> GetCommandExecutorsDictionary()
-        {
-            return new Dictionary<CommandType, Action<string>>
-            {
-                {CommandType.Exit, ExecuteExitCommand},
-                {CommandType.Detailed, ExecuteDetailedCommand},
-                {CommandType.ShowAlowedOperations, ExecuteAllowedCommand},
-                {CommandType.ShowVars, ExecuteVarsCommand},
-                {CommandType.ShowHelp, ExecuteHelpCommand},
-                {CommandType.Reset, ExecuteResetCommand},
-                {CommandType.AssignVar, ExecuteAssignVarCommand},
-                {CommandType.EvaluateExpression, ExecuteEvaluateExpressionCommand},
-                {CommandType.DeclareFunction, ExecuteDeclareFunctionCommand},
-                {CommandType.SolveEquation, ExecuteSolveEquationCommand}
-            };
-        }
     }
 }

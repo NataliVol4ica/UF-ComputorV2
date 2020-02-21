@@ -4,49 +4,45 @@ using System.Text;
 using BigNumbers;
 using NUnit.Framework;
 
-namespace ComputorV2.UnitTests.BigNumbersTests.BigDecimalTests
+namespace BigNumbersTests.BigDecimalTests
 {
     public enum Operation
     {
-        Add, Sub, Mul, Div, Mod
+        Add,
+        Sub,
+        Mul,
+        Div,
+        Mod
     }
 
-    static class BigDecimalTestHelper
+    internal static class BigDecimalTestHelper
     {
         private static readonly Random rand = new Random((int) DateTime.Now.Ticks);
-        private static int _halfMaxInt = int.MaxValue / 2;
+        private static readonly int _halfMaxInt = int.MaxValue / 2;
 
         public static void DoTesting(string left, string right, string expectedResult, Operation operation)
         {
+            var a = new BigDecimal(left);
+            var b = new BigDecimal(right);
+            var c = _bnFunctions[operation](a, b);
             try
             {
-                var a = new BigDecimal(left);
-                var b = new BigDecimal(right);
-                BigDecimal c = _bnFunctions[operation](a, b);
-                try
-                {
-                    Assert.AreEqual(expectedResult, c.ToString());
-                }
-                catch (AssertionException)
-                {
-                    throw new Exception(
-                        $"A = {a}, B = {b}.\n Expected result is {expectedResult}\n Actual result is{c}");
-                }
+                Assert.AreEqual(expectedResult, c.ToString());
             }
-            catch (Exception)
+            catch (AssertionException)
             {
                 throw new Exception(
-                    $"Unexpected exception for numbers A = {left}, B = {right}");
+                    $"A = {a}, B = {b}.\n Expected result is {expectedResult}\n Actual result is{c}");
             }
         }
 
         public static string DecimalToString(decimal number)
         {
-            string str = number.ToString();
+            var str = number.ToString();
             if (!str.Contains(",") && !str.Contains("."))
                 return str;
             str = str.Replace(",", ".");
-            StringBuilder sb = new StringBuilder(str);
+            var sb = new StringBuilder(str);
             while (sb[sb.Length - 1] == '0')
                 sb.Remove(sb.Length - 1, 1);
             if (sb[sb.Length - 1] == '.')
@@ -62,7 +58,7 @@ namespace ComputorV2.UnitTests.BigNumbersTests.BigDecimalTests
             if ((operation == Operation.Div || operation == Operation.Mod) && b == 0)
                 return;
 
-            decimal c = _decFunctions[operation](a, b);
+            var c = _decFunctions[operation](a, b);
 
             DoTesting(DecimalToString(a),
                 DecimalToString(b),
@@ -92,27 +88,26 @@ namespace ComputorV2.UnitTests.BigNumbersTests.BigDecimalTests
         private static readonly Func<BigDecimal, BigDecimal, BigDecimal> _modBnFunction = (x, y) => x % y;
         private static readonly Func<decimal, decimal, decimal> _modDecFunction = (x, y) => x % y;
 
-        private static Dictionary<Operation, Func<BigDecimal, BigDecimal, BigDecimal>> _bnFunctions =
+        private static readonly Dictionary<Operation, Func<BigDecimal, BigDecimal, BigDecimal>> _bnFunctions =
             new Dictionary<Operation, Func<BigDecimal, BigDecimal, BigDecimal>>
-        {
-            {Operation.Add, _addBnFunction },
-            {Operation.Sub, _subBnFunction },
-            {Operation.Mul, _mulBnFunction },
-            {Operation.Div, _divBnFunction },
-            {Operation.Mod, _modBnFunction }
-        };
+            {
+                {Operation.Add, _addBnFunction},
+                {Operation.Sub, _subBnFunction},
+                {Operation.Mul, _mulBnFunction},
+                {Operation.Div, _divBnFunction},
+                {Operation.Mod, _modBnFunction}
+            };
 
-        private static Dictionary<Operation, Func<decimal, decimal, decimal>> _decFunctions =
+        private static readonly Dictionary<Operation, Func<decimal, decimal, decimal>> _decFunctions =
             new Dictionary<Operation, Func<decimal, decimal, decimal>>
-        {
-            {Operation.Add, _addDecFunction },
-            {Operation.Sub, _subDecFunction },
-            {Operation.Mul, _mulDecFunction },
-            {Operation.Div, _divDecFunction },
-            {Operation.Mod, _modDecFunction }
-        };
+            {
+                {Operation.Add, _addDecFunction},
+                {Operation.Sub, _subDecFunction},
+                {Operation.Mul, _mulDecFunction},
+                {Operation.Div, _divDecFunction},
+                {Operation.Mod, _modDecFunction}
+            };
 
         #endregion Operations Delegates
-
     }
 }

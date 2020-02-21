@@ -5,11 +5,11 @@ using NUnit.Framework;
 
 namespace ComputorV2Tests.ExpressionProcessorTests
 {
-    class ExpressionProcessorTests
+    internal class ExpressionProcessorTests
     {
         private readonly Mock<IVariableStorage> _variableStorage = new Mock<IVariableStorage>();
-        private List<string> _varNames;
         private ExpressionProcessor _processor;
+        private List<string> _varNames;
 
         [SetUp]
         public void Setup()

@@ -2,9 +2,9 @@
 
 namespace ComputorV2
 {
-    class EntryPoint
+    internal class EntryPoint
     {
-        static void Main()
+        private static void Main()
         {
             new Computor(new ConsoleProcessor()).StartReading();
         }

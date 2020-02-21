@@ -6,10 +6,6 @@ namespace ComputorV2
 {
     public class Expression
     {
-        public string InitialString { get; private set; }
-        public List<RPNToken> Tokens { get; private set; }
-        public bool IsFunction { get; private set; }
-
         public Expression(List<RPNToken> tokens, bool isFunction, string initialString = null)
         {
             Tokens = tokens;
@@ -19,6 +15,10 @@ namespace ComputorV2
             else
                 InitialString = initialString;
         }
+
+        public string InitialString { get; private set; }
+        public List<RPNToken> Tokens { get; private set; }
+        public bool IsFunction { get; private set; }
 
         public override string ToString()
         {
@@ -35,7 +35,7 @@ namespace ComputorV2
             tokensToInsert.Add(RPNToken.OpeningBracketToken());
             tokensToInsert.AddRange(parameterTokens);
             tokensToInsert.Add(RPNToken.ClosingBracketToken());
-            for (int i = 0; i < Tokens.Count; i++)
+            for (var i = 0; i < Tokens.Count; i++)
             {
                 if (Tokens[i].tokenType == TokenType.FunctionParameter)
                     resultTokens.AddRange(tokensToInsert);

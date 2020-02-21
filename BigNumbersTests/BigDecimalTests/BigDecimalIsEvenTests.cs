@@ -1,7 +1,7 @@
 ﻿using BigNumbers;
 using NUnit.Framework;
 
-namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
+namespace BigNumbersTests.BigDecimalTests
 {
     public class BigDecimalIsEvenTests
     {

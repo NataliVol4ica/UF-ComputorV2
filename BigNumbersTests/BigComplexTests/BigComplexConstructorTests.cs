@@ -2,7 +2,7 @@
 using BigNumbers;
 using NUnit.Framework;
 
-namespace ComputorV2.Tests.BigNumbersTests.BigComplexTests
+namespace BigNumbersTests.BigComplexTests
 {
     public class BigComplexConstructorTests
     {

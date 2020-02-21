@@ -9,53 +9,6 @@ namespace ComputorV2
 {
     public class ExpressionProcessor : IExpressionProcessor
     {
-        #region Regex static data
-
-        private static readonly Regex expressionRegex;
-        private static readonly string regexFormat = @"\G\s*({0}|\+|-|\*|/|%|\^|\(|\))\s*";
-
-        private static readonly Dictionary<string, string> _numbersRegexes = new Dictionary<string, string>
-        {
-            {"VariableNameRegex", @"[a-z]+"},
-            {"BigComplexRegex", @"(\d+(\.\d+)?)?i"},
-            {"BigDecimalRegex", @"\d+(\.\d+)?"}
-        };
-
-        private static readonly Regex _bigDecimalRegex;
-        private static readonly Regex _bigComplexRegex;
-
-        private static readonly List<string> funcs = new List<string> {"abs"};
-        private static readonly ILookup<string, OperationInfo> opInfoMap;
-        private readonly IVariableStorage _variableStorage;
-
-        static ExpressionProcessor()
-        {
-            _bigDecimalRegex = new Regex($"^{_numbersRegexes["BigDecimalRegex"]}$", RegexOptions.Compiled);
-            _bigComplexRegex = new Regex($"^{_numbersRegexes["BigComplexRegex"]}$", RegexOptions.Compiled);
-
-            var numericRegexString = String.Join("|", _numbersRegexes.Select(d => d.Value));
-            var funcRegexString = String.Join("|", funcs);
-            string innerRegex = $"{numericRegexString}|{funcRegexString}";
-
-            expressionRegex = new Regex(String.Format(regexFormat, innerRegex), RegexOptions.Compiled);
-
-            Debug.WriteLine($"The Expression's regex is: \n{expressionRegex}");
-
-            opInfoMap = new[]
-            {
-                new OperationInfo("-", OpArity.Binary, 1, OpAssoc.Left),
-                new OperationInfo("-", OpArity.Unary, 3, OpAssoc.Right),
-                new OperationInfo("+", OpArity.Binary, 1, OpAssoc.Left),
-                new OperationInfo("+", OpArity.Unary, 3, OpAssoc.Right),
-                new OperationInfo("*", OpArity.Binary, 2, OpAssoc.Left),
-                new OperationInfo("/", OpArity.Binary, 2, OpAssoc.Left),
-                new OperationInfo("%", OpArity.Binary, 2, OpAssoc.Left),
-                new OperationInfo("^", OpArity.Binary, 2, OpAssoc.Right)
-            }.ToLookup(op => op.op);
-        }
-
-        #endregion
-
         public ExpressionProcessor(IVariableStorage variableStorage)
         {
             _variableStorage = variableStorage;
@@ -96,7 +49,7 @@ namespace ComputorV2
                     .ToList();
                 var bigNumberResult = Simplify(tokensForTrySolve);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw new ArgumentException("Cannot create function because its expression is invalid");
             }
@@ -110,9 +63,9 @@ namespace ComputorV2
             if (String.IsNullOrWhiteSpace(str))
                 throw new ArgumentException("Cannot tokenize empty string");
             var stringTokens = new List<string>();
-            int lastMatchPos = 0;
-            int lastMatchLen = 0;
-            Match match = expressionRegex.Match(str);
+            var lastMatchPos = 0;
+            var lastMatchLen = 0;
+            var match = expressionRegex.Match(str);
             while (match.Success)
             {
                 lastMatchPos = match.Index;
@@ -216,10 +169,10 @@ namespace ComputorV2
                     curOpInfo = GetOperationInfo(currentToken);
                     while (bufferStack.Count() > 0)
                     {
-                        RPNToken cmpToken = bufferStack.Peek();
+                        var cmpToken = bufferStack.Peek();
                         if (cmpToken.tokenType == TokenType.Function ||
-                            (IsOperation(cmpToken) &&
-                             CompareOperationPriorities(GetOperationInfo(cmpToken), curOpInfo) > 0))
+                            IsOperation(cmpToken) &&
+                            CompareOperationPriorities(GetOperationInfo(cmpToken), curOpInfo) > 0)
                             CalculateToken(outputStack, bufferStack.Pop());
                         else
                             break;
@@ -259,7 +212,7 @@ namespace ComputorV2
         // Tools
         private OperationInfo GetOperationInfo(RPNToken token)
         {
-            OpArity arity = token.tokenType == TokenType.BinOp ? OpArity.Binary : OpArity.Unary;
+            var arity = token.tokenType == TokenType.BinOp ? OpArity.Binary : OpArity.Unary;
             var curOps = opInfoMap[token.str];
             var curOp = curOps.Count() == 1 ? curOps.Single() : curOps.Single(o => o.arity == arity);
             return curOp;
@@ -274,8 +227,8 @@ namespace ComputorV2
 
         private int CompareOperationPriorities(OperationInfo left, OperationInfo right)
         {
-            if ((right.assoc == OpAssoc.Left && right.priority <= left.priority) ||
-                (right.assoc == OpAssoc.Right && right.priority < left.priority))
+            if (right.assoc == OpAssoc.Left && right.priority <= left.priority ||
+                right.assoc == OpAssoc.Right && right.priority < left.priority)
                 return 1;
             return -1;
         }
@@ -291,6 +244,60 @@ namespace ComputorV2
             else
                 throw new ArgumentException($"Unexpected token '{op.str}'");
         }
+
+        public List<RPNToken> GetRPNTokensForBigNumber(BigNumber bn)
+        {
+            var stringTokens = Tokenize(bn.ToString());
+            var rpnTokens = RecognizeLexems(stringTokens);
+            return rpnTokens;
+        }
+
+        #region Regex static data
+
+        private static readonly Regex expressionRegex;
+        private static readonly string regexFormat = @"\G\s*({0}|\+|-|\*|/|%|\^|\(|\))\s*";
+
+        private static readonly Dictionary<string, string> _numbersRegexes = new Dictionary<string, string>
+        {
+            {"VariableNameRegex", @"[a-z]+"},
+            {"BigComplexRegex", @"(\d+(\.\d+)?)?i"},
+            {"BigDecimalRegex", @"\d+(\.\d+)?"}
+        };
+
+        private static readonly Regex _bigDecimalRegex;
+        private static readonly Regex _bigComplexRegex;
+
+        private static readonly List<string> funcs = new List<string> {"abs"};
+        private static readonly ILookup<string, OperationInfo> opInfoMap;
+        private readonly IVariableStorage _variableStorage;
+
+        static ExpressionProcessor()
+        {
+            _bigDecimalRegex = new Regex($"^{_numbersRegexes["BigDecimalRegex"]}$", RegexOptions.Compiled);
+            _bigComplexRegex = new Regex($"^{_numbersRegexes["BigComplexRegex"]}$", RegexOptions.Compiled);
+
+            var numericRegexString = String.Join("|", _numbersRegexes.Select(d => d.Value));
+            var funcRegexString = String.Join("|", funcs);
+            var innerRegex = $"{numericRegexString}|{funcRegexString}";
+
+            expressionRegex = new Regex(String.Format(regexFormat, innerRegex), RegexOptions.Compiled);
+
+            Debug.WriteLine($"The Expression's regex is: \n{expressionRegex}");
+
+            opInfoMap = new[]
+            {
+                new OperationInfo("-", OpArity.Binary, 1, OpAssoc.Left),
+                new OperationInfo("-", OpArity.Unary, 3, OpAssoc.Right),
+                new OperationInfo("+", OpArity.Binary, 1, OpAssoc.Left),
+                new OperationInfo("+", OpArity.Unary, 3, OpAssoc.Right),
+                new OperationInfo("*", OpArity.Binary, 2, OpAssoc.Left),
+                new OperationInfo("/", OpArity.Binary, 2, OpAssoc.Left),
+                new OperationInfo("%", OpArity.Binary, 2, OpAssoc.Left),
+                new OperationInfo("^", OpArity.Binary, 2, OpAssoc.Right)
+            }.ToLookup(op => op.op);
+        }
+
+        #endregion
 
         #region Calculations
 
@@ -369,7 +376,7 @@ namespace ComputorV2
 
         private BigNumber CalculateFunc(BigNumber arg, string func)
         {
-            BigNumber returnValue = null;
+            BigNumber returnValue;
             switch (func)
             {
                 case "abs":
@@ -389,12 +396,5 @@ namespace ComputorV2
         }
 
         #endregion
-
-        public List<RPNToken> GetRPNTokensForBigNumber(BigNumber bn)
-        {
-            var stringTokens = Tokenize(bn.ToString());
-            var rpnTokens = RecognizeLexems(stringTokens);
-            return rpnTokens;
-        }
     }
 }

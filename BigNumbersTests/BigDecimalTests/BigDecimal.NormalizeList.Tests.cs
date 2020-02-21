@@ -10,8 +10,17 @@ namespace BigNumbersTests.BigDecimalTests
         public void CompareLists(List<int> expected, List<int> actual)
         {
             Assert.AreEqual(expected.Count, actual.Count);
-            for (int i = 0; i < expected.Count; i++)
+            for (var i = 0; i < expected.Count; i++)
                 Assert.AreEqual(expected[i], actual[i]);
+        }
+
+        [Test]
+        public void BigList_Unnormalized_Test()
+        {
+            var actual = new List<int> {1, 11, 9};
+            var expected = new List<int> {1, 1, 0, 1};
+            new BigDecimal().NormalizeList(actual);
+            CompareLists(expected, actual);
         }
 
         [Test]
@@ -43,15 +52,6 @@ namespace BigNumbersTests.BigDecimalTests
         {
             var actual = new List<int> {135673};
             var expected = new List<int> {3, 7, 6, 5, 3, 1};
-            new BigDecimal().NormalizeList(actual);
-            CompareLists(expected, actual);
-        }
-
-        [Test]
-        public void BigList_Unnormalized_Test()
-        {
-            var actual = new List<int> {1, 11, 9};
-            var expected = new List<int> {1, 1, 0, 1};
             new BigDecimal().NormalizeList(actual);
             CompareLists(expected, actual);
         }

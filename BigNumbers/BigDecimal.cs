@@ -20,15 +20,15 @@ namespace BigNumbers
 
         private static volatile int _fracPrecision = 20;
 
-        private int? _dotPos;
-        private int? _fracLen;
-        private bool? _isInteger;
-        private bool? _isEven;
-
         private readonly Object dotPosMutex = new Object();
         private readonly Object fracLenMutex = new Object();
-        private readonly Object isIntegerMutex = new Object();
         private readonly Object isEvenMutex = new Object();
+        private readonly Object isIntegerMutex = new Object();
+
+        private int? _dotPos;
+        private int? _fracLen;
+        private bool? _isEven;
+        private bool? _isInteger;
 
         public BigDecimal()
         {
@@ -53,8 +53,8 @@ namespace BigNumbers
 
         public BigDecimal(decimal number)
         {
-            string str = number.ToString();
-            string sysDelim = System.Threading.Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+            var str = number.ToString();
+            var sysDelim = System.Threading.Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator;
             str = str.Replace(sysDelim, delimiter);
             if (str[0] == '-')
             {
@@ -153,6 +153,16 @@ namespace BigNumbers
             }
         }
 
+        public override int this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= CleanString.Length - (DotPos == CleanString.Length ? 0 : 1))
+                    return -1;
+                return ConvertCharToDigit(CleanString[index - (index >= DotPos ? 1 : 0)]);
+            }
+        }
+
 
         public static char ConvertDigitToChar(int digit)
         {
@@ -173,13 +183,13 @@ namespace BigNumbers
             if (num is null)
                 return null;
 
-            List<int> ret = new List<int>();
+            var ret = new List<int>();
             int IntZeros, FracZeros;
 
             IntZeros = Math.Max(num.IntegerLength, desiredInt) - num.IntegerLength;
             FracZeros = Math.Max(num.FractionalLength, desiredFrac) - num.FractionalLength;
             ret.AddRange(Enumerable.Repeat(0, FracZeros));
-            for (int i = num.CleanString.Length - 1; i >= 0; i--)
+            for (var i = num.CleanString.Length - 1; i >= 0; i--)
                 if (num.CleanString[i] != '.')
                     ret.Add(ConvertCharToDigit(num.CleanString[i]));
             ret.AddRange(Enumerable.Repeat(0, IntZeros));
@@ -217,7 +227,7 @@ namespace BigNumbers
 
         public override BigNumber Abs()
         {
-            BigDecimal ret = new BigDecimal(this);
+            var ret = new BigDecimal(this);
             if (ret.Sign < 0)
                 ret.Negate();
             return ret;
@@ -233,14 +243,14 @@ namespace BigNumbers
 
         public override BigNumber Negative()
         {
-            BigDecimal ret = new BigDecimal(this);
+            var ret = new BigDecimal(this);
             ret.Negate();
             return ret;
         }
 
         public override BigNumber Copy()
         {
-            BigDecimal ret = new BigDecimal(this);
+            var ret = new BigDecimal(this);
             return ret;
         }
 
@@ -279,20 +289,20 @@ namespace BigNumbers
             if (!(op is BigDecimal))
                 throw new ArgumentException("Cannot Add BigDecimal to " + op.GetType());
 
-            BigDecimal bfLeft = this;
-            BigDecimal bfRight = (BigDecimal) op;
+            var bfLeft = this;
+            var bfRight = (BigDecimal) op;
 
             if (bfLeft.Sign != bfRight.Sign)
                 return bfLeft.Substract(-bfRight);
 
-            int desiredInt = Math.Max(bfLeft.IntegerLength, bfRight.IntegerLength);
-            int desiredFrac = Math.Max(bfLeft.FractionalLength, bfRight.FractionalLength);
+            var desiredInt = Math.Max(bfLeft.IntegerLength, bfRight.IntegerLength);
+            var desiredFrac = Math.Max(bfLeft.FractionalLength, bfRight.FractionalLength);
             var leftList = ConvertBigDecimalToIntList(bfLeft, desiredInt, desiredFrac);
             var rightList = ConvertBigDecimalToIntList(bfRight, desiredInt, desiredFrac);
             var resultList = leftList.SumWithList(rightList);
             NormalizeList(resultList);
 
-            BigDecimal bfAns = new BigDecimal(IntListToString(resultList, resultList.Count - desiredFrac));
+            var bfAns = new BigDecimal(IntListToString(resultList, resultList.Count - desiredFrac));
             if (Sign < 0)
                 bfAns.Negate();
             return bfAns;
@@ -305,8 +315,8 @@ namespace BigNumbers
             if (!(op is BigDecimal))
                 throw new ArgumentException("Cannot Sub BigDecimal and " + op.GetType());
 
-            BigDecimal bfLeft = this;
-            BigDecimal bfRight = (BigDecimal) op;
+            var bfLeft = this;
+            var bfRight = (BigDecimal) op;
 
             if (bfLeft.Sign > 0 && bfRight.Sign < 0)
                 return bfLeft.Add(-bfRight);
@@ -315,7 +325,7 @@ namespace BigNumbers
             if (bfLeft.Sign < 0 && bfRight.Sign < 0)
                 return (-bfRight).Substract(-bfLeft);
             //both operands are > 0 here
-            int sign = 1;
+            var sign = 1;
 
             if (bfLeft < bfRight)
             {
@@ -323,14 +333,14 @@ namespace BigNumbers
                 Swap(ref bfLeft, ref bfRight);
             }
 
-            int desiredInt = Math.Max(bfLeft.IntegerLength, bfRight.IntegerLength);
-            int desiredFrac = Math.Max(bfLeft.FractionalLength, bfRight.FractionalLength);
+            var desiredInt = Math.Max(bfLeft.IntegerLength, bfRight.IntegerLength);
+            var desiredFrac = Math.Max(bfLeft.FractionalLength, bfRight.FractionalLength);
             var leftList = ConvertBigDecimalToIntList(bfLeft, desiredInt, desiredFrac);
             var rightList = ConvertBigDecimalToIntList(bfRight, desiredInt, desiredFrac);
             var resultList = leftList.SubByList(rightList);
             NormalizeList(resultList);
 
-            BigDecimal bfAns = new BigDecimal(IntListToString(resultList, resultList.Count - desiredFrac));
+            var bfAns = new BigDecimal(IntListToString(resultList, resultList.Count - desiredFrac));
             if (sign < 0)
                 bfAns.Negate();
             return bfAns;
@@ -343,18 +353,18 @@ namespace BigNumbers
             if (!(op is BigDecimal))
                 throw new ArgumentException("Cannot Mul BigDecimal and " + op.GetType());
 
-            BigDecimal bfLeft = this;
-            BigDecimal bfRight = (BigDecimal) op;
+            var bfLeft = this;
+            var bfRight = (BigDecimal) op;
 
             if (bfLeft.IntegerLength + bfLeft.FractionalLength < bfRight.IntegerLength + bfRight.FractionalLength)
                 Swap(ref bfLeft, ref bfRight);
-            int newDot = bfLeft.FractionalLength + bfRight.FractionalLength;
+            var newDot = bfLeft.FractionalLength + bfRight.FractionalLength;
             var leftList = ConvertBigDecimalToIntList(bfLeft);
             var rightList = ConvertBigDecimalToIntList(bfRight);
             var resultList = leftList.MulWithList(rightList);
             NormalizeList(resultList);
 
-            BigDecimal bfAns = new BigDecimal(IntListToString(resultList, resultList.Count - newDot));
+            var bfAns = new BigDecimal(IntListToString(resultList, resultList.Count - newDot));
             if (bfLeft.Sign * bfRight.Sign < 0)
                 bfAns.Negate();
             return bfAns;
@@ -369,19 +379,19 @@ namespace BigNumbers
 
             if (op.CleanString == "0")
                 throw new DivideByZeroException();
-            BigDecimal bfLeft = this;
-            BigDecimal bfRight = (BigDecimal) op;
+            var bfLeft = this;
+            var bfRight = (BigDecimal) op;
 
-            int multiplier = Math.Max(bfLeft.FractionalLength, bfRight.FractionalLength);
+            var multiplier = Math.Max(bfLeft.FractionalLength, bfRight.FractionalLength);
             var leftList = ConvertBigDecimalToIntList(bfLeft, 0, multiplier + FracPrecision);
             var rightList = ConvertBigDecimalToIntList(bfRight, 0, multiplier);
             leftList.RemoveTailingZeros();
             rightList.RemoveTailingZeros();
 
             List<int> resultList = leftList.DivByList(rightList, NormalizeList, out List<int> subList);
-            int dotPos = resultList.Count - FracPrecision;
+            var dotPos = resultList.Count - FracPrecision;
 
-            BigDecimal bfAns = new BigDecimal(IntListToString(resultList, dotPos));
+            var bfAns = new BigDecimal(IntListToString(resultList, dotPos));
             if (bfLeft.Sign * bfRight.Sign < 0)
                 bfAns.Negate();
             return bfAns;
@@ -396,30 +406,20 @@ namespace BigNumbers
 
             if (op.CleanString == "0")
                 throw new ArgumentException("Cannot calculate BigDecimal % 0");
-            BigDecimal bdLeft = this;
-            BigDecimal bdRight = (BigDecimal) op;
+            var bdLeft = this;
+            var bdRight = (BigDecimal) op;
 
-            int temp = FracPrecision;
+            var temp = FracPrecision;
             FracPrecision = 0;
-            BigDecimal bfDiv = bdLeft / bdRight;
+            var bfDiv = bdLeft / bdRight;
             FracPrecision = temp;
-            BigDecimal bfAns = bdLeft - bfDiv * bdRight;
+            var bfAns = bdLeft - bfDiv * bdRight;
             return bfAns;
-        }
-
-        public override int this[int index]
-        {
-            get
-            {
-                if (index < 0 || index >= (CleanString.Length - (DotPos == CleanString.Length ? 0 : 1)))
-                    return -1;
-                return ConvertCharToDigit(CleanString[index - (index >= DotPos ? 1 : 0)]);
-            }
         }
 
         public static BigDecimal operator -(BigDecimal num)
         {
-            BigDecimal ret = new BigDecimal(num);
+            var ret = new BigDecimal(num);
 
             ret.Negate();
             return ret;
@@ -488,7 +488,7 @@ namespace BigNumbers
 
         public static bool operator <(BigDecimal left, BigDecimal right)
         {
-            return (!(left > right));
+            return !(left > right);
         }
 
         public static bool operator ==(BigDecimal left, BigDecimal right)
@@ -529,7 +529,7 @@ namespace BigNumbers
 
         public override bool Equals(object obj)
         {
-            return (this == obj as BigDecimal);
+            return this == obj as BigDecimal;
         }
 
 

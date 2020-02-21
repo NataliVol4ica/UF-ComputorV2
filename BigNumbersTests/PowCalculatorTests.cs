@@ -3,7 +3,7 @@ using BigNumbers;
 using Moq;
 using NUnit.Framework;
 
-namespace ComputorV2.Tests.BigNumbersTests.BigDecimalTests
+namespace BigNumbersTests
 {
     public class PowCalculatorTests
     {
