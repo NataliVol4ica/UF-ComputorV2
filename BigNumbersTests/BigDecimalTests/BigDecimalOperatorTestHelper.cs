@@ -15,18 +15,23 @@ namespace BigNumbersTests.BigDecimalTests
         Mod
     }
 
-    internal static class BigDecimalTestHelper
+    internal static class BigDecimalOperatorTestHelper
     {
-        private static readonly Random rand = new Random((int) DateTime.Now.Ticks);
+        private static readonly Random Rand = new Random((int) DateTime.Now.Ticks);
         private static readonly int _halfMaxInt = int.MaxValue / 2;
 
         public static void DoTesting(string left, string right, string expectedResult, Operation operation)
         {
             var a = new BigDecimal(left);
             var b = new BigDecimal(right);
-            var c = _bnFunctions[operation](a, b);
+            var c = BnFunctions[operation](a, b);
             try
             {
+                var actual = c.ToString();
+                if (operation == Operation.Div && expectedResult.Length != actual.Length)
+                {
+                    expectedResult = expectedResult.Substring(0, actual.Length);
+                }
                 Assert.AreEqual(expectedResult, c.ToString());
             }
             catch (AssertionException)
@@ -58,7 +63,7 @@ namespace BigNumbersTests.BigDecimalTests
             if ((operation == Operation.Div || operation == Operation.Mod) && b == 0)
                 return;
 
-            var c = _decFunctions[operation](a, b);
+            var c = DecFunctions[operation](a, b);
 
             DoTesting(DecimalToString(a),
                 DecimalToString(b),
@@ -68,44 +73,29 @@ namespace BigNumbersTests.BigDecimalTests
 
         private static int GenerateRandomInt()
         {
-            return rand.Next(0, int.MaxValue) - _halfMaxInt;
+            return Rand.Next(0, int.MaxValue) - _halfMaxInt;
         }
 
         #region Operations Delegates
 
-        private static readonly Func<BigDecimal, BigDecimal, BigDecimal> _addBnFunction = (x, y) => x + y;
-        private static readonly Func<decimal, decimal, decimal> _addDecFunction = (x, y) => x + y;
-
-        private static readonly Func<BigDecimal, BigDecimal, BigDecimal> _subBnFunction = (x, y) => x - y;
-        private static readonly Func<decimal, decimal, decimal> _subDecFunction = (x, y) => x - y;
-
-        private static readonly Func<BigDecimal, BigDecimal, BigDecimal> _mulBnFunction = (x, y) => x * y;
-        private static readonly Func<decimal, decimal, decimal> _mulDecFunction = (x, y) => x * y;
-
-        private static readonly Func<BigDecimal, BigDecimal, BigDecimal> _divBnFunction = (x, y) => x / y;
-        private static readonly Func<decimal, decimal, decimal> _divDecFunction = (x, y) => x / y;
-
-        private static readonly Func<BigDecimal, BigDecimal, BigDecimal> _modBnFunction = (x, y) => x % y;
-        private static readonly Func<decimal, decimal, decimal> _modDecFunction = (x, y) => x % y;
-
-        private static readonly Dictionary<Operation, Func<BigDecimal, BigDecimal, BigDecimal>> _bnFunctions =
+        private static readonly Dictionary<Operation, Func<BigDecimal, BigDecimal, BigDecimal>> BnFunctions =
             new Dictionary<Operation, Func<BigDecimal, BigDecimal, BigDecimal>>
             {
-                {Operation.Add, _addBnFunction},
-                {Operation.Sub, _subBnFunction},
-                {Operation.Mul, _mulBnFunction},
-                {Operation.Div, _divBnFunction},
-                {Operation.Mod, _modBnFunction}
+                {Operation.Add, (x, y) => x + y},
+                {Operation.Sub, (x, y) => x - y},
+                {Operation.Mul, (x, y) => x * y},
+                {Operation.Div, (x, y) => x / y},
+                {Operation.Mod, (x, y) => x % y}
             };
 
-        private static readonly Dictionary<Operation, Func<decimal, decimal, decimal>> _decFunctions =
+        private static readonly Dictionary<Operation, Func<decimal, decimal, decimal>> DecFunctions =
             new Dictionary<Operation, Func<decimal, decimal, decimal>>
             {
-                {Operation.Add, _addDecFunction},
-                {Operation.Sub, _subDecFunction},
-                {Operation.Mul, _mulDecFunction},
-                {Operation.Div, _divDecFunction},
-                {Operation.Mod, _modDecFunction}
+                {Operation.Add, (x, y) => x + y},
+                {Operation.Sub, (x, y) => x - y},
+                {Operation.Mul, (x, y) => x * y},
+                {Operation.Div, (x, y) => x / y},
+                {Operation.Mod, (x, y) => x % y}
             };
 
         #endregion Operations Delegates

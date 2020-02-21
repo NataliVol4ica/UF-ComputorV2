@@ -16,7 +16,7 @@ namespace BigNumbersTests.BigDecimalTests
         [TestCase("-10.005", "-3.1", "-13.105")]
         public void AddOperator_WhenCalled_ShouldReturnSumOfTwoNumbers(string op1, string op2, string expected)
         {
-            BigDecimalTestHelper.DoTesting(op1, op2, expected, Operation.Add);
+            BigDecimalOperatorTestHelper.DoTesting(op1, op2, expected, Operation.Add);
         }
 
         [Test]
@@ -29,7 +29,7 @@ namespace BigNumbersTests.BigDecimalTests
         [TestCase("-10.005", "-3.1", "-6.905")]
         public void SubOperator_WhenCalled_ShouldReturnSubOfTwoNumbers(string op1, string op2, string expected)
         {
-            BigDecimalTestHelper.DoTesting(op1, op2, expected, Operation.Sub);
+            BigDecimalOperatorTestHelper.DoTesting(op1, op2, expected, Operation.Sub);
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace BigNumbersTests.BigDecimalTests
         [TestCase("-10.005", "-3.1", "31.0155")]
         public void MulOperator_WhenCalled_ShouldReturnMulOfTwoNumbers(string op1, string op2, string expected)
         {
-            BigDecimalTestHelper.DoTesting(op1, op2, expected, Operation.Mul);
+            BigDecimalOperatorTestHelper.DoTesting(op1, op2, expected, Operation.Mul);
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace BigNumbersTests.BigDecimalTests
         [TestCase("25", "100000000", "0.00000025")]
         public void DivOperator_WhenCalled_ShouldReturnDivOfTwoNumbers(string op1, string op2, string expected)
         {
-            BigDecimalTestHelper.DoTesting(op1, op2, expected, Operation.Div);
+            BigDecimalOperatorTestHelper.DoTesting(op1, op2, expected, Operation.Div);
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace BigNumbersTests.BigDecimalTests
         public void DivOperator_WhenDividingOnZero_ShouldThrowException(string op1, string op2, string expected)
         {
             Assert.Throws<DivideByZeroException>(() =>
-                BigDecimalTestHelper.DoTesting(op1, op2, expected, Operation.Div));
+                BigDecimalOperatorTestHelper.DoTesting(op1, op2, expected, Operation.Div));
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace BigNumbersTests.BigDecimalTests
         [TestCase("6897.1312", "7785.3", "6897.1312")]
         public void ModOperator_WhenCalled_ShouldReturnModOfTwoNumbers(string op1, string op2, string expected)
         {
-            BigDecimalTestHelper.DoTesting(op1, op2, expected, Operation.Mod);
+            BigDecimalOperatorTestHelper.DoTesting(op1, op2, expected, Operation.Mod);
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace BigNumbersTests.BigDecimalTests
         public void ModOperator_WhenModdingOnZero_ShouldThrowException(string op1, string op2, string expected)
         {
             Assert.Throws<ArgumentException>(() =>
-                BigDecimalTestHelper.DoTesting(op1, op2, expected, Operation.Mod));
+                BigDecimalOperatorTestHelper.DoTesting(op1, op2, expected, Operation.Mod));
         }
 
         [Test]
@@ -97,7 +97,7 @@ namespace BigNumbersTests.BigDecimalTests
         public void Operators_10000RandomTests(Operation operation)
         {
             for (var i = 0; i < 10000; i++)
-                BigDecimalTestHelper.ExecuteRandomTest(operation);
+                BigDecimalOperatorTestHelper.ExecuteRandomTest(operation);
         }
     }
 }
