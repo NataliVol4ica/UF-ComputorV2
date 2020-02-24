@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using ComputorV2;
 using ComputorV2.ExternalResources;
 using Moq;
 using NUnit.Framework;
 
-namespace Tests
+namespace ComputorV2.IntegrationTests
 {
     public class ComputorIntegrationTests
     {
