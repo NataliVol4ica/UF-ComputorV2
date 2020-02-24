@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using ComputorV2.EquationSolverWithTools;
-using ComputorV2.ExternalConnections;
+using ComputorV2.ExternalResources;
+using PolynomialExpressionSolver;
+using PolynomialExpressionSolver.Console;
 
 namespace ComputorV2
 {
     public class Computor
     {
         private readonly IConsoleProcessor _consoleProcessor;
-        private readonly EquationSolver _equationSolver;
+        private readonly PolynomialSolver _polynomialSolver;
         private readonly IExpressionProcessor _expressionProcessor;
         private readonly IVariableStorage _variableStorage;
 
@@ -21,13 +22,13 @@ namespace ComputorV2
         public Computor(IConsoleProcessor consoleProcessor = null,
             IVariableStorage varStorage = null,
             IExpressionProcessor expressionProcessor = null,
-            EquationSolver equationSolver = null)
+            PolynomialSolver polynomialSolver = null)
         {
             _consoleProcessor = consoleProcessor ?? new ConsoleProcessor();
             CommandExecutors = GetCommandExecutorsDictionary();
             _variableStorage = varStorage ?? new VariableStorage();
             _expressionProcessor = expressionProcessor ?? new ExpressionProcessor(_variableStorage);
-            _equationSolver = equationSolver ?? new EquationSolver();
+            _polynomialSolver = polynomialSolver ?? new PolynomialSolver(new BufferWriter());
         }
 
         public void StartReading()
@@ -167,7 +168,7 @@ namespace ComputorV2
             var varRegex = new Regex(@"\s*[a-z]+\s*");
             equationToSolve = varRegex.Replace(equationToSolve, CapText);
             _consoleProcessor.WriteLine($"The equation is : \"{equationToSolve}\"");
-            var solutionLines = _equationSolver.SolveEquation(equationToSolve);
+            var solutionLines = _polynomialSolver.SolveExpression(equationToSolve);
             _consoleProcessor.Write(solutionLines);
         }
 

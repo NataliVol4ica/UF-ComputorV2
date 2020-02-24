@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BigNumbersTests", "BigNumbe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7AE3C530-8731-42B2-AF90-30F44F27CCEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolynomialSolver", "EquationSolver\PolynomialSolver.csproj", "{0A13AFDF-2CB1-4E89-8521-71EF8507F8E7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolynomialExpressionSolver", "EquationSolver\PolynomialExpressionSolver.csproj", "{0A13AFDF-2CB1-4E89-8521-71EF8507F8E7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

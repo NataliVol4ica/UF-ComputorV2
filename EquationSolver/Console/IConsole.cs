@@ -1,4 +1,4 @@
-﻿namespace PolynomialSolver.Console
+﻿namespace PolynomialExpressionSolver.Console
 {
     public interface IConsole
     {

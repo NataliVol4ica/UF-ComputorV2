@@ -1,4 +1,4 @@
-﻿namespace PolynomialSolver
+﻿namespace PolynomialExpressionSolver
 {
     public enum SolutionType
     {

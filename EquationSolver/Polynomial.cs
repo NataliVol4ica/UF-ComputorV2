@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using PolynomialSolver.Exceptions;
-using PolynomialSolver.HelperEntities;
+using PolynomialExpressionSolver.Exceptions;
+using PolynomialExpressionSolver.HelperEntities;
 
-namespace PolynomialSolver
+namespace PolynomialExpressionSolver
 {
     public static class Polynomial
     {

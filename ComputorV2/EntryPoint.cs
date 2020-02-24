@@ -1,4 +1,4 @@
-﻿using ComputorV2.ExternalConnections;
+﻿using ComputorV2.ExternalResources;
 
 namespace ComputorV2
 {

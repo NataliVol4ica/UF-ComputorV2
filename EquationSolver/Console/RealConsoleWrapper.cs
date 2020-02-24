@@ -1,4 +1,4 @@
-﻿namespace PolynomialSolver.Console
+﻿namespace PolynomialExpressionSolver.Console
 {
     internal class RealConsoleWrapper : IConsole
     {

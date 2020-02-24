@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using PolynomialSolver.Console;
+using PolynomialExpressionSolver.Console;
 
-namespace PolynomialSolver
+namespace PolynomialExpressionSolver
 {
     public static class SolutionPrinter
     {

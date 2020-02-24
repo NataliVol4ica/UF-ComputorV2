@@ -1,4 +1,4 @@
-﻿namespace PolynomialSolver.HelperEntities
+﻿namespace PolynomialExpressionSolver.HelperEntities
 {
     public enum TokenType
     {

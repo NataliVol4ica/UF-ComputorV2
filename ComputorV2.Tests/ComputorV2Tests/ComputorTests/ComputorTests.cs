@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using ComputorV2.ExternalConnections;
+using ComputorV2.ExternalResources;
 using Moq;
 using NUnit.Framework;
 

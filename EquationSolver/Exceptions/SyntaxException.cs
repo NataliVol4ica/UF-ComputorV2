@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PolynomialSolver.Exceptions
+namespace PolynomialExpressionSolver.Exceptions
 {
     public class SyntaxException : Exception
     {
