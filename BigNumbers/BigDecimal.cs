@@ -388,7 +388,7 @@ namespace BigNumbers
             leftList.RemoveTailingZeros();
             rightList.RemoveTailingZeros();
 
-            List<int> resultList = leftList.DivByList(rightList, NormalizeList, out List<int> subList);
+            var resultList = leftList.DivByList(rightList, NormalizeList, out var subList);
             var dotPos = resultList.Count - FracPrecision;
 
             var bfAns = new BigDecimal(IntListToString(resultList, dotPos));

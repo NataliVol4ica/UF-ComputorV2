@@ -32,6 +32,7 @@ namespace BigNumbersTests.BigDecimalTests
                 {
                     expectedResult = expectedResult.Substring(0, actual.Length);
                 }
+
                 Assert.AreEqual(expectedResult, c.ToString());
             }
             catch (AssertionException)

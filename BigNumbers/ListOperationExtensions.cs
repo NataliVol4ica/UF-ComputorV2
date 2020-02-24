@@ -6,6 +6,8 @@ namespace BigNumbers
 {
     internal static class ListOperationExtensions
     {
+        public delegate void Normalizer(List<int> list);
+
         public static List<int> SumWithList(this List<int> leftList, List<int> rightList)
         {
             if (leftList.Count <= 0 || rightList.Count <= 0)
@@ -119,7 +121,5 @@ namespace BigNumbers
             while (list.Last() == 0 && list.Count > 1)
                 list.RemoveAt(list.Count - 1);
         }
-
-        public delegate void Normalizer(List<int> list);
     }
 }
