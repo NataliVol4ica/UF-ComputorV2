@@ -35,7 +35,7 @@ namespace ComputorV2.IntegrationTests
             testedComputor.StartReading();
 
             //Assert
-            _consoleProcessor.Verify(cp => cp.WriteLine("> 533674"));
+            AssertWriteLine("> 533674");
         }
 
         [Test]
@@ -43,30 +43,36 @@ namespace ComputorV2.IntegrationTests
         [TestCase("func(BB)=BB^2+2*BB+1", "func(X) = X ^ 2 + 2 * X + 1")]
         public void StartReading_WhenDeclaringFunc_PrintsResult(string cmd, string expectedOutput)
         {
+            //Arrange
             _consoleProcessor
                 .SetupSequence(cp => cp.ReadLine())
                 .Returns(cmd)
                 .Returns("Exit");
-
             var testedComputor = new Computor(_consoleProcessor.Object);
+            
+            //Act
             testedComputor.StartReading();
 
-            _consoleProcessor.Verify(cp => cp.WriteLine($"> {expectedOutput}"));
+            //Assert
+            AssertWriteLine($"> {expectedOutput}");
         }
 
         [Test]
         public void StartReading_WhenDeclaringFuncWithExistingVarNameParam_PrintsResult()
         {
+            //Arrange
             _consoleProcessor
                 .SetupSequence(cp => cp.ReadLine())
                 .Returns("a=3")
                 .Returns("f(a)=7")
                 .Returns("Exit");
-
             var testedComputor = new Computor(_consoleProcessor.Object);
+            
+            //Act
             testedComputor.StartReading();
 
-            StringAssert.Contains("Error", _consoleOutputLines[1]);
+            //Assert
+            AssertWriteLine("Error");
         }
 
         [Test]
@@ -76,6 +82,7 @@ namespace ComputorV2.IntegrationTests
         public void StartReading_WhenVarDeclarationContainsFuncInRightPart_PrintsResult(string funcDeclaration,
             string expectedOutput)
         {
+            //Arrange
             _consoleProcessor
                 .SetupSequence(cp => cp.ReadLine())
                 .Returns(funcDeclaration)
@@ -83,62 +90,84 @@ namespace ComputorV2.IntegrationTests
                 .Returns("Exit");
 
             var testedComputor = new Computor(_consoleProcessor.Object);
+            
+            //Act
             testedComputor.StartReading();
 
-            _consoleProcessor.Verify(cp => cp.WriteLine($"> {expectedOutput}"));
+            //Assert
+            AssertWriteLine($"> {expectedOutput}");
         }
 
         [Test]
         public void StartReading_WhenSolvingSimplestExpression_ShouldPrintsSolution()
         {
+            //Arrange
             _consoleProcessor
                 .SetupSequence(cp => cp.ReadLine())
                 .Returns("x = 7 + 2")
                 .Returns("x= ?")
                 .Returns("Exit");
 
+            //Act
             var testedComputor = new Computor(_consoleProcessor.Object);
             testedComputor.StartReading();
 
-            _consoleProcessor.Verify(cp => cp.WriteLine("> 9"));
+            //Assert
+            AssertWriteLine("> 9");
         }
+
+
+        #region Solve f(x) = ? Equations
 
         [Test]
         public void StartReading_WhenSolvingSimplestEquation_ShouldPrintsSolution()
         {
+            //Arrange
             _consoleProcessor
                 .SetupSequence(cp => cp.ReadLine())
                 .Returns("f(x) = 0")
                 .Returns("F(x)= ?")
                 .Returns("Exit");
 
+            //Act
             var testedComputor = new Computor(_consoleProcessor.Object);
             testedComputor.StartReading();
 
-            _consoleProcessor.Verify(cp => cp.Write(
-                It.Is<string>(s => s.Contains($"X = 0"))));
+            //Assert
+            AssertWrite($"X = 0");
         }
-
-        #region Solve x^2 Equation
 
         [Test]
         [TestCase("x", "0")]
         public void StartReading_SolvingEquationEqualsZero_PrintsSolution(string func, string solution)
         {
+            //Arrange
             _consoleProcessor
                 .SetupSequence(cp => cp.ReadLine())
                 .Returns($"f(x) = {func}")
                 .Returns("f(x) = 0 ?")
                 .Returns("Exit");
 
+            //Act
             var testedComputor = new Computor(_consoleProcessor.Object);
             testedComputor.StartReading();
 
-            _consoleProcessor.Verify(cp => cp.Write(
-                It.Is<string>(s=>s.Contains($"X = {solution}"))));
+            //Assert
+            AssertWrite($"X = {solution}");
         }
 
-        #endregion Solve Equation
+        #endregion Solve f(x) = ? Equations
 
+        private void AssertWrite(string expected)
+        {
+            _consoleProcessor.Verify(cp => cp.Write(
+                It.Is<string>(s => s.Contains(expected))));
+        }
+
+        private void AssertWriteLine(string expected)
+        {
+            _consoleProcessor.Verify(cp => cp.WriteLine(
+                It.Is<string>(s => s.Contains(expected))));
+        }
     }
 }
