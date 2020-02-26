@@ -9,40 +9,38 @@ namespace ComputorV2.IntegrationTests
         private readonly Mock<IConsoleProcessor> _consoleProcessor = new Mock<IConsoleProcessor>();
 
         [Test]
-        public void StartReading_WhenSolvingSimplestEquation_ShouldPrintsSolution()
-        {
-            //Arrange
-            _consoleProcessor
-                .SetupSequence(cp => cp.ReadLine())
-                .Returns("f(x) = 0")
-                .Returns("F(x)= ?")
-                .Returns("Exit");
-
-            //Act
-            var testedComputor = new Computor(_consoleProcessor.Object);
-            testedComputor.StartReading();
-
-            //Assert
-            AssertWrite("X = 0");
-        }
-
-        [Test]
-        [TestCase("x", "0")]
-        public void StartReading_SolvingEquationEqualsZero_PrintsSolution(string func, string solution)
+        [TestCase("x", "0", new[] { "X = 0" })]
+        [TestCase("x", "3", new[] { "X = 3" })]
+        [TestCase("x^20-x^20 + x", "3", new[] { "X = 3" })]
+        [TestCase("2  * x + 2 * x = 0 ", "0", new[] { "X = 0" })]
+        [TestCase("x^2", "4", new[] { "X1 = 2", "X2 = -2" })]
+        [TestCase("x^2 + 4*x + 4", "0", new[] { "X = -2" })]
+        [TestCase("2 + ----3 * x ^2", "0", new[] { "X = -2" })]
+        [TestCase("0", "1", new[] { "None" })]
+        [TestCase("0*x", "1", new[] { "None" })]
+        [TestCase("2 + 3 + 1", "7", new[] { "None" })]
+        [TestCase("x^2", "-1", new[] { "X1 = +i", "X2 = -i" })]
+        [TestCase("4 + 1 * x^2", "0", new[] { "X1 = + 2i", "X2 = - 2i" })]
+        [TestCase("x^2 - 6*x + 34", "0", new[] { "X1 = 3 + 5i", "X2 = 3 - 5i" })]
+        [TestCase("1 * x ^0 + 0 * x^1 + 1 * x^2", "0", new[] { "X1 = +i", "X2 = -i" })]
+        public void StartReading_WhenSolvingEquation_ShouldPrintsSolution(string func, string rightPart, string[] solutions)
         {
             //Arrange
             _consoleProcessor
                 .SetupSequence(cp => cp.ReadLine())
                 .Returns($"f(x) = {func}")
-                .Returns("f(x) = 0 ?")
+                .Returns($"f(x) = {rightPart} ?")
                 .Returns("Exit");
+            var testedComputor = new Computor(_consoleProcessor.Object);
 
             //Act
-            var testedComputor = new Computor(_consoleProcessor.Object);
             testedComputor.StartReading();
 
             //Assert
-            AssertWrite($"X = {solution}");
+            foreach (var solution in solutions)
+            {
+                AssertWrite(solution);
+            }
         }
 
         private void AssertWrite(string expected)
