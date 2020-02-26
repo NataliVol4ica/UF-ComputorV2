@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using BigNumbers;
 using PolynomialExpressionSolver.Exceptions;
 using PolynomialExpressionSolver.HelperEntities;
 
@@ -12,9 +13,12 @@ namespace PolynomialExpressionSolver
         private static readonly Regex TokenRegEx =
             new Regex(@"\s*(\d+((\.|,)\d+)?|[xX]|\+|-|\*|\^|=)\s*", RegexOptions.Compiled);
 
-        public static List<double> Parse(string expression, Solution solution)
+        private static BigDecimal _bigDecimalTwo = new BigDecimal(2);
+        private static BigDecimal _bigDecimalFour = new BigDecimal(4);
+
+        public static List<BigDecimal> Parse(string expression, Solution solution)
         {
-            List<double> coefficients = default;
+            List<BigDecimal> coefficients = default;
             try
             {
                 var stringTokens = Tokenize(expression);
@@ -82,19 +86,19 @@ namespace PolynomialExpressionSolver
             return str;
         }
 
-        public static void ShortenCoef(List<double> coefficients)
+        public static void ShortenCoef(List<BigDecimal> coefficients)
         {
             var cleanLen = coefficients.Count - 1;
-            while (cleanLen > 0 && coefficients[cleanLen] == 0.0)
+            while (cleanLen > 0 && coefficients[cleanLen] == BigDecimal.Zero)
                 cleanLen--;
             coefficients.RemoveRange(cleanLen + 1, coefficients.Count - cleanLen - 1);
         }
 
-        public static void Solve(List<double> coefficients, Solution solution)
+        public static void Solve(List<BigDecimal> coefficients, Solution solution)
         {
             if (coefficients.Count == 1)
             {
-                if (coefficients[0] == 0.0)
+                if (coefficients[0] == BigDecimal.Zero)
                     solution.SolutionType = SolutionType.All;
                 else
                     solution.SolutionType = SolutionType.None;
@@ -106,38 +110,38 @@ namespace PolynomialExpressionSolver
             }
             else
             {
-                var discr = coefficients[1] * coefficients[1] - 4 * coefficients[0] * coefficients[2];
-                solution.Logs.Add($"D = {coefficients[1]}^2 - 4*{coefficients[0]}*{coefficients[2]} = {discr}");
-                if (discr == 0.0)
-                {
-                    solution.Logs.Add("D = 0");
-                    solution.Logs.Add($"X = -{coefficients[1]}/(2*{coefficients[2]})");
-                    var x = -coefficients[1] / (2 * coefficients[2]);
-                    solution.SolutionType = SolutionType.Single;
-                    solution.Answers.Add($"{x}");
-                }
-                else if (discr > 0)
-                {
-                    solution.Logs.Add("D > 0");
-                    solution.Logs.Add($"X = (-{coefficients[1]} +- sqrt({discr}))/(2*{coefficients[2]})");
-                    var x1 = (-coefficients[1] + Math.Sqrt(discr)) / (2 * coefficients[2]);
-                    var x2 = (-coefficients[1] - Math.Sqrt(discr)) / (2 * coefficients[2]);
-                    solution.SolutionType = SolutionType.Double;
-                    solution.Answers.Add(x1.ToString());
-                    solution.Answers.Add(x2.ToString());
-                }
-                else
-                {
-                    solution.Logs.Add("D < 0");
-                    solution.Logs.Add($"X = (-{coefficients[1]} +- sqrt({discr}))/(2*{coefficients[2]})");
-                    var a1 = -coefficients[1] / (2 * coefficients[2]);
-                    var a2 = Math.Abs(Math.Sqrt(-discr) / (2 * coefficients[2]));
-                    var s1 = a1 != 0 ? a1 + " " : "";
-                    var s2 = a2 != 1 ? " " + a2 : "";
-                    solution.SolutionType = SolutionType.Double;
-                    solution.Answers.Add($"{s1}+{s2}i");
-                    solution.Answers.Add($"{s1}-{s2}i");
-                }
+                var discr = coefficients[1] * coefficients[1] - _bigDecimalFour * coefficients[0] * coefficients[2];
+                //solution.Logs.Add($"D = {coefficients[1]}^2 - 4*{coefficients[0]}*{coefficients[2]} = {discr}");
+                //if (discr == 0.0)
+                //{
+                //    solution.Logs.Add("D = 0");
+                //    solution.Logs.Add($"X = -{coefficients[1]}/(2*{coefficients[2]})");
+                //    var x = -coefficients[1] / (_bigDecimalTwo * coefficients[2]);
+                //    solution.SolutionType = SolutionType.Single;
+                //    solution.Answers.Add($"{x}");
+                //}
+                //else if (discr > 0)
+                //{
+                //    solution.Logs.Add("D > 0");
+                //    solution.Logs.Add($"X = (-{coefficients[1]} +- sqrt({discr}))/(2*{coefficients[2]})");
+                //    var x1 = (-coefficients[1] + Math.Sqrt(discr)) / (_bigDecimalTwo * coefficients[2]);
+                //    var x2 = (-coefficients[1] - Math.Sqrt(discr)) / (_bigDecimalTwo * coefficients[2]);
+                //    solution.SolutionType = SolutionType.Double;
+                //    solution.Answers.Add(x1.ToString());
+                //    solution.Answers.Add(x2.ToString());
+                //}
+                //else
+                //{
+                //    solution.Logs.Add("D < 0");
+                //    solution.Logs.Add($"X = (-{coefficients[1]} +- sqrt({discr}))/(2*{coefficients[2]})");
+                //    var a1 = -coefficients[1] / (_bigDecimalTwo * coefficients[2]);
+                //    var a2 = Math.Abs(Math.Sqrt(-discr) / (_bigDecimalTwo * coefficients[2]));
+                //    var s1 = a1 != BigDecimal.Zero ? a1 + " " : "";
+                //    var s2 = a2 != 1 ? " " + a2 : "";
+                //    solution.SolutionType = SolutionType.Double;
+                //    solution.Answers.Add($"{s1}+{s2}i");
+                //    solution.Answers.Add($"{s1}-{s2}i");
+                //}
             }
         }
 
@@ -152,7 +156,7 @@ namespace PolynomialExpressionSolver
             {
                 if (lastMatchPos + lastMatchLen < match.Index)
                 {
-                    errorMessage += String.Format("Unknown lexem \"{0}\" at position {1}.\n",
+                    errorMessage += string.Format("Error: Unknown lexem \"{0}\" at position {1}.\n",
                         expression.Substring(lastMatchLen + lastMatchPos, match.Index - lastMatchLen - lastMatchPos),
                         lastMatchLen + lastMatchPos + 1);
                 }
@@ -164,7 +168,7 @@ namespace PolynomialExpressionSolver
             }
 
             if (lastMatchPos + lastMatchLen < expression.Length)
-                errorMessage += String.Format("Unknown lexem \"{0}\" at position {1}.\n",
+                errorMessage += string.Format("Error: Unknown lexem \"{0}\" at position {1}.\n",
                     expression.Substring(lastMatchLen + lastMatchPos, expression.Length - lastMatchLen - lastMatchPos),
                     lastMatchLen + lastMatchPos + 1);
             if (errorMessage.Length > 0)
@@ -194,17 +198,23 @@ namespace PolynomialExpressionSolver
             return tokenQueue;
         }
 
-        private static void AddCoef(List<double> coefficients, int pow, double coef)
+        private static void AddCoef(List<BigDecimal> multipliers, int pow, BigDecimal multiplier)
         {
-            if (coefficients.Count <= pow)
-                coefficients.AddRange(Enumerable.Repeat(0.0, pow - coefficients.Count + 1));
-            coefficients[pow] += coef;
+            if (multipliers.Count <= pow)
+            {
+                multipliers.AddRange(
+                    Enumerable
+                        .Range(1, pow - multipliers.Count + 1)
+                        .Select(i => new BigDecimal(0)));
+            }
+
+            multipliers[pow] += multiplier;
         }
 
-        private static void CompileExpression(List<PolyToken> tokens, out List<double> coefficients)
+        private static void CompileExpression(List<PolyToken> tokens, out List<BigDecimal> coefficients)
         {
-            coefficients = new List<double>();
-            double coeff;
+            coefficients = new List<BigDecimal>();
+            BigDecimal multiplier;
             int pow;
             double doublePow;
             int sign;
@@ -217,14 +227,14 @@ namespace PolynomialExpressionSolver
                 if (tokens[tokenIndex].tokenType == TokenType.Equation)
                 {
                     if (tokenIndex == 0)
-                        throw new SyntaxException("Expression is missing it's left part");
+                        throw new SyntaxException("Error: Expression is missing its left part");
                     if (metEquation)
-                        throw new SyntaxException("Expression cannot have more than one equation");
+                        throw new SyntaxException("Error: Expression cannot have more than one equation");
                     metEquation = true;
                     isStart = true;
                     tokenIndex++;
                     if (tokenIndex == tokens.Count)
-                        throw new SyntaxException("Expression is missing it's right part");
+                        throw new SyntaxException("Error: Expression is missing it's right part");
                 }
 
                 sign = metEquation ? -1 : 1;
@@ -232,7 +242,7 @@ namespace PolynomialExpressionSolver
                 while (tokenIndex < tokens.Count && tokens[tokenIndex].tokenType == TokenType.Operator)
                 {
                     if (tokens[tokenIndex].str == "*")
-                        throw new Exception("invalid token \"*\"");
+                        throw new Exception("Error: invalid token \"*\"");
                     if (tokens[tokenIndex].str == "-")
                         sign = -sign;
                     tokenIndex++;
@@ -240,24 +250,26 @@ namespace PolynomialExpressionSolver
                 }
 
                 if (tokenIndex == tokens.Count)
-                    throw new SyntaxException("Expression cannot be ended by operator");
+                    throw new SyntaxException("Error: Expression cannot be ended by operator");
                 if (!isStart && numOfOperators == 0)
-                    throw new SyntaxException("Expression is missing operator");
+                    throw new SyntaxException("Error: Expression is missing operator");
                 isStart = false;
                 if (tokens[tokenIndex].tokenType == TokenType.Number)
                 {
-                    Double.TryParse(tokens[tokenIndex++].str.Replace('.', ','), out coeff);
+                    multiplier = new BigDecimal(tokens[tokenIndex++].str.Replace('.', ','));
                     if (tokenIndex == tokens.Count) //esli 4islo v konce
                     {
-                        AddCoef(coefficients, 0, sign * coeff);
-                        sign = 1;
+                        if (multiplier.Sign != sign)
+                            multiplier.Negate();
+                        AddCoef(coefficients, 0, multiplier);
                         break;
                     }
 
                     if (tokens[tokenIndex].str != "*") //esli tolko 4islo
                     {
-                        AddCoef(coefficients, 0, sign * coeff);
-                        sign = 1;
+                        if (multiplier.Sign != sign)
+                            multiplier.Negate();
+                        AddCoef(coefficients, 0, multiplier);
                         continue;
                     }
 
@@ -265,45 +277,49 @@ namespace PolynomialExpressionSolver
                         break;
                 }
                 else
-                    coeff = 1;
+                    multiplier = new BigDecimal(1);
 
                 if (tokens[tokenIndex].tokenType == TokenType.Var) //esli dalshe idet x
                 {
                     tokenIndex++;
                     if (tokenIndex == tokens.Count) //esli prosto x v konce
                     {
-                        AddCoef(coefficients, 1, sign * coeff);
-                        sign = 1;
+                        if (multiplier.Sign != sign)
+                            multiplier.Negate();
+                        AddCoef(coefficients, 1, multiplier);
                         break;
                     }
 
                     if (tokens[tokenIndex].str != "^") //esli tolko x
                     {
-                        AddCoef(coefficients, 1, sign * coeff);
-                        sign = 1;
+                        if (multiplier.Sign != sign)
+                            multiplier.Negate();
+                        AddCoef(coefficients, 1, multiplier);
                         continue;
                     }
 
                     if (++tokenIndex == tokens.Count)
                         break;
                     if (tokens[tokenIndex].str.Contains("."))
-                        throw new SyntaxException(String.Format("Pow has to be integer. {0} is not.",
+                        throw new SyntaxException(string.Format("Error: Pow has to be integer. {0} is not.",
                             tokens[tokenIndex].str));
                     Double.TryParse(tokens[tokenIndex].str.Replace('.', ','), out doublePow);
                     pow = (int) doublePow;
                     if (pow < 0)
-                        throw new SyntaxException(String.Format("Pow has to be >= 0. {0} is not.",
+                        throw new SyntaxException(string.Format("Error: Pow has to be >= 0. {0} is not.",
                             tokens[tokenIndex].str));
-                    AddCoef(coefficients, pow, sign * coeff);
-                    sign = 1;
+
+                    if (multiplier.Sign != sign)
+                        multiplier.Negate();
+                    AddCoef(coefficients, pow, multiplier);
                     tokenIndex++;
                 }
                 else
-                    throw new SyntaxException("Expression is missing X^N");
+                    throw new SyntaxException("Error: Expression is missing X^N");
             }
 
             if (!metEquation)
-                throw new SyntaxException("Expression is missing '='");
+                throw new SyntaxException("Error: Expression is missing '='");
         }
     }
 }

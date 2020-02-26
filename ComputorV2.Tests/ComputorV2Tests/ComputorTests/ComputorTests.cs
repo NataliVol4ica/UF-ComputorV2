@@ -100,6 +100,7 @@ namespace ComputorV2.Tests.ComputorV2Tests
         [Test]
         public void ExecuteAssignVarCommand_WhenAllOk_CallsVariableStorageAddOrUpdateAndWritesOutput()
         {
+            //Arrange
             _expressionProcessor
                 .Setup(ep => ep.CreateExpression(It.IsAny<string>(), It.IsAny<bool>()))
                 .Returns(_emptyExpression);
@@ -109,8 +110,11 @@ namespace ComputorV2.Tests.ComputorV2Tests
             SetupConsoleMockToReturnCommandAndExit("vara = 2 + 2");
             var testedComputor = new Computor(_consoleProcessor.Object, _variableStorage.Object,
                 _expressionProcessor.Object);
+            
+            //Act
             testedComputor.StartReading();
 
+            //Assert
             _variableStorage.Verify(vs => vs.AddOrUpdateVariableValue("vara", _emptyExpression));
             _consoleProcessor.Verify(cp => cp.WriteLine("> AddOrUpdateReturnValue"));
         }

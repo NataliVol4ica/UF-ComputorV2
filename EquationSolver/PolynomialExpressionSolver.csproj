@@ -9,4 +9,8 @@
     <RootNamespace>PolynomialExpressionSolver</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BigNumbers\BigNumbers.csproj" />
+  </ItemGroup>
+
 </Project>

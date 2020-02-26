@@ -30,6 +30,8 @@ namespace BigNumbers
         private bool? _isEven;
         private bool? _isInteger;
 
+        #region Constructors
+
         public BigDecimal()
         {
         }
@@ -64,6 +66,10 @@ namespace BigNumbers
             else
                 CleanString = str;
         }
+
+        #endregion Constructors
+
+        #region Properties
 
         public int DotPos
         {
@@ -153,16 +159,7 @@ namespace BigNumbers
             }
         }
 
-        public override int this[int index]
-        {
-            get
-            {
-                if (index < 0 || index >= CleanString.Length - (DotPos == CleanString.Length ? 0 : 1))
-                    return -1;
-                return ConvertCharToDigit(CleanString[index - (index >= DotPos ? 1 : 0)]);
-            }
-        }
-
+        #endregion Properties
 
         public static char ConvertDigitToChar(int digit)
         {
@@ -417,6 +414,8 @@ namespace BigNumbers
             return bfAns;
         }
 
+        #region Canonical operators overload
+
         public static BigDecimal operator -(BigDecimal num)
         {
             var ret = new BigDecimal(num);
@@ -506,6 +505,43 @@ namespace BigNumbers
             return true;
         }
 
+        public override int this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= CleanString.Length - (DotPos == CleanString.Length ? 0 : 1))
+                    return -1;
+                return ConvertCharToDigit(CleanString[index - (index >= DotPos ? 1 : 0)]);
+            }
+        }
+
+        #endregion Canonical operators overload
+
+        public static BigDecimal Sqrt(BigDecimal number)
+        {
+            if (number == BigDecimal.Zero)
+                return new BigDecimal(0);
+            var bigDecimalTwo = new BigDecimal(2);
+            var prec = GenerateBigDecimalWithMinimalPrecision();
+            var a = new BigDecimal(1);
+            bool p_dec = false;
+            for (;;)
+            {
+                var b = (number / a + a) / bigDecimalTwo;
+                if (a == b || a < b && p_dec)
+                    break;
+                p_dec = a > b;
+                a = b;
+            }
+            return a;
+        }
+        
+        public static BigDecimal GenerateBigDecimalWithMinimalPrecision()
+        {
+            string numString = "0." + new string('0', FracPrecision - 1) + "1";
+            return new BigDecimal(numString);
+        }
+
         protected void CleanAndSaveNumericString(string rawString)
         {
             string substr;
@@ -521,7 +557,16 @@ namespace BigNumbers
             if (rawString.Contains("-"))
                 Negate();
         }
-
+        
+        private void FindDotPos()
+        {
+            if (_dotPos.HasValue)
+                return;
+            _dotPos = CleanString.IndexOf(delimiter);
+            if (_dotPos < 0)
+                _dotPos = CleanString.Length;
+        }
+      
         public override int GetHashCode()
         {
             return base.GetHashCode();
@@ -532,14 +577,13 @@ namespace BigNumbers
             return this == obj as BigDecimal;
         }
 
+        #region Consts
 
-        private void FindDotPos()
-        {
-            if (_dotPos.HasValue)
-                return;
-            _dotPos = CleanString.IndexOf(delimiter);
-            if (_dotPos < 0)
-                _dotPos = CleanString.Length;
-        }
+        private static readonly BigDecimal _zero = new BigDecimal(0);
+
+        public static BigDecimal Zero => _zero;
+
+        #endregion Consts
+
     }
 }

@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
-using ComputorV2;
 using Moq;
 using NUnit.Framework;
 
-namespace ComputorV2Tests.ExpressionProcessorTests
+namespace ComputorV2.UnitTests.ComputorV2Tests.ExpressionProcessor
 {
     internal class ExpressionProcessorTests
     {
         private readonly Mock<IVariableStorage> _variableStorage = new Mock<IVariableStorage>();
-        private ExpressionProcessor _processor;
+        private ComputorV2.ExpressionProcessor _processor;
         private List<string> _varNames;
 
         [SetUp]
@@ -16,7 +15,7 @@ namespace ComputorV2Tests.ExpressionProcessorTests
         {
             _varNames = new List<string> {"vara", "varb", "varc", "vard"};
             _variableStorage.Setup(vs => vs.AllVariablesNames).Returns(_varNames);
-            _processor = new ExpressionProcessor(_variableStorage.Object);
+            _processor = new ComputorV2.ExpressionProcessor(_variableStorage.Object);
         }
 
         [Test]

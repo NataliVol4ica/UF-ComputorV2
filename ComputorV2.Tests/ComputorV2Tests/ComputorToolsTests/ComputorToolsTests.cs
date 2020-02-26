@@ -1,8 +1,7 @@
 using System;
-using ComputorV2;
 using NUnit.Framework;
 
-namespace ComputorV2Tests
+namespace ComputorV2.UnitTests.ComputorV2Tests.ComputorToolsTests
 {
     public class ComputorToolsTests
     {
