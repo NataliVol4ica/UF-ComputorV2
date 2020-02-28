@@ -23,6 +23,7 @@ namespace ComputorV2.IntegrationTests
         [TestCase("4 + 1 * x^2", "0", new[] { "X1 = + 2i", "X2 = - 2i" })]
         [TestCase("x^2 - 6*x + 34", "0", new[] { "X1 = 3 + 5i", "X2 = 3 - 5i" })]
         [TestCase("1 * x ^0 + 0 * x^1 + 1 * x^2", "0", new[] { "X1 = +i", "X2 = -i" })]
+        [TestCase("x", "1000000000000000000000000000000000", new[] { "X = 1000000000000000000000000000000000" })]
         public void StartReading_WhenSolvingEquation_ShouldPrintsSolution(string func, string rightPart, string[] solutions)
         {
             //Arrange
