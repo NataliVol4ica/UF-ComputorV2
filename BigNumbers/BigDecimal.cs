@@ -20,10 +20,10 @@ namespace BigNumbers
 
         private static volatile int _fracPrecision = 20;
 
-        private readonly Object dotPosMutex = new Object();
-        private readonly Object fracLenMutex = new Object();
-        private readonly Object isEvenMutex = new Object();
-        private readonly Object isIntegerMutex = new Object();
+        private readonly object _dotPosMutex = new object();
+        private readonly object _fracLenMutex = new object();
+        private readonly object _isEvenMutex = new object();
+        private readonly object _isIntegerMutex = new object();
 
         private int? _dotPos;
         private int? _fracLen;
@@ -77,7 +77,7 @@ namespace BigNumbers
             {
                 if (!_dotPos.HasValue)
                 {
-                    lock (dotPosMutex)
+                    lock (_dotPosMutex)
                     {
                         FindDotPos();
                     }
@@ -94,7 +94,7 @@ namespace BigNumbers
             {
                 if (!_isInteger.HasValue)
                 {
-                    lock (isIntegerMutex)
+                    lock (_isIntegerMutex)
                     {
                         if (FractionalLength == 0)
                             _isInteger = true;
@@ -114,7 +114,7 @@ namespace BigNumbers
             {
                 if (!_isEven.HasValue)
                 {
-                    lock (isEvenMutex)
+                    lock (_isEvenMutex)
                     {
                         if (!IsInteger)
                             _isEven = false;
@@ -135,7 +135,7 @@ namespace BigNumbers
             get
             {
                 if (!_fracLen.HasValue)
-                    lock (fracLenMutex)
+                    lock (_fracLenMutex)
                     {
                         _fracLen = CleanString.Length - DotPos;
                         if (_fracLen > 0)
@@ -505,7 +505,7 @@ namespace BigNumbers
 
         public static bool operator !=(BigDecimal left, BigDecimal right)
         {
-            if (string.Compare(left.ToString(), right.ToString()) != 0)
+            if (left == right)
                 return false;
             return true;
         }
