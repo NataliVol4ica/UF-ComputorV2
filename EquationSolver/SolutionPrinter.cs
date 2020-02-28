@@ -13,36 +13,36 @@ namespace PolynomialExpressionSolver
             {SolutionType.All, PrintSolution_All}
         };
 
-        private static void PrintSolution_None(Solution solution, IConsole console)
+        private static void PrintSolution_None(PolynomialSolution solution, IConsole console)
         {
             console.WriteLine("Solution:");
             console.WriteLine(" None");
         }
 
-        private static void PrintSolution_Single(Solution solution, IConsole console)
+        private static void PrintSolution_Single(PolynomialSolution solution, IConsole console)
         {
             console.WriteLine("Solution:");
             console.WriteLine($"X = {solution.Answers[0]}");
         }
 
-        private static void PrintSolution_Double(Solution solution, IConsole console)
+        private static void PrintSolution_Double(PolynomialSolution solution, IConsole console)
         {
             console.WriteLine("Solutions:");
             console.WriteLine($"X1 = {solution.Answers[0]}");
             console.WriteLine($"X2 = {solution.Answers[1]}");
         }
 
-        private static void PrintSolution_All(Solution solution, IConsole console)
+        private static void PrintSolution_All(PolynomialSolution solution, IConsole console)
         {
             console.WriteLine("Solution:");
             console.WriteLine("All real numbers");
         }
 
-        public static void Print(Solution s, IConsole console)
+        public static void Print(PolynomialSolution s, IConsole console)
         {
             Printers[s.SolutionType](s, console);
         }
 
-        private delegate void Printer(Solution solution, IConsole console);
+        private delegate void Printer(PolynomialSolution solution, IConsole console);
     }
 }

@@ -230,6 +230,11 @@ namespace BigNumbers
             return ret;
         }
 
+        public static BigDecimal Abs(BigDecimal bd)
+        {
+            return bd.Abs();
+        }
+
         public override void Negate()
         {
             if (String.Compare(CleanString, "0") != 0)
@@ -519,18 +524,17 @@ namespace BigNumbers
 
         public static BigDecimal Sqrt(BigDecimal number)
         {
-            if (number == BigDecimal.Zero)
+            if (number == Zero)
                 return new BigDecimal(0);
             var bigDecimalTwo = new BigDecimal(2);
-            var prec = GenerateBigDecimalWithMinimalPrecision();
             var a = new BigDecimal(1);
-            bool p_dec = false;
+            bool pDec = false;
             for (;;)
             {
                 var b = (number / a + a) / bigDecimalTwo;
-                if (a == b || a < b && p_dec)
+                if (a == b || a < b && pDec)
                     break;
-                p_dec = a > b;
+                pDec = a > b;
                 a = b;
             }
             return a;
@@ -582,6 +586,10 @@ namespace BigNumbers
         private static readonly BigDecimal _zero = new BigDecimal(0);
 
         public static BigDecimal Zero => _zero;
+
+        private static readonly BigDecimal _one = new BigDecimal(1);
+
+        public static BigDecimal One => _one;
 
         #endregion Consts
 

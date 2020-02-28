@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BigNumbers;
+﻿using BigNumbers;
 using NUnit.Framework;
 
 namespace BigNumbersTests.BigDecimalTests
@@ -18,6 +15,7 @@ namespace BigNumbersTests.BigDecimalTests
         [TestCase("1", "1")]
         [TestCase("0.25", "0.5")]
         [TestCase("25", "5")]
+        [TestCase("0.0625", "0.25")]
         public void Sqrt_WhenCalled_ShouldReturnResultWithPrecision(string number, string expected)
         {
             //Arrange

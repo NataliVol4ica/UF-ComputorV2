@@ -4,9 +4,9 @@ using PolynomialExpressionSolver.Console;
 
 namespace PolynomialExpressionSolver
 {
-    public class Solution
+    public class PolynomialSolution
     {
-        public Solution()
+        public PolynomialSolution()
         {
             Degree = -1;
             ValidationError = "";

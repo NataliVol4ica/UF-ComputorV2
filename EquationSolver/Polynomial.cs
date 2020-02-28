@@ -16,7 +16,7 @@ namespace PolynomialExpressionSolver
         private static BigDecimal _bigDecimalTwo = new BigDecimal(2);
         private static BigDecimal _bigDecimalFour = new BigDecimal(4);
 
-        public static List<BigDecimal> Parse(string expression, Solution solution)
+        public static List<BigDecimal> Parse(string expression, PolynomialSolution solution)
         {
             List<BigDecimal> coefficients = default;
             try
@@ -94,7 +94,7 @@ namespace PolynomialExpressionSolver
             coefficients.RemoveRange(cleanLen + 1, coefficients.Count - cleanLen - 1);
         }
 
-        public static void Solve(List<BigDecimal> coefficients, Solution solution)
+        public static void Solve(List<BigDecimal> coefficients, PolynomialSolution solution)
         {
             if (coefficients.Count == 1)
             {
@@ -111,37 +111,37 @@ namespace PolynomialExpressionSolver
             else
             {
                 var discr = coefficients[1] * coefficients[1] - _bigDecimalFour * coefficients[0] * coefficients[2];
-                //solution.Logs.Add($"D = {coefficients[1]}^2 - 4*{coefficients[0]}*{coefficients[2]} = {discr}");
-                //if (discr == 0.0)
-                //{
-                //    solution.Logs.Add("D = 0");
-                //    solution.Logs.Add($"X = -{coefficients[1]}/(2*{coefficients[2]})");
-                //    var x = -coefficients[1] / (_bigDecimalTwo * coefficients[2]);
-                //    solution.SolutionType = SolutionType.Single;
-                //    solution.Answers.Add($"{x}");
-                //}
-                //else if (discr > 0)
-                //{
-                //    solution.Logs.Add("D > 0");
-                //    solution.Logs.Add($"X = (-{coefficients[1]} +- sqrt({discr}))/(2*{coefficients[2]})");
-                //    var x1 = (-coefficients[1] + Math.Sqrt(discr)) / (_bigDecimalTwo * coefficients[2]);
-                //    var x2 = (-coefficients[1] - Math.Sqrt(discr)) / (_bigDecimalTwo * coefficients[2]);
-                //    solution.SolutionType = SolutionType.Double;
-                //    solution.Answers.Add(x1.ToString());
-                //    solution.Answers.Add(x2.ToString());
-                //}
-                //else
-                //{
-                //    solution.Logs.Add("D < 0");
-                //    solution.Logs.Add($"X = (-{coefficients[1]} +- sqrt({discr}))/(2*{coefficients[2]})");
-                //    var a1 = -coefficients[1] / (_bigDecimalTwo * coefficients[2]);
-                //    var a2 = Math.Abs(Math.Sqrt(-discr) / (_bigDecimalTwo * coefficients[2]));
-                //    var s1 = a1 != BigDecimal.Zero ? a1 + " " : "";
-                //    var s2 = a2 != 1 ? " " + a2 : "";
-                //    solution.SolutionType = SolutionType.Double;
-                //    solution.Answers.Add($"{s1}+{s2}i");
-                //    solution.Answers.Add($"{s1}-{s2}i");
-                //}
+                solution.Logs.Add($"D = {coefficients[1]}^2 - 4*{coefficients[0]}*{coefficients[2]} = {discr}");
+                if (discr == BigDecimal.Zero)
+                {
+                    solution.Logs.Add("D = 0");
+                    solution.Logs.Add($"X = -{coefficients[1]}/(2*{coefficients[2]})");
+                    var x = -coefficients[1] / (_bigDecimalTwo * coefficients[2]);
+                    solution.SolutionType = SolutionType.Single;
+                    solution.Answers.Add($"{x}");
+                }
+                else if (discr > BigDecimal.Zero)
+                {
+                    solution.Logs.Add("D > 0");
+                    solution.Logs.Add($"X = (-{coefficients[1]} +- sqrt({discr}))/(2*{coefficients[2]})");
+                    var x1 = (-coefficients[1] + BigDecimal.Sqrt(discr)) / (_bigDecimalTwo * coefficients[2]);
+                    var x2 = (-coefficients[1] - BigDecimal.Sqrt(discr)) / (_bigDecimalTwo * coefficients[2]);
+                    solution.SolutionType = SolutionType.Double;
+                    solution.Answers.Add(x1.ToString());
+                    solution.Answers.Add(x2.ToString());
+                }
+                else
+                {
+                    solution.Logs.Add("D < 0");
+                    solution.Logs.Add($"X = (-{coefficients[1]} +- sqrt({discr}))/(2*{coefficients[2]})");
+                    BigDecimal a1 = -coefficients[1] / (_bigDecimalTwo * coefficients[2]);
+                    BigDecimal a2 = BigDecimal.Abs(BigDecimal.Sqrt(-discr) / (_bigDecimalTwo * coefficients[2]));
+                    var s1 = a1 != BigDecimal.Zero ? a1 + " " : "";
+                    var s2 = a2 != BigDecimal.One ? " " + a2 : "";
+                    solution.SolutionType = SolutionType.Double;
+                    solution.Answers.Add($"{s1}+{s2}i");
+                    solution.Answers.Add($"{s1}-{s2}i");
+                }
             }
         }
 
