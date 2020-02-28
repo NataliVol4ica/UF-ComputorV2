@@ -17,14 +17,14 @@ namespace PolynomialExpressionSolver
         public string SolveExpression(string expression)
         {
             var solution = new PolynomialSolution {Expression = expression};
-            List<BigDecimal> polynomial = Polynomial.Parse(expression, solution);
+            List<BigDecimal> polynomial = PolynomialProcessor.Parse(expression, solution);
             if (solution.IsValid)
             {
-                Polynomial.ShortenCoef(polynomial);
-                solution.ReducedForm = Polynomial.ToString(polynomial);
+                PolynomialProcessor.ShortenCoef(polynomial);
+                solution.ReducedForm = PolynomialProcessor.ToString(polynomial);
                 solution.Degree = polynomial.Count - 1;
                 if (solution.IsSolvable)
-                    Polynomial.Solve(polynomial, solution);
+                    PolynomialProcessor.Solve(polynomial, solution);
             }
 
             solution.WriteSolution(_console);

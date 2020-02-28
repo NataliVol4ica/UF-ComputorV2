@@ -8,7 +8,7 @@ using PolynomialExpressionSolver.HelperEntities;
 
 namespace PolynomialExpressionSolver
 {
-    public static class Polynomial
+    public static class PolynomialProcessor
     {
         private static readonly Regex TokenRegEx =
             new Regex(@"\s*(\d+((\.|,)\d+)?|[xX]|\+|-|\*|\^|=)\s*", RegexOptions.Compiled);

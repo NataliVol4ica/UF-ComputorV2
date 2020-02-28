@@ -44,6 +44,30 @@ namespace ComputorV2.IntegrationTests
             }
         }
 
+
+        [Test]
+        [TestCase("x + 2i", "0", new[] { "X = 0" })]
+       
+        public void StartReading_WhenSolvingEquation_ShouldPrintsSolution2(string func, string rightPart, string[] solutions)
+        {
+            //Arrange
+            _consoleProcessor
+                .SetupSequence(cp => cp.ReadLine())
+                .Returns($"f(x) = {func}")
+                .Returns($"f(x) = {rightPart} ?")
+                .Returns("Exit");
+            var testedComputor = new Computor(_consoleProcessor.Object);
+
+            //Act
+            testedComputor.StartReading();
+
+            //Assert
+            foreach (var solution in solutions)
+            {
+                AssertWrite(solution);
+            }
+        }
+
         private void AssertWrite(string expected)
         {
             _consoleProcessor.Verify(cp => cp.Write(

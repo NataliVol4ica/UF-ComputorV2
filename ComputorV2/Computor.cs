@@ -166,6 +166,7 @@ namespace ComputorV2
             var funcRegex = new Regex(@"\s*[a-z]+\s*\(\s*[a-z]+\s*\)\s*");
             var equationToSolve = funcRegex.Replace(cleanCmd, CapText);
             var varRegex = new Regex(@"\s*[a-z]+\s*");
+            //todo: NULL REFERENCE
             equationToSolve = varRegex.Replace(equationToSolve, CapText);
             _consoleProcessor.WriteLine($"The equation is : \"{equationToSolve}\"");
             var solutionLines = _polynomialSolver.SolveExpression(equationToSolve);
