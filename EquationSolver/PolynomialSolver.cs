@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using BigNumbers;
 using PolynomialExpressionSolver.Console;
 
 namespace PolynomialExpressionSolver
@@ -15,7 +17,7 @@ namespace PolynomialExpressionSolver
         public string SolveExpression(string expression)
         {
             var solution = new PolynomialSolution {Expression = expression};
-            var polynomial = Polynomial.Parse(expression, solution);
+            List<BigDecimal> polynomial = Polynomial.Parse(expression, solution);
             if (solution.IsValid)
             {
                 Polynomial.ShortenCoef(polynomial);

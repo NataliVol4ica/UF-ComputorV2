@@ -13,8 +13,8 @@ namespace PolynomialExpressionSolver
         private static readonly Regex TokenRegEx =
             new Regex(@"\s*(\d+((\.|,)\d+)?|[xX]|\+|-|\*|\^|=)\s*", RegexOptions.Compiled);
 
-        private static BigDecimal _bigDecimalTwo = new BigDecimal(2);
-        private static BigDecimal _bigDecimalFour = new BigDecimal(4);
+        private static readonly BigDecimal BigDecimalTwo = new BigDecimal(2);
+        private static readonly BigDecimal BigDecimalFour = new BigDecimal(4);
 
         public static List<BigDecimal> Parse(string expression, PolynomialSolution solution)
         {
@@ -33,18 +33,18 @@ namespace PolynomialExpressionSolver
             return coefficients;
         }
 
-        public static string ToString(List<double> poly)
+        public static string ToString(List<BigDecimal> poly)
         {
             var str = "";
             var isFirst = true;
             for (var i = 0; i < poly.Count; i++)
             {
                 var coef = poly[i];
-                if (coef != 0.0)
+                if (coef != BigDecimal.Zero)
                 {
                     if (isFirst)
                     {
-                        if (coef < 0)
+                        if (coef.IsNegative())
                         {
                             str += "-";
                             coef = -coef;
@@ -54,7 +54,7 @@ namespace PolynomialExpressionSolver
                     }
                     else
                     {
-                        if (poly[i] < 0)
+                        if (poly[i].IsNegative())
                         {
                             str += " - ";
                             coef = -coef;
@@ -64,7 +64,7 @@ namespace PolynomialExpressionSolver
                     }
 
                     var wroteCoef = false;
-                    if (i == 0 || i > 0 && coef != 1.0)
+                    if (i == 0 || i > 0 && coef != BigDecimal.One)
                     {
                         str += coef.ToString();
                         wroteCoef = true;
@@ -89,7 +89,7 @@ namespace PolynomialExpressionSolver
         public static void ShortenCoef(List<BigDecimal> coefficients)
         {
             var cleanLen = coefficients.Count - 1;
-            while (cleanLen > 0 && coefficients[cleanLen] == BigDecimal.Zero)
+            while (cleanLen > 0 && coefficients[cleanLen].IsZero())
                 cleanLen--;
             coefficients.RemoveRange(cleanLen + 1, coefficients.Count - cleanLen - 1);
         }
@@ -98,7 +98,7 @@ namespace PolynomialExpressionSolver
         {
             if (coefficients.Count == 1)
             {
-                if (coefficients[0] == BigDecimal.Zero)
+                if (coefficients[0].IsZero())
                     solution.SolutionType = SolutionType.All;
                 else
                     solution.SolutionType = SolutionType.None;
@@ -110,22 +110,22 @@ namespace PolynomialExpressionSolver
             }
             else
             {
-                var discr = coefficients[1] * coefficients[1] - _bigDecimalFour * coefficients[0] * coefficients[2];
+                var discr = coefficients[1] * coefficients[1] - BigDecimalFour * coefficients[0] * coefficients[2];
                 solution.Logs.Add($"D = {coefficients[1]}^2 - 4*{coefficients[0]}*{coefficients[2]} = {discr}");
-                if (discr == BigDecimal.Zero)
+                if (discr.IsZero())
                 {
                     solution.Logs.Add("D = 0");
                     solution.Logs.Add($"X = -{coefficients[1]}/(2*{coefficients[2]})");
-                    var x = -coefficients[1] / (_bigDecimalTwo * coefficients[2]);
+                    var x = -coefficients[1] / (BigDecimalTwo * coefficients[2]);
                     solution.SolutionType = SolutionType.Single;
                     solution.Answers.Add($"{x}");
                 }
-                else if (discr > BigDecimal.Zero)
+                else if (discr.IsPositive())
                 {
                     solution.Logs.Add("D > 0");
                     solution.Logs.Add($"X = (-{coefficients[1]} +- sqrt({discr}))/(2*{coefficients[2]})");
-                    var x1 = (-coefficients[1] + BigDecimal.Sqrt(discr)) / (_bigDecimalTwo * coefficients[2]);
-                    var x2 = (-coefficients[1] - BigDecimal.Sqrt(discr)) / (_bigDecimalTwo * coefficients[2]);
+                    var x1 = (-coefficients[1] + BigDecimal.Sqrt(discr)) / (BigDecimalTwo * coefficients[2]);
+                    var x2 = (-coefficients[1] - BigDecimal.Sqrt(discr)) / (BigDecimalTwo * coefficients[2]);
                     solution.SolutionType = SolutionType.Double;
                     solution.Answers.Add(x1.ToString());
                     solution.Answers.Add(x2.ToString());
@@ -134,8 +134,8 @@ namespace PolynomialExpressionSolver
                 {
                     solution.Logs.Add("D < 0");
                     solution.Logs.Add($"X = (-{coefficients[1]} +- sqrt({discr}))/(2*{coefficients[2]})");
-                    BigDecimal a1 = -coefficients[1] / (_bigDecimalTwo * coefficients[2]);
-                    BigDecimal a2 = BigDecimal.Abs(BigDecimal.Sqrt(-discr) / (_bigDecimalTwo * coefficients[2]));
+                    BigDecimal a1 = -coefficients[1] / (BigDecimalTwo * coefficients[2]);
+                    BigDecimal a2 = BigDecimal.Abs(BigDecimal.Sqrt(-discr) / (BigDecimalTwo * coefficients[2]));
                     var s1 = a1 != BigDecimal.Zero ? a1 + " " : "";
                     var s2 = a2 != BigDecimal.One ? " " + a2 : "";
                     solution.SolutionType = SolutionType.Double;
@@ -216,7 +216,6 @@ namespace PolynomialExpressionSolver
             coefficients = new List<BigDecimal>();
             BigDecimal multiplier;
             int pow;
-            double doublePow;
             int sign;
             var tokenIndex = 0;
             int numOfOperators;
@@ -303,7 +302,7 @@ namespace PolynomialExpressionSolver
                     if (tokens[tokenIndex].str.Contains("."))
                         throw new SyntaxException(string.Format("Error: Pow has to be integer. {0} is not.",
                             tokens[tokenIndex].str));
-                    Double.TryParse(tokens[tokenIndex].str.Replace('.', ','), out doublePow);
+                    double.TryParse(tokens[tokenIndex].str.Replace('.', ','), out var doublePow);
                     pow = (int) doublePow;
                     if (pow < 0)
                         throw new SyntaxException(string.Format("Error: Pow has to be >= 0. {0} is not.",

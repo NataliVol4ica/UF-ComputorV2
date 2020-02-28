@@ -232,7 +232,7 @@ namespace BigNumbers
 
         public static BigDecimal Abs(BigDecimal bd)
         {
-            return bd.Abs();
+            return bd.Abs() as BigDecimal;
         }
 
         public override void Negate()
@@ -521,6 +521,10 @@ namespace BigNumbers
         }
 
         #endregion Canonical operators overload
+
+        public bool IsPositive() => Sign > 0;
+        public bool IsNegative() => Sign < 0;
+        public bool IsZero() => this == Zero;
 
         public static BigDecimal Sqrt(BigDecimal number)
         {
