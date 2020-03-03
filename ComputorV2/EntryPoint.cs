@@ -1,11 +1,10 @@
-﻿using ComputorV2.ExternalConnections;
-using System;
+﻿using ComputorV2.ExternalResources;
 
 namespace ComputorV2
 {
-    class EntryPoint
+    internal class EntryPoint
     {
-        static void Main()
+        private static void Main()
         {
             new Computor(new ConsoleProcessor()).StartReading();
         }

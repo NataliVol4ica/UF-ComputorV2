@@ -1,9 +1,4 @@
-﻿using BigNumbers;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ComputorV2
+﻿namespace ComputorV2
 {
     public enum TokenType
     {
@@ -22,28 +17,37 @@ namespace ComputorV2
     {
         public TokenType tokenType;
         public string str;
+
         public RPNToken(string str, TokenType tokenType)
         {
             this.str = str;
             this.tokenType = tokenType;
         }
+
         public override string ToString()
         {
             return str;
         }
 
-        public static RPNToken OpeningBracketToken() => new RPNToken
+        public static RPNToken OpeningBracketToken()
         {
-            tokenType = TokenType.OBracket,
-            str = "("
-        };
-        public static RPNToken ClosingBracketToken() => new RPNToken
-        {
-            tokenType = TokenType.CBracket,
-            str = ")"
-        };
+            return new RPNToken
+            {
+                tokenType = TokenType.OBracket,
+                str = "("
+            };
+        }
 
-       //todo: sign of complex numbers??
+        public static RPNToken ClosingBracketToken()
+        {
+            return new RPNToken
+            {
+                tokenType = TokenType.CBracket,
+                str = ")"
+            };
+        }
+
+        //todo: sign of complex numbers??
 
         //public static RPNToken TokenizeBigNumber(BigNumber bn)
         //{

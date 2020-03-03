@@ -1,11 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ComputorV2
+﻿namespace ComputorV2
 {
-    public enum OpArity { Unary, Binary }
-    public enum OpAssoc { Left, Right }
+    public enum OpArity
+    {
+        Unary,
+        Binary
+    }
+
+    public enum OpAssoc
+    {
+        Left,
+        Right
+    }
 
     public struct OperationInfo
     {
@@ -13,6 +18,7 @@ namespace ComputorV2
         public OpArity arity;
         public int priority;
         public OpAssoc assoc;
+
         public OperationInfo(string op, OpArity arity, int priority, OpAssoc assoc)
         {
             this.op = op;
@@ -20,6 +26,5 @@ namespace ComputorV2
             this.priority = priority;
             this.assoc = assoc;
         }
-
     }
 }

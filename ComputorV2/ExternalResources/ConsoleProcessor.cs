@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ComputorV2.ExternalConnections
+namespace ComputorV2.ExternalResources
 {
     public class ConsoleProcessor : IConsoleProcessor
     {

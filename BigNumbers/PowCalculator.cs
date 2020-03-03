@@ -10,18 +10,19 @@ namespace BigNumbers
                 throw new ArgumentException("Cannot Pow BigDecimal and non-integer number");
             if (pow.CleanString == "0")
                 return new BigDecimal("1");
-            bool isNegative = false;
+            var isNegative = false;
             if (pow.Sign == -1)
             {
                 isNegative = true;
                 pow = -pow;
             }
+
             var result = DoPow(numberToPow, numberToPow, pow);
             if (isNegative)
                 result = new BigDecimal(1) / result;
             return result;
-
         }
+
         private static BigNumber DoPow(BigNumber number, BigNumber initialNumber, BigDecimal pow)
         {
             if (pow.CleanString == "1")
@@ -33,6 +34,7 @@ namespace BigNumbers
                 var evenResult = DoPow(number, initialNumber, pow / new BigDecimal(2));
                 return evenResult * evenResult;
             }
+
             var newPow = (pow - new BigDecimal(1)) / new BigDecimal(2);
             var oddResult = DoPow(number, initialNumber, newPow);
             return oddResult * oddResult * initialNumber;

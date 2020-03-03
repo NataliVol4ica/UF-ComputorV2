@@ -1,4 +1,4 @@
-﻿namespace ComputorV2.ExternalConnections
+﻿namespace ComputorV2.ExternalResources
 {
     public interface IConsoleProcessor
     {
