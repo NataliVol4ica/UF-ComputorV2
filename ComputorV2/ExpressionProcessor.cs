@@ -91,7 +91,7 @@ namespace ComputorV2
                 if (String.IsNullOrEmpty(dirtyToken))
                     continue;
                 var token = dirtyToken.ToLower();
-                if (opInfoMap[token].Count() > 0)
+                if (OpInfoMap[token].Count() > 0)
                 {
                     if (!(prev is null) &&
                         (prev.Value == TokenType.CBracket ||
@@ -108,16 +108,16 @@ namespace ComputorV2
                     tokenType = TokenType.OBracket;
                 else if (token == ")")
                     tokenType = TokenType.CBracket;
-                else if (funcs.Contains(token))
+                else if (Functions.Contains(token))
                     tokenType = TokenType.Function;
                 else if (!(funcParameter is null) && token == funcParameter)
                 {
                     tokenType = TokenType.FunctionParameter;
                     token = "X";
                 }
-                else if (_bigDecimalRegex.IsMatch(token))
+                else if (BigDecimalRegex.IsMatch(token))
                     tokenType = TokenType.DecimalNumber;
-                else if (_bigComplexRegex.IsMatch(token))
+                else if (BigComplexRegex.IsMatch(token))
                     tokenType = TokenType.ComplexNumber;
                 else if (_variableStorage.ContainsVariable(token))
                     tokenType = TokenType.Variable;
@@ -213,7 +213,7 @@ namespace ComputorV2
         private OperationInfo GetOperationInfo(RPNToken token)
         {
             var arity = token.tokenType == TokenType.BinOp ? OpArity.Binary : OpArity.Unary;
-            var curOps = opInfoMap[token.str];
+            var curOps = OpInfoMap[token.str];
             var curOp = curOps.Count() == 1 ? curOps.Single() : curOps.Single(o => o.arity == arity);
             return curOp;
         }
@@ -264,27 +264,27 @@ namespace ComputorV2
             {"BigDecimalRegex", @"\d+(\.\d+)?"}
         };
 
-        private static readonly Regex _bigDecimalRegex;
-        private static readonly Regex _bigComplexRegex;
+        private static readonly Regex BigDecimalRegex;
+        private static readonly Regex BigComplexRegex;
 
-        private static readonly List<string> funcs = new List<string> {"abs"};
-        private static readonly ILookup<string, OperationInfo> opInfoMap;
+        private static readonly List<string> Functions = new List<string> {"abs", "sqrt", "complexsqrt" };
+        private static readonly ILookup<string, OperationInfo> OpInfoMap;
         private readonly IVariableStorage _variableStorage;
 
         static ExpressionProcessor()
         {
-            _bigDecimalRegex = new Regex($"^{_numbersRegexes["BigDecimalRegex"]}$", RegexOptions.Compiled);
-            _bigComplexRegex = new Regex($"^{_numbersRegexes["BigComplexRegex"]}$", RegexOptions.Compiled);
+            BigDecimalRegex = new Regex($"^{_numbersRegexes["BigDecimalRegex"]}$", RegexOptions.Compiled);
+            BigComplexRegex = new Regex($"^{_numbersRegexes["BigComplexRegex"]}$", RegexOptions.Compiled);
 
-            var numericRegexString = String.Join("|", _numbersRegexes.Select(d => d.Value));
-            var funcRegexString = String.Join("|", funcs);
+            var numericRegexString = string.Join("|", _numbersRegexes.Select(d => d.Value));
+            var funcRegexString = string.Join("|", Functions);
             var innerRegex = $"{numericRegexString}|{funcRegexString}";
 
-            expressionRegex = new Regex(String.Format(regexFormat, innerRegex), RegexOptions.Compiled);
+            expressionRegex = new Regex(string.Format(regexFormat, innerRegex), RegexOptions.Compiled);
 
             Debug.WriteLine($"The Expression's regex is: \n{expressionRegex}");
 
-            opInfoMap = new[]
+            OpInfoMap = new[]
             {
                 new OperationInfo("-", OpArity.Binary, 1, OpAssoc.Left),
                 new OperationInfo("-", OpArity.Unary, 3, OpAssoc.Right),
@@ -382,6 +382,14 @@ namespace ComputorV2
                 case "abs":
                     returnValue = BigNumber.Abs(arg);
                     Console.WriteLine($"   Calculating |{arg}| = {returnValue}");
+                    break;
+                case "sqrt":
+                    returnValue = BigNumber.Sqrt(arg);
+                    Console.WriteLine($"   Calculating sqrt({arg}) = {returnValue}");
+                    break;
+                case "complexsqrt":
+                    returnValue = BigNumber.ComplexSqrt(arg);
+                    Console.WriteLine($"   Calculating complexSqrt({arg}) = {returnValue}");
                     break;
                 default:
                     if (!_variableStorage.ContainsFunction(func))

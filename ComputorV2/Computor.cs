@@ -61,7 +61,7 @@ namespace ComputorV2
             {
                 {CommandType.Exit, ExecuteExitCommand},
                 {CommandType.Detailed, ExecuteDetailedCommand},
-                {CommandType.ShowAlowedOperations, ExecuteAllowedCommand},
+                {CommandType.ShowAllowedOperations, ExecuteAllowedCommand},
                 {CommandType.ShowVars, ExecuteVarsCommand},
                 {CommandType.ShowHelp, ExecuteHelpCommand},
                 {CommandType.Reset, ExecuteResetCommand},

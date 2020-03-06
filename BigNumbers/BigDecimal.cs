@@ -566,39 +566,10 @@ namespace BigNumbers
         #endregion Canonical operators overload
 
         public bool IsPositive() => Sign > 0;
+
         public bool IsNegative() => Sign < 0;
+
         public bool IsZero() => this == Zero;
-
-        public static BigDecimal Sqrt(BigDecimal number)
-        {
-            if (number.IsNegative())
-                throw new ArgumentException("Cannot get decimal sqrt of a negative number. Use ComplexSqrt method instead.");
-            if (number == Zero)
-                return new BigDecimal(0);
-            var bigDecimalTwo = new BigDecimal(2);
-            var a = new BigDecimal(1);
-            bool pDec = false;
-            for (;;)
-            {
-                var b = (number / a + a) / bigDecimalTwo;
-                if (a == b || a < b && pDec)
-                    break;
-                pDec = a > b;
-                a = b;
-            }
-            return a;
-        }
-
-        public static BigComplex ComplexSqrt(BigDecimal number)
-        {
-            bool isNegative = number.IsNegative();
-            if (isNegative)
-                number.Negate();
-            BigDecimal decimalResult = Sqrt(number);
-            string appendix = isNegative ? "i" : "";
-            return new BigComplex($"{decimalResult}{appendix}");
-        }
-
         
         public static BigDecimal GenerateBigDecimalWithMinimalPrecision()
         {

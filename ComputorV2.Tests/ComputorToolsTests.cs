@@ -39,7 +39,7 @@ namespace ComputorV2.UnitTests
         [TestCase("vara = ?", CommandType.EvaluateExpression)]
         [TestCase("detailed", CommandType.Detailed)]
         [TestCase("reset", CommandType.Reset)]
-        [TestCase("allowed ", CommandType.ShowAlowedOperations)]
+        [TestCase("allowed ", CommandType.ShowAllowedOperations)]
         [TestCase(" a    +\t\t b = ?    \t", CommandType.EvaluateExpression)]
         [TestCase("3= ?", CommandType.EvaluateExpression)]
         [TestCase("= ?\r", CommandType.EvaluateExpression)]

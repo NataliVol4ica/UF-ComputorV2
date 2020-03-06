@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace BigNumbers
 {
@@ -91,6 +92,42 @@ namespace BigNumbers
         public static BigNumber Abs(BigNumber number)
         {
             return number.Abs();
+        }
+
+        public static BigDecimal Sqrt(BigNumber num)
+        {
+            if (!(num is BigDecimal))
+                throw new ArgumentException("Sqrt can only be calculated for BigDecimal");
+            BigDecimal number = (BigDecimal) num;
+            if (number.IsNegative())
+                throw new ArgumentException("Cannot get decimal sqrt of a negative number. Use ComplexSqrt method instead.");
+            if (number.ToString() == "0")
+                return new BigDecimal(0);
+            var bigDecimalTwo = new BigDecimal(2);
+            var a = new BigDecimal(1);
+            bool pDec = false;
+            for (; ; )
+            {
+                var b = (number / a + a) / bigDecimalTwo;
+                if (a == b || a < b && pDec)
+                    break;
+                pDec = a > b;
+                a = b;
+            }
+            return a;
+        }
+
+        public static BigComplex ComplexSqrt(BigNumber num)
+        {
+            if (!(num is BigDecimal))
+                throw new ArgumentException("ComplexSqrt can only be calculated for BigDecimal");
+            BigDecimal number = (BigDecimal)num;
+            bool isNegative = number.IsNegative();
+            if (isNegative)
+                number.Negate();
+            BigDecimal decimalResult = Sqrt(number);
+            string appendix = isNegative ? "i" : "";
+            return new BigComplex($"{decimalResult}{appendix}");
         }
 
         public override string ToString()

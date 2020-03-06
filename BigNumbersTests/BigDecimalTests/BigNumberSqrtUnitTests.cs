@@ -4,9 +4,9 @@ using NUnit.Framework;
 
 namespace BigNumbersTests.BigDecimalTests
 {
-    public class BigDecimalSqrtUnitTests
+    public class BigNumberSqrtUnitTests
     {
-        public BigDecimalSqrtUnitTests()
+        public BigNumberSqrtUnitTests()
         {
 
         }
@@ -23,7 +23,7 @@ namespace BigNumbersTests.BigDecimalTests
             var num = new BigDecimal(number);
 
             //Act
-            BigDecimal actual = BigDecimal.Sqrt(num);
+            BigDecimal actual = BigNumber.Sqrt(num);
 
             //Assert
             Assert.AreEqual(expected, actual.ToString());
@@ -36,7 +36,7 @@ namespace BigNumbersTests.BigDecimalTests
             var num = new BigDecimal("-1");
 
             //Act & Assert
-            Assert.Throws<ArgumentException> ( () => BigDecimal.Sqrt(num));
+            Assert.Throws<ArgumentException> ( () => BigNumber.Sqrt(num));
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace BigNumbersTests.BigDecimalTests
             var num = new BigDecimal(number);
 
             //Act
-            BigComplex actual = BigDecimal.ComplexSqrt(num);
+            BigComplex actual = BigNumber.ComplexSqrt(num);
 
             //Assert
             Assert.AreEqual(expected, actual.ToString());
