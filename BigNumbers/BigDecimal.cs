@@ -313,7 +313,7 @@ namespace BigNumbers
         public override BigNumber Substract(BigNumber op)
         {
             if (op is BigComplex)
-                return new BigComplex(this) + (BigComplex) op;
+                return new BigComplex(this) - (BigComplex) op;
             if (!(op is BigDecimal))
                 throw new ArgumentException("Cannot Sub BigDecimal and " + op.GetType());
 
@@ -351,7 +351,7 @@ namespace BigNumbers
         public override BigNumber Multiply(BigNumber op)
         {
             if (op is BigComplex)
-                return new BigComplex(this) + (BigComplex) op;
+                return new BigComplex(this) * (BigComplex) op;
             if (!(op is BigDecimal))
                 throw new ArgumentException("Cannot Mul BigDecimal and " + op.GetType());
 
@@ -375,7 +375,7 @@ namespace BigNumbers
         public override BigNumber Divide(BigNumber op)
         {
             if (op is BigComplex)
-                return new BigComplex(this) + (BigComplex) op;
+                return new BigComplex(this) / (BigComplex) op;
             if (!(op is BigDecimal))
                 throw new ArgumentException("Cannot Div BigDecimal and " + op.GetType());
 
@@ -402,7 +402,7 @@ namespace BigNumbers
         public override BigNumber Mod(BigNumber op)
         {
             if (op is BigComplex)
-                return new BigComplex(this) + (BigComplex) op;
+                return new BigComplex(this) % (BigComplex) op;
             if (!(op is BigDecimal))
                 throw new ArgumentException("Cannot Mod BigDecimal and " + op.GetType());
 
@@ -429,40 +429,83 @@ namespace BigNumbers
             return ret;
         }
 
-        public static BigDecimal operator +(BigDecimal left, BigNumber right)
+        #region Ops with BigDecimal
+
+        public static BigDecimal operator +(BigDecimal left, BigDecimal right)
         {
             if (left is null || right is null)
                 return null;
             return (BigDecimal) left.Add(right);
         }
 
-        public static BigDecimal operator -(BigDecimal left, BigNumber right)
+        public static BigDecimal operator -(BigDecimal left, BigDecimal right)
         {
             if (left is null || right is null)
                 return null;
             return (BigDecimal) left.Substract(right);
         }
 
-        public static BigDecimal operator *(BigDecimal left, BigNumber right)
+        public static BigDecimal operator *(BigDecimal left, BigDecimal right)
         {
             if (left is null || right is null)
                 return null;
             return (BigDecimal) left.Multiply(right);
         }
 
-        public static BigDecimal operator /(BigDecimal left, BigNumber right)
+        public static BigDecimal operator /(BigDecimal left, BigDecimal right)
         {
             if (left is null || right is null)
                 return null;
             return (BigDecimal) left.Divide(right);
         }
 
-        public static BigDecimal operator %(BigDecimal left, BigNumber right)
+        public static BigDecimal operator %(BigDecimal left, BigDecimal right)
         {
             if (left is null || right is null)
                 return null;
             return (BigDecimal) left.Mod(right);
         }
+
+        #endregion Ops with BigDecimal
+
+        #region Ops with BigNumber
+
+        public static BigNumber operator +(BigDecimal left, BigNumber right)
+        {
+            if (left is null || right is null)
+                return null;
+            return left.Add(right);
+        }
+
+        public static BigNumber operator -(BigDecimal left, BigNumber right)
+        {
+            if (left is null || right is null)
+                return null;
+            return left.Substract(right);
+        }
+
+        public static BigNumber operator *(BigDecimal left, BigNumber right)
+        {
+            if (left is null || right is null)
+                return null;
+            return left.Multiply(right);
+        }
+
+        public static BigNumber operator /(BigDecimal left, BigNumber right)
+        {
+            if (left is null || right is null)
+                return null;
+            return left.Divide(right);
+        }
+
+        public static BigNumber operator %(BigDecimal left, BigNumber right)
+        {
+            if (left is null || right is null)
+                return null;
+            return left.Mod(right);
+        }
+
+        #endregion Ops with BigNumber
 
         public static bool operator >(BigDecimal left, BigDecimal right)
         {
@@ -528,6 +571,8 @@ namespace BigNumbers
 
         public static BigDecimal Sqrt(BigDecimal number)
         {
+            if (number.IsNegative())
+                throw new ArgumentException("Cannot get decimal sqrt of a negative number. Use ComplexSqrt method instead.");
             if (number == Zero)
                 return new BigDecimal(0);
             var bigDecimalTwo = new BigDecimal(2);
@@ -543,6 +588,17 @@ namespace BigNumbers
             }
             return a;
         }
+
+        public static BigComplex ComplexSqrt(BigDecimal number)
+        {
+            bool isNegative = number.IsNegative();
+            if (isNegative)
+                number.Negate();
+            BigDecimal decimalResult = Sqrt(number);
+            string appendix = isNegative ? "i" : "";
+            return new BigComplex($"{decimalResult}{appendix}");
+        }
+
         
         public static BigDecimal GenerateBigDecimalWithMinimalPrecision()
         {

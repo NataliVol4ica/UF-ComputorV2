@@ -57,7 +57,7 @@
         //    else if (bn is BigComplex)
         //        definedTokenType = TokenType.ComplexNumber;
         //    else throw new NotSupportedException(
-        //        $"TokenizeBigNumber Error: BigNumber of type {bn.GetType()} is not supported");
+        //        $"TokenizeBigNumber BigNumber of type {bn.GetType()} is not supported");
         //    return new RPNToken
         //    {
         //        tokenType = definedTokenType,

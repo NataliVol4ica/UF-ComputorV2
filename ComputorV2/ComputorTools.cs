@@ -38,7 +38,7 @@ namespace ComputorV2
             };
             _commandDescriptions = new Dictionary<string, string>
             {
-                {"exit", "Exit the program"},
+                {"exit", "Exit program"},
                 {"detailed", "For complex expression, in-between operations are shown"},
                 {"vars", "View stored variables and their values"},
                 {"reset", "Cleanup whole variable storage"},

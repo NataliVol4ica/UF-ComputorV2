@@ -55,6 +55,7 @@ namespace BigNumbersTests.BigComplexTests
         [TestCase("-2+i", "1-2i", "5i")]
         [TestCase("-2+i", "-1+2i", "-5i")]
         [TestCase("-2+i", "3", "-6+3i")]
+        [TestCase("2", "-2i", "-4i")]
         public void Mul_WhenCalled_ReturnsMul(string a, string b, string expected)
         {
             var left = new BigComplex(a);

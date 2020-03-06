@@ -4,3 +4,4 @@ a(x) = f(f(3)) * x
 a(2) = ?
 F(x) = 1
 a(2) = ?
+2. Abs(), Sqrt(), ComplexSqrt()

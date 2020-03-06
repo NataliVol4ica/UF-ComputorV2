@@ -51,7 +51,7 @@ namespace ComputorV2
             }
             catch (Exception)
             {
-                throw new ArgumentException("Error: Cannot create function because its expression is invalid");
+                throw new ArgumentException("Cannot create function because its expression is invalid");
             }
 
             return new Expression(tokens, true, funcExpression);
@@ -61,7 +61,7 @@ namespace ComputorV2
         private List<string> Tokenize(string str)
         {
             if (String.IsNullOrWhiteSpace(str))
-                throw new ArgumentException("Error: Cannot tokenize empty string");
+                throw new ArgumentException("Cannot tokenize empty string");
             var stringTokens = new List<string>();
             var lastMatchPos = 0;
             var lastMatchLen = 0;
@@ -75,7 +75,7 @@ namespace ComputorV2
             }
 
             if (lastMatchPos + lastMatchLen < str.Length)
-                throw new ArgumentException("Error: The expression is invalid");
+                throw new ArgumentException("The expression is invalid");
             return stringTokens;
         }
 
@@ -124,7 +124,7 @@ namespace ComputorV2
                 else if (_variableStorage.ContainsFunction(token))
                     tokenType = TokenType.Function;
                 else
-                    throw new ArgumentException($"Error: Invalid token: '{token}'");
+                    throw new ArgumentException($"Invalid token: '{token}'");
 
                 prev = tokenType;
                 if (tokenType == TokenType.Variable)
@@ -190,7 +190,7 @@ namespace ComputorV2
                         CalculateToken(outputStack, bufferStack.Pop(), detailedMode);
                 }
                 else
-                    throw new NotImplementedException($"Error: Unimplemented token '{currentToken.str}'");
+                    throw new NotImplementedException($"Unimplemented token '{currentToken.str}'");
 
                 if (detailedMode)
                     Console.WriteLine($"Step {queueLen - inputQueue.Count}. Current token is {currentToken} \n " +
@@ -203,7 +203,7 @@ namespace ComputorV2
                 CalculateToken(outputStack, bufferStack.Pop(), detailedMode);
             if (outputStack.Count() > 1)
                 throw new ArgumentException(
-                    "Error: Cannot calculate this expression. Remaining RPN buffer contains extra numbers.");
+                    "Cannot calculate this expression. Remaining RPN buffer contains extra numbers.");
             if (outputStack.Count() == 0)
                 return new BigDecimal("0");
             return outputStack.Pop();
@@ -242,7 +242,7 @@ namespace ComputorV2
             else if (op.tokenType == TokenType.UnOp)
                 result.Push(CalculateUnaryOp(result.Pop(), op.str));
             else
-                throw new ArgumentException($"Error: Unexpected token '{op.str}'");
+                throw new ArgumentException($"Unexpected token '{op.str}'");
         }
 
         public List<RPNToken> GetRPNTokensForBigNumber(BigNumber bn)

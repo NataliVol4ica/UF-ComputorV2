@@ -20,6 +20,19 @@ namespace BigNumbersTests.BigComplexTests
         }
 
         [Test]
+        public void Constructor_WhenCalledWithBigDecimal_CreatesInstanceWithRealAndImaginary()
+        {
+            //Arrange
+            var bd = new BigDecimal("47");
+
+            //Act
+            var complex = new BigComplex(bd);
+
+            //Assert
+            Assert.AreEqual("47", complex.ToString());
+        }
+
+        [Test]
         [TestCase("0", "0", "0", "0")]
         [TestCase("2", "2", "0", "2")]
         [TestCase("i", "0", "1", "i")]

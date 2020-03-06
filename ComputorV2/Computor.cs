@@ -47,7 +47,7 @@ namespace ComputorV2
                 }
                 catch (Exception e)
                 {
-                    _consoleProcessor.WriteLine($"Error. {e.Message}");
+                    _consoleProcessor.WriteLine($"Error:  {e.Message}");
                 }
             } while (!_isExitCommandEntered);
 
@@ -115,7 +115,7 @@ namespace ComputorV2
         private void ExecuteAssignVarCommand(string command)
         {
             if (String.IsNullOrWhiteSpace(command))
-                throw new ArgumentNullException("Command string cannot be null");
+                throw new ArgumentNullException(nameof(command));
             var parts = command.Split('=');
             var cmdVarName = parts[0].Trim().ToLower();
             var cmdExpression = parts[1].Trim().ToLower();
@@ -131,7 +131,7 @@ namespace ComputorV2
             }
             catch (Exception e)
             {
-                _consoleProcessor.WriteLine($"Error. {e.Message}");
+                _consoleProcessor.WriteLine($"Error: {e.Message}");
             }
         }
 
@@ -156,7 +156,7 @@ namespace ComputorV2
             }
             catch (Exception e)
             {
-                _consoleProcessor.WriteLine($"{e.Message}");
+                _consoleProcessor.WriteLine($"Error: {e.Message}");
             }
         }
 
@@ -195,9 +195,13 @@ namespace ComputorV2
                 var executedExpression = _expressionProcessor.CreateExpression(cmdExpression);
                 _consoleProcessor.WriteLine($"{executedExpression}");
             }
+            catch (InvalidOperationException)
+            {
+                _consoleProcessor.WriteLine($"Error: Invalid expression");
+            }
             catch (Exception e)
             {
-                _consoleProcessor.WriteLine($"Error. {e.Message}");
+                _consoleProcessor.WriteLine($"Error:  {e.Message}");
             }
         }
 

@@ -6,8 +6,8 @@ namespace BigNumbers
 {
     public class BigComplex : BigNumber
     {
-        private static readonly Regex validStringRegEx = new Regex(
-            @"^(\s*([+-]?\d+(\.\d+)?\s*[+-]\s*)?[+-]?(\d+(\.\d+)?)?\s*[iI]\s*)|(\s*[+-]?\d+(\.\d+)?\s*)$",
+        private static readonly Regex ValidStringRegEx = new Regex(
+            @"\A((\s*([+-]?\d+(\.\d+)?\s*[+-]\s*)?[+-]?(\d+(\.\d+)?)?\s*[iI]\s*)|(\s*[+-]?\d+(\.\d+)?\s*))\z",
             RegexOptions.Compiled);
 
         public BigDecimal Imaginary { get; private set; }
@@ -32,7 +32,7 @@ namespace BigNumbers
         {
             var lowString = str?.ToLower();
             if (string.IsNullOrEmpty(lowString) ||
-                string.IsNullOrEmpty(validStringRegEx.Match(lowString).Value))
+                string.IsNullOrEmpty(ValidStringRegEx.Match(lowString).Value))
                 throw new ArgumentException("Cannot create BigComplex of \"" + str + "\"");
             CleanAndSaveNumericString(lowString.ToLower());
         }
@@ -41,7 +41,7 @@ namespace BigNumbers
         {
         }
 
-        public BigComplex(BigDecimal bc) : this(bc.ToString())
+        public BigComplex(BigDecimal bd) : this(bd.ToString())
         {
         }
 
@@ -74,8 +74,16 @@ namespace BigNumbers
             }
             else
             {
-                Real = new BigDecimal(parts[0]);
-                Imaginary = new BigDecimal(CreateImaginaryMultiplierString(parts[1]));
+                if (!parts[0].Contains("i"))
+                {
+                    Real = new BigDecimal(parts[0]);
+                    Imaginary = new BigDecimal(CreateImaginaryMultiplierString(parts[1]));
+                }
+                else
+                {
+                    Real = new BigDecimal(parts[1]);
+                    Imaginary = new BigDecimal(CreateImaginaryMultiplierString(parts[0]));
+                }
             }
 
             CleanString = ToString();
@@ -174,7 +182,6 @@ namespace BigNumbers
             throw new NotImplementedException();
         }
 
-
         #region Tools
 
         private BigNumber TryToCreateBigDecimal()
@@ -265,6 +272,8 @@ namespace BigNumbers
             return ret;
         }
 
+        #region BigComplex ops
+
         public static BigComplex operator +(BigComplex left, BigComplex right)
         {
             if (left is null || right is null)
@@ -299,6 +308,47 @@ namespace BigNumbers
                 return null;
             return (BigComplex) left.Mod(right);
         }
+
+        #endregion
+
+        #region BigNumber ops
+
+        public static BigNumber operator +(BigComplex left, BigNumber right)
+        {
+            if (left is null || right is null)
+                return null;
+            return left.Add(right);
+        }
+
+        public static BigNumber operator -(BigComplex left, BigNumber right)
+        {
+            if (left is null || right is null)
+                return null;
+            return left.Substract(right);
+        }
+
+        public static BigNumber operator *(BigComplex left, BigNumber right)
+        {
+            if (left is null || right is null)
+                return null;
+            return left.Multiply(right);
+        }
+
+        public static BigNumber operator /(BigComplex left, BigNumber right)
+        {
+            if (left is null || right is null)
+                return null;
+            return left.Divide(right);
+        }
+
+        public static BigNumber operator %(BigComplex left, BigNumber right)
+        {
+            if (left is null || right is null)
+                return null;
+            return left.Mod(right);
+        }
+
+        #endregion BigNumber ops
 
         #endregion
     }

@@ -156,7 +156,7 @@ namespace PolynomialExpressionSolver
             {
                 if (lastMatchPos + lastMatchLen < match.Index)
                 {
-                    errorMessage += string.Format("Error: Unknown lexem \"{0}\" at position {1}.\n",
+                    errorMessage += string.Format("Unknown lexem \"{0}\" at position {1}.\n",
                         expression.Substring(lastMatchLen + lastMatchPos, match.Index - lastMatchLen - lastMatchPos),
                         lastMatchLen + lastMatchPos + 1);
                 }
@@ -168,7 +168,7 @@ namespace PolynomialExpressionSolver
             }
 
             if (lastMatchPos + lastMatchLen < expression.Length)
-                errorMessage += string.Format("Error: Unknown lexem \"{0}\" at position {1}.\n",
+                errorMessage += string.Format("Unknown lexem \"{0}\" at position {1}.\n",
                     expression.Substring(lastMatchLen + lastMatchPos, expression.Length - lastMatchLen - lastMatchPos),
                     lastMatchLen + lastMatchPos + 1);
             if (errorMessage.Length > 0)
@@ -226,14 +226,14 @@ namespace PolynomialExpressionSolver
                 if (tokens[tokenIndex].tokenType == TokenType.Equation)
                 {
                     if (tokenIndex == 0)
-                        throw new SyntaxException("Error: Expression is missing its left part");
+                        throw new SyntaxException("Expression is missing its left part");
                     if (metEquation)
-                        throw new SyntaxException("Error: Expression cannot have more than one equation");
+                        throw new SyntaxException("Expression cannot have more than one equation");
                     metEquation = true;
                     isStart = true;
                     tokenIndex++;
                     if (tokenIndex == tokens.Count)
-                        throw new SyntaxException("Error: Expression is missing it's right part");
+                        throw new SyntaxException("Expression is missing it's right part");
                 }
 
                 sign = metEquation ? -1 : 1;
@@ -241,7 +241,7 @@ namespace PolynomialExpressionSolver
                 while (tokenIndex < tokens.Count && tokens[tokenIndex].tokenType == TokenType.Operator)
                 {
                     if (tokens[tokenIndex].str == "*")
-                        throw new Exception("Error: invalid token \"*\"");
+                        throw new Exception("invalid token \"*\"");
                     if (tokens[tokenIndex].str == "-")
                         sign = -sign;
                     tokenIndex++;
@@ -249,9 +249,9 @@ namespace PolynomialExpressionSolver
                 }
 
                 if (tokenIndex == tokens.Count)
-                    throw new SyntaxException("Error: Expression cannot be ended by operator");
+                    throw new SyntaxException("Expression cannot be ended by operator");
                 if (!isStart && numOfOperators == 0)
-                    throw new SyntaxException("Error: Expression is missing operator");
+                    throw new SyntaxException("Expression is missing operator");
                 isStart = false;
                 if (tokens[tokenIndex].tokenType == TokenType.Number)
                 {
@@ -300,12 +300,12 @@ namespace PolynomialExpressionSolver
                     if (++tokenIndex == tokens.Count)
                         break;
                     if (tokens[tokenIndex].str.Contains("."))
-                        throw new SyntaxException(string.Format("Error: Pow has to be integer. {0} is not.",
+                        throw new SyntaxException(string.Format("Pow has to be integer. {0} is not.",
                             tokens[tokenIndex].str));
                     double.TryParse(tokens[tokenIndex].str.Replace('.', ','), out var doublePow);
                     pow = (int) doublePow;
                     if (pow < 0)
-                        throw new SyntaxException(string.Format("Error: Pow has to be >= 0. {0} is not.",
+                        throw new SyntaxException(string.Format("Pow has to be >= 0. {0} is not.",
                             tokens[tokenIndex].str));
 
                     if (multiplier.Sign != sign)
@@ -314,11 +314,11 @@ namespace PolynomialExpressionSolver
                     tokenIndex++;
                 }
                 else
-                    throw new SyntaxException("Error: Expression is missing X^N");
+                    throw new SyntaxException("Expression is missing X^N");
             }
 
             if (!metEquation)
-                throw new SyntaxException("Error: Expression is missing '='");
+                throw new SyntaxException("Expression is missing '='");
         }
     }
 }

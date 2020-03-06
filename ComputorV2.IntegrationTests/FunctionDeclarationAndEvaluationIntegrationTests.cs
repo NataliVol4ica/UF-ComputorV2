@@ -125,6 +125,24 @@ namespace ComputorV2.IntegrationTests
             AssertWriteLine("> 9");
         }
 
+        [Test]
+        public void StartReading_WhenFunctionContainsComplexItem_ShouldPrintsSolution()
+        {
+            //Arrange
+            _consoleProcessor
+                .SetupSequence(cp => cp.ReadLine())
+                .Returns("x = 7 + 2")
+                .Returns("x= ?")
+                .Returns("Exit");
+
+            //Act
+            var testedComputor = new Computor(_consoleProcessor.Object);
+            testedComputor.StartReading();
+
+            //Assert
+            AssertWriteLine("> 9");
+        }
+
         private void AssertWriteLine(string expected)
         {
             _consoleProcessor.Verify(cp => cp.WriteLine(
